@@ -35,15 +35,14 @@
           <button type="button" class="eye">
             <img src="/public/eye.png" alt="Mostrar contraseña">
           </button>
-
         </div>
 
-        <a href="#" class="forgot">Olvidé mi contraseña</a>
+        <a href="#" class="forgot"><b>¿Olvidaste tu contraseña?</b></a>
 
-        <div class="actions">
-          <button type="submit" class="btn-login">Iniciar sesión</button>
-          <button type="button" class="btn-register">Registrarse</button>
-        </div>
+      <nav class="tabs">
+        <button type="button" class="tab active" id="tabLogin">Iniciar sesión</button>
+        <button type="button" class="tab" id="tabRegister">Registrarse</button>
+      </nav>
 
       </form>
 
@@ -65,11 +64,33 @@
 </main>
 
 <script>
+// Mostrar / ocultar contraseña
 const eye = document.querySelector('.eye');
 const pass = document.getElementById('password');
 
 eye.addEventListener('click', () => {
   pass.type = pass.type === 'password' ? 'text' : 'password';
+});
+
+// Tabs
+const tabs = document.querySelectorAll('.tab');
+const tabRegister = document.getElementById('tabRegister');
+const btnRegister = document.querySelector('.btn-register');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  });
+});
+
+// Redirección
+tabRegister.addEventListener('click', () => {
+  window.location.href = "/registrar.html";
+});
+
+btnRegister.addEventListener('click', () => {
+  window.location.href = "/registrar.html";
 });
 </script>
 
