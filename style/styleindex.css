@@ -1,0 +1,79 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #1e1e2f, #2c2c54);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Tarjeta tipo glass */
+.card {
+  width: 420px;
+  padding: 40px;
+  border-radius: 25px;
+  background: rgb(255, 255, 255);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+  text-align: center;
+  animation: fadeIn 1s ease;
+}
+
+/* Logo */
+figure img {
+  width: 180px;
+  margin-bottom: 20px;
+  transition: transform 0.4s;
+}
+
+figure img:hover {
+  transform: scale(1.05);
+}
+
+/* Texto */
+h1 {
+  color: rgb(0, 0, 0);
+  margin-bottom: 5px;
+}
+
+p {
+  color: #000000;
+  margin-bottom: 30px;
+}
+
+/* Botón moderno */
+button {
+  background: linear-gradient(45deg, #6a00ff, #9d4dff);
+  border: none;
+  padding: 15px 60px;
+  border-radius: 30px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(106, 0, 255, 0.5);
+}
+
+/* Hover pro */
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(106, 0, 255, 0.8);
+}
+
+/* Click */
+button:active {
+  transform: scale(0.95);
+}
+
+/* Animación */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

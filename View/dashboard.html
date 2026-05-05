@@ -1,0 +1,19 @@
+<h1>Dashboard</h1>
+
+<div id="ventas"></div>
+<div id="cartera"></div>
+
+<script>
+async function cargarDashboard() {
+  const res = await fetch('/dashboard');
+  const data = await res.json();
+
+  document.getElementById('ventas').innerText =
+    'Ventas del mes: ' + data.ventas.total_ventas;
+
+  document.getElementById('cartera').innerText =
+    'Cartera vencida: $' + data.cartera.total_vencido;
+}
+
+cargarDashboard();
+</script>
