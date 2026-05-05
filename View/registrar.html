@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro - Arevalo & CIA</title>
+  <link rel="stylesheet" href="/style/styleregister.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+<main class="container">
+
+  <!-- HEADER -->
+  <header class="top">
+    <img src="/public/LogoApp.png" alt="Logo">
+    <h1>Regístrate</h1>
+  </header>
+
+  <!-- FORM -->
+  <section class="form-box">
+
+    <h2>Datos personales</h2>
+
+    <form>
+
+      <!-- NOMBRE -->
+      <div class="row">
+        <input type="text" placeholder="Nombre" required>
+        <input type="text" placeholder="Apellidos">
+      </div>
+
+      <!-- CORREO / TEL -->
+      <div class="row">
+        <input type="email" placeholder="Correo electrónico" required>
+        <input type="text" placeholder="Teléfono">
+      </div>
+
+      <!-- ROL -->
+      <label>Tipo de usuario</label>
+    
+      <select required>
+        <option value="">Selecciona un rol</option>
+        <option value="asesor">Asesor</option>
+        <option value="administrativo">Administrativo</option>
+        <option value="direccion">Dirección</option>
+      </select>
+
+      <!-- PASSWORD -->
+      <div class="password-box">
+        <input type="password" id="password" placeholder="Contraseña" required>
+        <button type="button" class="eye">
+          <img src="/public/eye.png">
+        </button>
+      </div>
+
+      <!-- BOTONES -->
+      <div class="actions">
+        <a href="/login.html" class="back">← Atrás</a>
+        <button type="submit" class="btn">Registrar</button>
+      </div>
+
+    </form>
+
+  </section>
+
+</main>
+
+<script>
+const eye = document.querySelector('.eye');
+const pass = document.getElementById('password');
+
+eye.addEventListener('click', () => {
+  pass.type = pass.type === 'password' ? 'text' : 'password';
+});
+</script>
+
+</body>
+</html>

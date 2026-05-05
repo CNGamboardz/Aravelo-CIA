@@ -1,0 +1,151 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #f3f4f8, #e6e9f2);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* CONTENEDOR */
+.container {
+  width: 100%;
+  max-width: 700px;
+  padding: 20px;
+}
+
+/* HEADER */
+.top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.top img {
+  width: 55px;
+}
+
+.top h1 {
+  font-size: 26px;
+  color: #333;
+}
+
+/* TARJETA */
+.form-box {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* TÍTULO */
+.form-box h2 {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  font-size: 18px;
+  color: #444;
+}
+
+/* FILAS */
+.row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.row input {
+  flex: 1;
+}
+
+/* INPUT */
+input, select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  outline: none;
+  background: #f7f8fc;
+  transition: 0.25s;
+}
+
+/* PLACEHOLDER */
+input::placeholder {
+  color: #999;
+}
+
+/* FOCUS */
+input:focus, select:focus {
+  border-color: #8b5cf6;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.15);
+}
+
+/* PASSWORD */
+.password-box {
+  position: relative;
+  margin-top: 10px;
+}
+
+.eye {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.eye img {
+  width: 20px;
+  opacity: 0.6;
+}
+
+.eye:hover img {
+  opacity: 1;
+}
+
+/* BOTONES */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 25px;
+}
+
+.back {
+  text-decoration: none;
+  color: #8b5cf6;
+  font-weight: 500;
+}
+
+/* BOTÓN */
+.btn {
+  background: linear-gradient(45deg, #570fff, #f97316);
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .row {
+    flex-direction: column;
+  }
+}
