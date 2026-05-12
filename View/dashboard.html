@@ -5,6 +5,15 @@
   <title>Dashboard - Arevalo & CIA</title>
   <link rel="stylesheet" href="/style/styledashboard.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @keyframes fadeInSlide {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .tr-audit:hover {
+      background: #f1f5f9 !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -70,36 +79,128 @@
       </div>
     </header>
 
-    <!-- METRICAS -->
-    <section class="metrics-grid">
+    <!-- METRICAS (4 TARJETAS PREMIUM CONTABLES) -->
+    <section class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
       
-      <div class="metric-card card-sales">
+      <!-- DINERO GENERADO -->
+      <div class="metric-card card-sales" onclick="abrirPestañaDetalle('vendidos')" style="cursor: pointer; border-left: 5px solid #3b07ff; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
         <div class="metric-header">
-          <span>Ventas del Mes</span>
-          <span>📈</span>
+          <span style="color: #3b07ff; font-weight: 700; font-size: 13px;">💰 DINERO GENERADO</span>
+          <span style="background: #ede9fe; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #570fff; font-weight: 800;">Ventas</span>
         </div>
-        <div class="metric-value" id="valVentas">...</div>
+        <div class="metric-value" id="valIngresosGenerados" style="font-size: 28px; color: #0f172a;">$0.00</div>
+        <div style="font-size: 11px; color: #64748b; margin-top: 8px;">Clic para ver quién compró y qué lote →</div>
       </div>
 
-      <div class="metric-card card-debt">
+      <!-- LOTES VENDIDOS -->
+      <div class="metric-card card-debt" onclick="abrirPestañaDetalle('vendidos')" style="cursor: pointer; border-left: 5px solid #dc2626; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
         <div class="metric-header">
-          <span>Cartera Vencida</span>
-          <span>⚠️</span>
+          <span style="color: #dc2626; font-weight: 700; font-size: 13px;">🔴 LOTES VENDIDOS</span>
+          <span style="background: #fee2e2; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #dc2626; font-weight: 800;">Cerrados</span>
         </div>
-        <div class="metric-value" id="valCartera">...</div>
+        <div class="metric-value" id="valLotesVendidos" style="font-size: 28px; color: #0f172a;">0</div>
+        <div style="font-size: 11px; color: #64748b; margin-top: 8px;">Clic para auditar expedientes →</div>
       </div>
 
-      <div class="metric-card card-lotes">
+      <!-- LOTES DISPONIBLES -->
+      <div class="metric-card card-lotes" onclick="abrirPestañaDetalle('disponibles')" style="cursor: pointer; border-left: 5px solid #10b981; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
         <div class="metric-header">
-          <span>Lotes Disponibles</span>
-          <span>🟢</span>
+          <span style="color: #10b981; font-weight: 700; font-size: 13px;">🟢 DISPONIBLES</span>
+          <span style="background: #d1fae5; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #059669; font-weight: 800;">Catálogo</span>
         </div>
-        <div class="metric-value" id="valLotes">...</div>
+        <div class="metric-value" id="valLotesDisponibles" style="font-size: 28px; color: #0f172a;">0</div>
+        <div style="font-size: 11px; color: #64748b; margin-top: 8px;">Clic para listar inventario libre →</div>
+      </div>
+
+      <!-- LOTES APARTADOS -->
+      <div class="metric-card" onclick="abrirPestañaDetalle('apartados')" style="cursor: pointer; border-left: 5px solid #f59e0b; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.04); padding: 24px; border-radius: 16px; position: relative; overflow: hidden; border-top: 1px solid #f3f4f6; border-right: 1px solid #f3f4f6; border-bottom: 1px solid #f3f4f6; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+        <div class="metric-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+          <span style="color: #f59e0b; font-weight: 700; font-size: 13px;">🟡 APARTADOS</span>
+          <span style="background: #fef3c7; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #d97706; font-weight: 800;">Reservas</span>
+        </div>
+        <div class="metric-value" id="valLotesApartados" style="font-size: 28px; font-weight: 800; color: #0f172a;">0</div>
+        <div style="font-size: 11px; color: #64748b; margin-top: 8px;">Clic para ver depósitos / enganches →</div>
       </div>
 
     </section>
 
-    <!-- BANNER CENTRAL -->
+    <!-- ESTADÍSTICA GRÁFICA CONTABLE PREMIUM -->
+    <section style="background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; margin-bottom: 40px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h3 style="font-size: 18px; color: #0f172a; font-weight: 800;">📊 Estadística de Desempeño del Inventario</h3>
+          <p style="color: #64748b; font-size: 13px;">Distribución porcentual de predios y captación financiera global</p>
+        </div>
+        <div style="font-size: 12px; font-weight: 700; color: #3b07ff; background: #f1f5f9; padding: 6px 12px; border-radius: 8px;">
+          Catálogo Sincronizado en Tiempo Real
+        </div>
+      </div>
+
+      <!-- BARRAS PROPORCIONALES -->
+      <div style="display: flex; flex-direction: column; gap: 15px;">
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #334155;">
+            <span>Lotes Vendidos / Dinero Captado</span>
+            <span id="lblPorcentajeVendidos" style="color: #dc2626;">0%</span>
+          </div>
+          <div style="width: 100%; height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden;">
+            <div id="barraVendidos" style="height: 100%; width: 0%; background: linear-gradient(90deg, #dc2626, #f97316); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px;"></div>
+          </div>
+        </div>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #334155;">
+            <span>Lotes Disponibles (Inventario Líquido)</span>
+            <span id="lblPorcentajeDisponibles" style="color: #10b981;">0%</span>
+          </div>
+          <div style="width: 100%; height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden;">
+            <div id="barraDisponibles" style="height: 100%; width: 0%; background: linear-gradient(90deg, #10b981, #059669); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px;"></div>
+          </div>
+        </div>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #334155;">
+            <span>Lotes Apartados / En Trámite</span>
+            <span id="lblPorcentajeApartados" style="color: #f59e0b;">0%</span>
+          </div>
+          <div style="width: 100%; height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden;">
+            <div id="barraApartados" style="height: 100%; width: 0%; background: linear-gradient(90deg, #f59e0b, #fbbf24); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PESTAÑA / VISTA DE DETALLE CONTABLE FLOTANTE -->
+    <section id="pestañaDetalleContable" style="display: none; background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.08); border: 2px solid #3b07ff; margin-bottom: 40px; animation: fadeInSlide 0.4s ease;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <span id="badgeDetalleTipo" style="background: #dc2626; color: white; font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;">VENDIDOS</span>
+          <h2 id="tituloDetalleContable" style="font-size: 22px; color: #0f172a; font-weight: 800; margin-top: 5px;">Auditoría de Lotes Vendidos</h2>
+          <p id="subtituloDetalleContable" style="color: #64748b; font-size: 13px;">Cruce relacional de compradores, precios liquidados e identificadores de lote</p>
+        </div>
+        <button onclick="cerrarPestañaDetalle()" style="background: #f1f5f9; border: none; color: #64748b; font-weight: 800; font-size: 14px; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; transition: 0.2s;">✖</button>
+      </div>
+
+      <!-- TABLA DE DESGLOSE PREMIUM -->
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+          <thead>
+            <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #475569;">
+              <th style="padding: 12px 16px; font-weight: 700;"># ID</th>
+              <th style="padding: 12px 16px; font-weight: 700;">Desarrollo / Fraccionamiento</th>
+              <th style="padding: 12px 16px; font-weight: 700;">Lote Comprado</th>
+              <th style="padding: 12px 16px; font-weight: 700;" id="colHeaderCliente">Quién Compró (Cliente)</th>
+              <th style="padding: 12px 16px; font-weight: 700; text-align: right;">Precio Generado</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyDetalleContable">
+            <!-- RENDER DINÁMICO -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BANNER CENTRAL CENTRALIZADO -->
     <section class="dashboard-banner">
       <div class="banner-content">
         <h2>Gestión Comercial Activa</h2>
@@ -155,22 +256,205 @@
     // Poner fecha de hoy por defecto en el input date
     document.getElementById('a_fecha').value = hoy.toISOString().split('T')[0];
 
-    // Cargar métricas
+    // Cargar métricas avanzadas y listas globales
+    let inventarioLotesGlobal = [];
+    let listaClientesGlobal = [];
+
     async function cargarDashboard() {
       try {
-        const resDash = await fetch('/dashboard');
-        const dataDash = await resDash.json();
-        document.getElementById('valVentas').innerText = dataDash.ventas ? dataDash.ventas.total_ventas : '0';
-        
-        const carteraMonto = dataDash.cartera && dataDash.cartera.total_vencido ? parseFloat(dataDash.cartera.total_vencido) : 0;
-        document.getElementById('valCartera').innerText = '$' + carteraMonto.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+        // Cargar terrenos y clientes simultáneamente
+        const [resLotes, resClientes] = await Promise.all([
+          fetch('/terrenos'),
+          fetch('/clientes')
+        ]);
 
-        const resLotes = await fetch('/terrenos');
-        const dataLotes = await resLotes.json();
-        document.getElementById('valLotes').innerText = Array.isArray(dataLotes) ? dataLotes.length : '0';
+        if (resLotes.ok) inventarioLotesGlobal = await resLotes.json();
+        if (resClientes.ok) listaClientesGlobal = await resClientes.json();
+
+        if (!Array.isArray(inventarioLotesGlobal)) inventarioLotesGlobal = [];
+        if (!Array.isArray(listaClientesGlobal)) listaClientesGlobal = [];
+
+        // Clasificar lotes por estatus
+        const disponibles = inventarioLotesGlobal.filter(t => {
+          const e = (t.estado || 'disponible').toLowerCase();
+          return e.includes('libre') || e.includes('disponible');
+        });
+
+        const apartados = inventarioLotesGlobal.filter(t => {
+          const e = (t.estado || '').toLowerCase();
+          return e.includes('apartado') || e.includes('reservado');
+        });
+
+        const vendidos = inventarioLotesGlobal.filter(t => {
+          const e = (t.estado || '').toLowerCase();
+          return e.includes('vendido') || e.includes('ocupado') || e.includes('cerrado');
+        });
+
+        // Calcular dinero generado por la empresa
+        const dineroGenerado = vendidos.reduce((sum, t) => {
+          const p = parseFloat(t.precio_venta) || parseFloat(t.precio_lista) || 0;
+          return sum + p;
+        }, 0);
+
+        // Actualizar tarjetas
+        document.getElementById('valIngresosGenerados').innerText = '$' + dineroGenerado.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+        document.getElementById('valLotesVendidos').innerText = vendidos.length;
+        document.getElementById('valLotesDisponibles').innerText = disponibles.length;
+        document.getElementById('valLotesApartados').innerText = apartados.length;
+
+        // Renderizar estadística gráfica
+        const totalLotes = inventarioLotesGlobal.length || 1; // evitar división por cero
+        const pctVendidos = Math.round((vendidos.length / totalLotes) * 100);
+        const pctDisponibles = Math.round((disponibles.length / totalLotes) * 100);
+        const pctApartados = Math.round((apartados.length / totalLotes) * 100);
+
+        document.getElementById('lblPorcentajeVendidos').innerText = `${pctVendidos}% (${vendidos.length})`;
+        document.getElementById('barraVendidos').style.width = `${pctVendidos}%`;
+
+        document.getElementById('lblPorcentajeDisponibles').innerText = `${pctDisponibles}% (${disponibles.length})`;
+        document.getElementById('barraDisponibles').style.width = `${pctDisponibles}%`;
+
+        document.getElementById('lblPorcentajeApartados').innerText = `${pctApartados}% (${apartados.length})`;
+        document.getElementById('barraApartados').style.width = `${pctApartados}%`;
 
       } catch (error) {
-        console.error('Error al cargar métricas:', error);
+        console.error('Error al sincronizar analíticas del dashboard:', error);
+      }
+    }
+
+    // Funciones para abrir/cerrar pestaña de detalle
+    function abrirPestañaDetalle(tipo) {
+      const sec = document.getElementById('pestañaDetalleContable');
+      const badge = document.getElementById('badgeDetalleTipo');
+      const titulo = document.getElementById('tituloDetalleContable');
+      const subtitulo = document.getElementById('subtituloDetalleContable');
+      const tbody = document.getElementById('tbodyDetalleContable');
+      const colHeaderCliente = document.getElementById('colHeaderCliente');
+
+      sec.style.display = 'block';
+      tbody.innerHTML = '';
+
+      let listaFiltrada = [];
+
+      if (tipo === 'vendidos') {
+        badge.innerText = 'VENDIDOS';
+        badge.style.background = '#dc2626'; sec.style.borderColor = '#dc2626';
+        titulo.innerText = 'Desglose de Lotes Vendidos / Dinero Generado';
+        subtitulo.innerText = 'Cruce de clientes compradores, identificadores de predio y monto de captación.';
+        colHeaderCliente.innerText = 'Quién Compró (Cliente)';
+        
+        listaFiltrada = inventarioLotesGlobal.filter(t => {
+          const e = (t.estado || '').toLowerCase();
+          return e.includes('vendido') || e.includes('ocupado') || e.includes('cerrado');
+        });
+
+      } else if (tipo === 'disponibles') {
+        badge.innerText = 'DISPONIBLES';
+        badge.style.background = '#10b981'; sec.style.borderColor = '#10b981';
+        titulo.innerText = 'Inventario Líquido / Catálogo Libre';
+        subtitulo.innerText = 'Lotes listos para asignación, venta directa o financiamiento.';
+        colHeaderCliente.innerText = 'Ubicación / Referencia';
+
+        listaFiltrada = inventarioLotesGlobal.filter(t => {
+          const e = (t.estado || 'disponible').toLowerCase();
+          return e.includes('libre') || e.includes('disponible');
+        });
+
+      } else if (tipo === 'apartados') {
+        badge.innerText = 'APARTADOS';
+        badge.style.background = '#f59e0b'; sec.style.borderColor = '#f59e0b';
+        titulo.innerText = 'Lotes Reservados / En Trámite';
+        subtitulo.innerText = 'Expedientes con enganche o apartado temporal bloqueados en catálogo.';
+        colHeaderCliente.innerText = 'Propietario / Referencia';
+
+        listaFiltrada = inventarioLotesGlobal.filter(t => {
+          const e = (t.estado || '').toLowerCase();
+          return e.includes('apartado') || e.includes('reservado');
+        });
+      }
+
+      if (listaFiltrada.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; padding: 20px; color: #64748b;">
+              No hay expedientes registrados en esta categoría actualmente.
+            </td>
+          </tr>
+        `;
+      } else {
+        listaFiltrada.forEach(t => {
+          // Obtener nombre del cliente si es vendido
+          let infoCliente = 'Sin Asignar';
+          if (tipo === 'vendidos') {
+            const clientId = parseInt(t.id_cliente) || parseInt(t.id_propietario);
+            if (!isNaN(clientId)) {
+              const cFound = listaClientesGlobal.find(c => c.id_cliente === clientId || c.id === clientId);
+              if (cFound) {
+                infoCliente = `
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <span>👤 <b>${cFound.nombre || cFound.nombre_completo}</b></span>
+                    <button onclick="verInfoClienteDirecto(${clientId})" style="background: #ede9fe; color: #570fff; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.2s;">ℹ️ Ver Info</button>
+                  </div>
+                `;
+              } else {
+                infoCliente = `
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <span>👤 Comprador ID #${clientId}</span>
+                    <button onclick="verInfoClienteDirecto(${clientId})" style="background: #ede9fe; color: #570fff; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer;">ℹ️ Ver Info</button>
+                  </div>
+                `;
+              }
+            } else {
+              infoCliente = `
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                  <span>🤝 Cliente Mostrador / Contado</span>
+                  <span style="font-size: 10px; color: #94a3b8;">Sin Expediente CRM</span>
+                </div>
+              `;
+            }
+          } else {
+            infoCliente = t.ubicacion || t.direccion || 'Sin referencia de ubicación';
+          }
+
+          const fracc = t.fraccionamiento || 'Desarrollo General';
+          const numLote = t.numero_lote || '';
+          const manz = t.manzana || '';
+          const loteStr = manz || numLote ? `Mz ${manz} - Lote ${numLote}` : 'Lote Único';
+          const p = parseFloat(t.precio_venta) || parseFloat(t.precio_lista) || 0;
+
+          tbody.innerHTML += `
+            <tr class="tr-audit" style="border-bottom: 1px solid #f1f5f9; transition: 0.2s;">
+              <td style="padding: 12px 16px; font-weight: 700; color: #3b07ff;">#${t.id_terreno || t.id || 'N/A'}</td>
+              <td style="padding: 12px 16px; font-weight: 600; color: #0f172a;">${fracc}</td>
+              <td style="padding: 12px 16px;">
+                <span style="background: #f1f5f9; padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 11px; color: #334155;">
+                  ${loteStr}
+                </span>
+              </td>
+              <td style="padding: 12px 16px; color: #334155;">${infoCliente}</td>
+              <td style="padding: 12px 16px; text-align: right; font-weight: 800; color: #0f172a;">
+                $${p.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      // Scroll suave a la pestaña de detalle
+      sec.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cerrarPestañaDetalle() {
+      document.getElementById('pestañaDetalleContable').style.display = 'none';
+    }
+
+    // Mostrar modal nativo con los datos del cliente consultado
+    function verInfoClienteDirecto(id) {
+      const c = listaClientesGlobal.find(item => item.id_cliente === id || item.id === id);
+      if (c) {
+        alert(`🏢 EXPEDIENTE CRM DEL CLIENTE:\n\n👤 Nombre: ${c.nombre || c.nombre_completo || 'Sin Nombre'}\n📞 Teléfono: ${c.telefono || 'No registrado'}\n✉️ Correo: ${c.email || c.correo || 'No registrado'}\n📅 Fecha Registro: ${c.fecha_registro || 'N/A'}`);
+      } else {
+        alert(`⚠️ El cliente con ID #${id} no se encuentra en la caché activa del CRM o fue capturado de forma manual en el contrato.`);
       }
     }
 

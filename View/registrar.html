@@ -133,14 +133,14 @@
 
       <!-- NOMBRE -->
       <div class="row">
-        <input type="text" id="nombre" placeholder="Nombre" required>
-        <input type="text" id="apellidos" placeholder="Apellidos">
+        <input type="text" id="nombre" placeholder="Nombre" maxlength="50" required>
+        <input type="text" id="apellidos" placeholder="Apellidos" maxlength="50">
       </div>
 
       <!-- CORREO / TEL -->
       <div class="row">
-        <input type="email" id="correo" placeholder="Correo electrónico" required>
-        <input type="text" id="telefono" placeholder="Teléfono">
+        <input type="email" id="correo" placeholder="Correo electrónico" maxlength="100" required>
+        <input type="text" id="telefono" placeholder="Teléfono (10 dígitos)" maxlength="10" minlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
       </div>
 
       <!-- ROL -->

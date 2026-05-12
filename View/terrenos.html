@@ -5,6 +5,9 @@
   <title>Lotes Inmobiliarios - Arevalo & CIA</title>
   <link rel="stylesheet" href="/style/styleterrenos.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- LEAFLET JS PARA MAPAS PRECISOS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
 <body>
@@ -54,18 +57,38 @@
   <!-- CONTENIDO PRINCIPAL -->
   <main class="main-content">
     
-    <header class="catalog-header">
+    <header class="catalog-header-custom" style="display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 30px; text-align: center; min-height: 120px;">
       <div>
-        <h1 style="font-size: 26px; color: #111827; font-weight: 700;">Inventario de Lotes y Terrenos</h1>
-        <p style="color: #6b7280; font-size: 14px;">Catálogo interactivo de lotes en fraccionamiento listos para venta o financiamiento</p>
+        <h1 style="font-size: 32px; color: #0f172a; font-weight: 800; margin-bottom: 6px;">VENTA DE LOTES</h1>
+        <p style="color: #0f172a; font-size: 19px; font-weight: 700;">ESCOGA EL LOTE QUE PREFIERA</p>
       </div>
-      <button class="btn-new-lote" onclick="toggleModal(true)">
-        <span>➕</span> Dar de Alta Lote
-      </button>
+      <!-- ESCUDO CIRCULAR MEMBRETADO A LA DERECHA -->
+      <div style="position: absolute; right: 0; top: 0;">
+        <div style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #dc2626; padding: 4px; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+          <div style="width: 100%; height: 100%; border-radius: 50%; border: 2px solid #2563eb; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 4px; box-sizing: border-box;">
+            <img src="/public/LogoApp.png" style="width: 42px; height: 42px; object-fit: contain;">
+            <span style="font-size: 7px; font-weight: 800; color: #2563eb; text-align: center; line-height: 1.1; margin-top: 2px;">AREVALO Y CIA.<br><span style="color:#dc2626;">INMOBILIARIA</span></span>
+          </div>
+        </div>
+      </div>
     </header>
 
+    <!-- BARRA DE BUSQUEDA Y FILTROS CATASTRALES -->
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; margin-bottom: 30px; background: #fff; padding: 12px 20px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+      <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 260px;">
+        <span style="font-size: 16px;">🔍</span>
+        <input type="text" id="inputBuscarLote" placeholder="Buscar por Desarrollo, Nomenclatura (ej. Lote 12, M1) o Clave..." style="width: 100%; border: none; outline: none; font-size: 13px; color: #334155; background: transparent;" onkeyup="renderizarLotesFiltrados()">
+      </div>
+      <div style="display: flex; gap: 6px; overflow-x: auto;">
+        <button class="btn-filtro-lote active" onclick="aplicarFiltroEstado(this, 'todos')" style="padding: 6px 12px; font-size: 11px; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; background: #3b07ff; color: #fff;">Todos</button>
+        <button class="btn-filtro-lote" onclick="aplicarFiltroEstado(this, 'disponible')" style="padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; background: #fff; color: #334155;">🟢 Libres</button>
+        <button class="btn-filtro-lote" onclick="aplicarFiltroEstado(this, 'apartado')" style="padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; background: #fff; color: #334155;">🟡 Apartados</button>
+        <button class="btn-filtro-lote" onclick="aplicarFiltroEstado(this, 'vendido')" style="padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; background: #fff; color: #334155;">🔴 Vendidos</button>
+      </div>
+    </div>
+
     <!-- FORMULARIO MODAL NUEVO LOTE -->
-    <section class="modal-container" id="modalLote">
+    <section class="modal-container" id="modalLote" style="max-width: 850px; width: 95%;">
       <div class="modal-header">
         <h3>Registrar Nuevo Lote al Inventario</h3>
         <button class="btn-close" onclick="toggleModal(false)">✖</button>
@@ -73,40 +96,216 @@
 
       <div id="mensaje-lote" style="display: none; padding: 10px; margin-bottom: 15px; border-radius: 8px; font-size: 13px; text-align: center;"></div>
 
+      <!-- SISTEMA DE PESTAÑAS INTERNAS -->
+      <div class="modal-tabs">
+        <button class="modal-tab-btn active" type="button" onclick="cambiarPestañaModal(1)">1. Datos Generales</button>
+        <button class="modal-tab-btn" type="button" onclick="cambiarPestañaModal(2)">2. Medidas y Colindancias</button>
+        <button class="modal-tab-btn" type="button" onclick="cambiarPestañaModal(3)">3. Ubicación y Mapa</button>
+        <button class="modal-tab-btn" type="button" onclick="cambiarPestañaModal(4)">4. Precios y Servicios</button>
+        <button class="modal-tab-btn" type="button" onclick="cambiarPestañaModal(5)">5. Documentos</button>
+      </div>
+
       <form id="formLote">
         <input type="hidden" id="t_id_editar">
-        <div class="form-grid">
-          
-          <div class="form-group">
-            <label for="t_fracc">Fraccionamiento / Residencial</label>
-            <input type="text" id="t_fracc" placeholder="Ej. Campestre Arévalo" required>
-          </div>
 
-          <div class="form-group">
-            <label for="t_superficie">Superficie (m²)</label>
-            <input type="number" step="0.01" id="t_superficie" placeholder="Ej. 250.00" required>
+        <!-- PESTAÑA 1 -->
+        <div class="modal-tab-content active" id="mtab-1">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="t_fracc">Fraccionamiento / Residencial *</label>
+              <input type="text" id="t_fracc" placeholder="Ej. Campestre Arévalo" maxlength="150" required>
+            </div>
+            <div class="form-group">
+              <label for="t_numero_lote">Número de Lote</label>
+              <input type="text" id="t_numero_lote" placeholder="Ej. 12" maxlength="50">
+            </div>
+            <div class="form-group">
+              <label for="t_manzana">Manzana</label>
+              <input type="text" id="t_manzana" placeholder="Ej. 3" maxlength="50">
+            </div>
+            <div class="form-group">
+              <label for="t_clave_catastral">Clave Catastral</label>
+              <input type="text" id="t_clave_catastral" placeholder="Ej. 001-029-399" maxlength="100">
+            </div>
+            <div class="form-group">
+              <label for="t_tipo_uso">Tipo de Uso</label>
+              <select id="t_tipo_uso">
+                <option value="habitacional">Habitacional</option>
+                <option value="comercial">Comercial</option>
+                <option value="industrial">Industrial</option>
+                <option value="mixto">Mixto</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="t_estado_inm">Estado Inmobiliario</label>
+              <select id="t_estado_inm">
+                <option value="disponible">🟢 Libre / Disponible</option>
+                <option value="apartado">🟡 Apartado / Reservado</option>
+                <option value="vendido">🔴 Vendido / Ocupado</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="t_id_propietario">ID Propietario</label>
+              <input type="number" id="t_id_propietario" placeholder="Ej. 1">
+            </div>
           </div>
-
-          <div class="form-group">
-            <label for="t_precio">Precio de Venta ($)</label>
-            <input type="number" step="0.01" id="t_precio" placeholder="Ej. 450000" required>
-          </div>
-
-          <div class="form-group">
-            <label for="t_ubicacion">Ubicación / Referencia</label>
-            <input type="text" id="t_ubicacion" placeholder="Ej. Lote 5 - Manzana 2">
-          </div>
-
-          <div class="form-group" style="grid-column: 1/-1;">
-            <label for="t_archivo_img">Subir Foto o Render del Lote desde tu Equipo</label>
-            <input type="file" id="t_archivo_img" accept="image/*" style="background: #ffffff; padding: 10px; cursor: pointer;">
-            <input type="hidden" id="t_imagen_base64">
-          </div>
-
         </div>
 
-        <div style="display: flex; justify-content: flex-end;">
-          <button type="submit" class="btn-submit-lote" id="btnGuardarLote">Agregar Lote</button>
+        <!-- PESTAÑA 2 -->
+        <div class="modal-tab-content" id="mtab-2">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="t_superficie">Superficie Total (m²) *</label>
+              <input type="number" step="any" id="t_superficie" placeholder="Ej. 250.00" required>
+            </div>
+            <div class="form-group">
+              <label for="t_frente">Frente (m)</label>
+              <input type="number" step="any" id="t_frente" placeholder="Ej. 10.00">
+            </div>
+            <div class="form-group">
+              <label for="t_fondo">Fondo (m)</label>
+              <input type="number" step="any" id="t_fondo" placeholder="Ej. 25.00">
+            </div>
+            <div class="form-group">
+              <label for="t_lado_izq">Lado Izquierdo (m)</label>
+              <input type="number" step="any" id="t_lado_izq" placeholder="Ej. 25.00">
+            </div>
+            <div class="form-group">
+              <label for="t_lado_der">Lado Derecho (m)</label>
+              <input type="number" step="any" id="t_lado_der" placeholder="Ej. 25.00">
+            </div>
+            <div class="form-group" style="grid-column: 1/-1; margin-top: 10px;">
+              <span style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Colindancias Específicas</span>
+            </div>
+            <div class="form-group">
+              <label for="t_col_norte">Norte</label>
+              <input type="text" id="t_col_norte" placeholder="Ej. Lote 11">
+            </div>
+            <div class="form-group">
+              <label for="t_col_sur">Sur</label>
+              <input type="text" id="t_col_sur" placeholder="Ej. Calle Principal">
+            </div>
+            <div class="form-group">
+              <label for="t_col_este">Este</label>
+              <input type="text" id="t_col_este" placeholder="Ej. Lote 13">
+            </div>
+            <div class="form-group">
+              <label for="t_col_oeste">Oeste</label>
+              <input type="text" id="t_col_oeste" placeholder="Ej. Área Verde">
+            </div>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 3 -->
+        <div class="modal-tab-content" id="mtab-3">
+          <div class="form-grid">
+            <div class="form-group" style="grid-column: 1/-1;">
+              <label for="t_direccion">Dirección / Ubicación General</label>
+              <input type="text" id="t_direccion" placeholder="Ej. Av. de los Pinos S/N" maxlength="250">
+            </div>
+            <div class="form-group">
+              <label for="t_colonia">Colonia / Localidad</label>
+              <input type="text" id="t_colonia" list="listaColonias" placeholder="Ej. Centro" maxlength="150">
+              <datalist id="listaColonias"></datalist>
+            </div>
+            <div class="form-group">
+              <label for="t_municipio">Municipio</label>
+              <input type="text" id="t_municipio" placeholder="Ej. Tuxtla Gutiérrez" maxlength="150">
+            </div>
+            <div class="form-group">
+              <label for="t_estado_rep">Estado</label>
+              <input type="text" id="t_estado_rep" placeholder="Ej. Chiapas" maxlength="100">
+            </div>
+            <div class="form-group">
+              <label for="t_cp">Código Postal (5 dígitos)</label>
+              <input type="text" id="t_cp" placeholder="Ej. 29000" maxlength="5" oninput="this.value = this.value.replace(/[^0-9]/g, ''); consultarCP(this.value)">
+              <span id="statusCP" style="font-size:10px; font-weight:700; display:block; margin-top:3px;"></span>
+            </div>
+            
+            <!-- CONTENEDOR DEL MAPA Y COORDENADAS -->
+            <div style="grid-column: 1/-1; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 13px; font-weight: 700; color: #0f172a;">📍 Coordenadas GPS (Haz clic en el mapa para capturar)</span>
+                <span style="font-size: 11px; color: #64748b;">Motor Leaflet OpenStreetMap</span>
+              </div>
+              <div id="mapa-lote" style="height: 240px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; z-index: 1;"></div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
+                <div>
+                  <label style="font-size: 11px; color: #475569; font-weight: 600;">Latitud</label>
+                  <input type="number" step="any" id="t_latitud" placeholder="Ej. 16.7512" style="background:#fff;">
+                </div>
+                <div>
+                  <label style="font-size: 11px; color: #475569; font-weight: 600;">Longitud</label>
+                  <input type="number" step="any" id="t_longitud" placeholder="Ej. -93.1023" style="background:#fff;">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 4 -->
+        <div class="modal-tab-content" id="mtab-4">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="t_precio">Precio de Venta ($) *</label>
+              <input type="number" step="any" id="t_precio" placeholder="Ej. 450000" required>
+            </div>
+            <div class="form-group">
+              <label for="t_precio_lista">Precio de Lista Inicial ($)</label>
+              <input type="number" step="any" id="t_precio_lista" placeholder="Ej. 480000">
+            </div>
+            <div class="form-group">
+              <label for="t_anticipo">Anticipo Solicitado ($)</label>
+              <input type="number" step="any" id="t_anticipo" placeholder="Ej. 50000">
+            </div>
+            
+            <div class="form-group" style="grid-column: 1/-1; margin-top: 10px;">
+              <span style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Servicios Disponibles a Pie de Lote</span>
+              <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px;">
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;"><input type="checkbox" id="t_serv_agua"> 💧 Agua Potable</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;"><input type="checkbox" id="t_serv_luz"> ⚡ Electricidad</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;"><input type="checkbox" id="t_serv_drenaje"> 🚰 Drenaje</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;"><input type="checkbox" id="t_serv_internet"> 🌐 Fibra / Internet</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;"><input type="checkbox" id="t_calle_pav"> 🛣️ Pavimentado</label>
+              </div>
+            </div>
+
+            <div class="form-group" style="grid-column: 1/-1;">
+              <label for="t_descripcion">Descripción y Amenidades</label>
+              <textarea id="t_descripcion" rows="2" placeholder="Información promocional sobre el entorno..."></textarea>
+            </div>
+            <div class="form-group" style="grid-column: 1/-1;">
+              <label for="t_observaciones">Observaciones Internas</label>
+              <textarea id="t_observaciones" rows="2" placeholder="Detalles de negociación o estatus legal interno..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 5 -->
+        <div class="modal-tab-content" id="mtab-5">
+          <div class="form-grid">
+            <div class="form-group" style="grid-column: 1/-1;">
+              <label for="t_archivo_img">📸 Render o Fotografía Principal del Lote</label>
+              <input type="file" id="t_archivo_img" accept="image/*" style="background: #ffffff; padding: 10px; cursor: pointer;">
+              <input type="hidden" id="t_imagen_base64">
+            </div>
+            <div class="form-group">
+              <label for="t_plano_lote">Plano Cartográfico (Enlace/Archivo)</label>
+              <input type="text" id="t_plano_lote" placeholder="URL o referencia del plano">
+            </div>
+            <div class="form-group">
+              <label for="t_escritura">Documento de Escrituras</label>
+              <input type="text" id="t_escritura" placeholder="Referencia de la escritura pública">
+            </div>
+            <div class="form-group" style="grid-column: 1/-1;">
+              <label for="t_galeria">Galería Secundaria</label>
+              <input type="text" id="t_galeria" placeholder="Enlaces adicionales de fotos...">
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+          <button type="submit" class="btn-submit-lote" id="btnGuardarLote">Guardar Expediente de Lote</button>
         </div>
       </form>
     </section>
@@ -120,10 +319,69 @@
 
   <script>
     let listaTerrenosGlobal = [];
+    let mapaLeaflet = null;
+    let markerLeaflet = null;
 
     function cerrarSesion() {
       localStorage.removeItem('arevalo_user');
       window.location.href = '/login.html';
+    }
+
+    function cambiarPestañaModal(tabIndex) {
+      document.querySelectorAll('.modal-tab-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i + 1 === tabIndex);
+      });
+      document.querySelectorAll('.modal-tab-content').forEach((content, i) => {
+        content.classList.toggle('active', i + 1 === tabIndex);
+      });
+
+      // Si activamos la pestaña del mapa, forzamos su redibujado para evitar tiles grises
+      if (tabIndex === 3) {
+        setTimeout(() => {
+          inicializarMapaLeaflet();
+          if (mapaLeaflet) mapaLeaflet.invalidateSize();
+        }, 150);
+      }
+    }
+
+    function inicializarMapaLeaflet() {
+      if (mapaLeaflet !== null) return;
+
+      // Coordenada inicial de referencia (Tuxtla Gutiérrez o Centro de México)
+      let latInicial = 16.7532;
+      let lngInicial = -93.1145;
+
+      const inputLat = document.getElementById('t_latitud').value;
+      const inputLng = document.getElementById('t_longitud').value;
+      if (inputLat && inputLng) {
+        latInicial = parseFloat(inputLat);
+        lngInicial = parseFloat(inputLng);
+      }
+
+      mapaLeaflet = L.map('mapa-lote').setView([latInicial, lngInicial], 13);
+
+      // Integrar capa base gratuita de OpenStreetMap
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(mapaLeaflet);
+
+      if (inputLat && inputLng) {
+        markerLeaflet = L.marker([latInicial, lngInicial]).addTo(mapaLeaflet);
+      }
+
+      // Capturar clic en el mapa para rellenar campos
+      mapaLeaflet.on('click', function(e) {
+        const coords = e.latlng;
+        document.getElementById('t_latitud').value = coords.lat.toFixed(6);
+        document.getElementById('t_longitud').value = coords.lng.toFixed(6);
+
+        if (markerLeaflet) {
+          markerLeaflet.setLatLng(coords);
+        } else {
+          markerLeaflet = L.marker(coords).addTo(mapaLeaflet);
+        }
+      });
     }
 
     function toggleModal(show) {
@@ -135,63 +393,185 @@
         document.getElementById('t_imagen_base64').value = '';
         document.getElementById('mensaje-lote').style.display = 'none';
         document.querySelector('.modal-header h3').innerText = 'Registrar Nuevo Lote al Inventario';
+        cambiarPestañaModal(1);
+        if (markerLeaflet && mapaLeaflet) {
+          mapaLeaflet.removeLayer(markerLeaflet);
+          markerLeaflet = null;
+        }
+      } else {
+        cambiarPestañaModal(1);
       }
+    }
+
+    let filtroEstadoGlobal = 'todos';
+
+    function aplicarFiltroEstado(btn, est) {
+      document.querySelectorAll('.btn-filtro-lote').forEach(b => {
+        b.style.background = '#fff';
+        b.style.color = '#334155';
+        b.style.border = '1px solid #e2e8f0';
+      });
+      btn.style.background = '#3b07ff';
+      btn.style.color = '#fff';
+      btn.style.border = 'none';
+      filtroEstadoGlobal = est;
+      renderizarLotesFiltrados();
     }
 
     async function cargarTerrenos() {
       try {
         const res = await fetch('/terrenos');
         listaTerrenosGlobal = await res.json();
-        
-        const contenedor = document.getElementById('contenedorLotes');
-        contenedor.innerHTML = '';
-
-        if (!listaTerrenosGlobal || listaTerrenosGlobal.length === 0) {
-          contenedor.innerHTML = `
-            <div style="grid-column: 1/-1; padding: 20px; background: #fff; border-radius: 12px; border: 1px dashed #d1d5db; text-align: center; color: #6b7280;">
-              <p>No hay terrenos con estado 'disponible' registrados en este momento.</p>
-              <p style="font-size: 13px; margin-top: 5px;">Utiliza el botón <b>'Dar de Alta Lote'</b> para comenzar a alimentar tu catálogo.</p>
-            </div>
-          `;
-          return;
-        }
-
-        listaTerrenosGlobal.forEach(t => {
-          const precio = parseFloat(t.precio_venta || t.precio_lista || 0);
-          const superficieFormateada = parseFloat(t.superficie || 0).toLocaleString('es-MX', { maximumFractionDigits: 2 });
-          const estiloBg = t.imagen ? `background-image: url('${t.imagen}'); background-size: cover; background-position: center; cursor: pointer;` : '';
-          const contVisual = t.imagen ? `<div style="position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,0.6); color:#fff; padding:4px 8px; border-radius:4px; font-size:10px;">🔍 Ampliar</div>` : '🗺️';
-          const clickImg = t.imagen ? `onclick="abrirLightbox('${t.imagen}')"` : '';
-
-          contenedor.innerHTML += `
-            <article class="lote-card">
-              <div class="lote-visual" style="${estiloBg}; position:relative;" ${clickImg} title="Clic para ampliar imagen">
-                <span class="lote-badge">${t.estado || 'Disponible'}</span>
-                ${contVisual}
-              </div>
-              <div class="lote-details">
-                <h3>${t.fraccionamiento || 'Lote Residencial'}</h3>
-                <div class="lote-specs">
-                  <span>📐 ${superficieFormateada} m²</span>
-                  <span>📍 ${t.ubicacion || 'Sin referencia'}</span>
-                </div>
-                <div class="lote-price">
-                  <span class="price-label">Precio de venta</span>
-                  <span class="price-value">$${precio.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
-                </div>
-                <div style="display: flex; gap: 8px; margin-top: 14px; border-top: 1px solid #f1f5f9; padding-top: 12px;">
-                  <button onclick="prepararEdicion(${t.id_terreno})" style="flex:1; padding: 8px; border:none; background:#eff6ff; color:#2563eb; border-radius:8px; cursor:pointer; font-size:13px; font-weight:700; transition:0.2s;">✏️ Modificar</button>
-                  <button onclick="eliminarTerrenoLocal(${t.id_terreno})" style="padding: 8px 12px; border:none; background:#fee2e2; color:#dc2626; border-radius:8px; cursor:pointer; font-size:13px; transition:0.2s;" title="Eliminar Lote">🗑️</button>
-                </div>
-              </div>
-            </article>
-          `;
-        });
-
+        renderizarLotesFiltrados();
       } catch (error) {
         console.error('Error al cargar terrenos:', error);
         document.getElementById('contenedorLotes').innerHTML = `<p style="color: #ef4444;">Error al cargar inventario.</p>`;
       }
+    }
+
+    function renderizarLotesFiltrados() {
+      const contenedor = document.getElementById('contenedorLotes');
+      contenedor.innerHTML = '';
+
+      if (!listaTerrenosGlobal || listaTerrenosGlobal.length === 0) {
+        contenedor.innerHTML = `
+          <div style="grid-column: 1/-1; padding: 20px; background: #fff; border-radius: 12px; border: 1px dashed #d1d5db; text-align: center; color: #6b7280;">
+            <p>No hay inventario registrado en este momento.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const q = (document.getElementById('inputBuscarLote')?.value || '').toLowerCase().trim();
+
+      const filtrados = listaTerrenosGlobal.filter(t => {
+        // Filtro por estatus
+        const estLimp = (t.estado || 'disponible').toLowerCase().trim();
+        if (filtroEstadoGlobal === 'disponible' && !estLimp.includes('libre') && !estLimp.includes('disponible')) return false;
+        if (filtroEstadoGlobal === 'apartado' && !estLimp.includes('apartado') && !estLimp.includes('reservado')) return false;
+        if (filtroEstadoGlobal === 'vendido' && !estLimp.includes('vendido') && !estLimp.includes('ocupado') && !estLimp.includes('cerrado')) return false;
+
+        // Filtro por búsqueda de texto
+        if (!q) return true;
+        const fracc = (t.fraccionamiento || '').toLowerCase();
+        const numLote = (t.numero_lote || '').toLowerCase();
+        const manzana = (t.manzana || '').toLowerCase();
+        const clave = (t.clave_catastral || '').toLowerCase();
+        const comboNomen = `m${manzana}-l${numLote}`;
+
+        return fracc.includes(q) || numLote.includes(q) || manzana.includes(q) || clave.includes(q) || comboNomen.includes(q);
+      });
+
+      if (filtrados.length === 0) {
+        contenedor.innerHTML = `
+          <div style="grid-column: 1/-1; padding: 20px; background: #fff; border-radius: 12px; border: 1px dashed #d1d5db; text-align: center; color: #6b7280;">
+            <p>No se encontraron lotes que coincidan con la búsqueda o el filtro actual.</p>
+          </div>
+        `;
+      } else {
+        filtrados.forEach(t => {
+          const precio = parseFloat(t.precio_venta || t.precio_lista || 0);
+          const superficieFormateada = parseFloat(t.superficie || 0).toLocaleString('es-MX', { maximumFractionDigits: 2 });
+          
+          let textoEstado = 'Libre';
+          let colorPunto = '#22c55e'; // Verde
+          const estLimpio = (t.estado || '').toLowerCase().trim();
+          
+          if (estLimpio.includes('vendido')) {
+            textoEstado = 'Vendido';
+            colorPunto = '#dc2626'; // Rojo
+          } else if (estLimpio.includes('apartado') || estLimpio.includes('reservado')) {
+            textoEstado = 'Apartado';
+            colorPunto = '#eab308'; // Amarillo
+          } else if (estLimpio.includes('ocupado')) {
+            textoEstado = 'Ocupado';
+            colorPunto = '#dc2626';
+          } else if (estLimpio.includes('libre') || estLimpio.includes('disponible')) {
+            textoEstado = 'Libre';
+            colorPunto = '#22c55e';
+          } else {
+            textoEstado = t.estado ? (t.estado.charAt(0).toUpperCase() + t.estado.slice(1)) : 'Libre';
+            colorPunto = '#3b82f6';
+          }
+
+          const mTxt = t.manzana ? (t.manzana.toLowerCase().startsWith('m') ? t.manzana : 'M' + t.manzana) : 'M1';
+          const lTxt = t.numero_lote ? (t.numero_lote.toLowerCase().startsWith('l') ? t.numero_lote : 'L' + t.numero_lote) : ('L' + t.id_terreno);
+          const numLotePuro = t.numero_lote || t.id_terreno;
+
+          const estiloCuadroBg = t.imagen ? `background-image: url('${t.imagen}'); background-size: cover; background-position: center;` : `background: #dcfce7;`;
+
+          contenedor.innerHTML += `
+            <article class="lote-card-custom" style="background: #f8fafc; border-radius: 16px; padding: 14px; text-align: center; position: relative; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; min-height: 250px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); box-sizing: border-box;">
+              
+              <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                <div style="background: #3b07ff; color: #fff; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 12px; display: flex; align-items: center; gap: 5px; letter-spacing: 0.03em;">
+                  <span style="width: 7px; height: 7px; border-radius: 50%; background: ${colorPunto}; display: inline-block;"></span> ${textoEstado}
+                </div>
+                <span style="font-size:11px; font-weight:800; color:#10b981;">$${precio.toLocaleString('es-MX', {maximumFractionDigits:0})}</span>
+              </div>
+
+              <div style="font-size: 11px; font-weight: 800; color: #0f172a; margin-top: 6px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; letter-spacing: 0.02em;" title="${t.fraccionamiento || 'Desarrollo Privado'}">
+                🏡 ${t.fraccionamiento || 'Desarrollo Privado'}
+              </div>
+
+              <div style="width: 115px; height: 115px; ${estiloCuadroBg} border: 2px solid #22c55e; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 10px 0; cursor: pointer; transition: transform 0.2s ease; position: relative; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);" onclick="document.getElementById('specs-${t.id_terreno}').style.display = document.getElementById('specs-${t.id_terreno}').style.display === 'none' ? 'block' : 'none'" title="Clic para expandir/plegar todos los datos del lote">
+                ${t.imagen ? `<div style="position:absolute; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.25);"></div>` : ''}
+                <span style="position:relative; z-index:2; background: ${t.imagen ? 'rgba(255,255,255,0.9)' : 'transparent'}; color: #16a34a; font-size: ${t.imagen ? '15px' : '19px'}; font-weight: 800; padding: ${t.imagen ? '2px 6px' : '0'}; border-radius: 6px; letter-spacing: 0.05em; box-shadow: ${t.imagen ? '0 2px 5px rgba(0,0,0,0.15)' : 'none'};">${mTxt.toUpperCase()}-${lTxt.toUpperCase()}</span>
+              </div>
+
+              <div style="font-size: 11px; color: #334155; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">
+                LOTE NUMERO ${numLotePuro}
+              </div>
+
+              <div class="lote-specs-custom" style="width: 100%; margin-top: 10px; border-top: 1px solid #e2e8f0; padding-top: 10px; text-align: left; font-size: 10px; color: #64748b; display: none; animation: fadeIn 0.2s ease;" id="specs-${t.id_terreno}">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 6px; background: #fff; padding: 6px; border-radius: 6px; border: 1px solid #f1f5f9;">
+                  <div><b>Área:</b> <span style="color:#0f172a;">${superficieFormateada} m²</span></div>
+                  <div><b>Uso:</b> <span style="color:#0f172a; text-transform:capitalize;">${t.tipo_uso || 'Hab.'}</span></div>
+                  <div style="grid-column:1/-1;"><b>Clave:</b> <span style="color:#0f172a;">${t.clave_catastral || 'N/A'}</span></div>
+                  <div><b>Frente:</b> ${t.frente || '-'}m</div>
+                  <div><b>Fondo:</b> ${t.fondo || '-'}m</div>
+                </div>
+                <div style="color:#0f172a; font-weight:700; margin-bottom:2px; font-size:9px;">COLINDANCIAS:</div>
+                <div style="font-size:9px; line-height:1.2; background: #f1f5f9; padding: 4px; border-radius: 4px; margin-bottom: 6px; color:#334155;">
+                  <b>N:</b> ${t.colindancia_norte || '-'} | <b>S:</b> ${t.colindancia_sur || '-'}<br>
+                  <b>E:</b> ${t.colindancia_este || '-'} | <b>O:</b> ${t.colindancia_oeste || '-'}
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:3px 6px; border-radius:4px; border:1px solid #f1f5f9;">
+                  <span style="font-weight:600; color:#0f172a;">Servicios:</span>
+                  <span style="font-size:11px;">${t.servicio_agua?'💧':''}${t.servicio_luz?'⚡':''}${t.servicio_drenaje?'🚰':''}${t.servicio_internet?'🌐':''}${t.calle_pavimentada?'🛣️':''}</span>
+                </div>
+                ${t.imagen ? `<div style="margin-top:6px; text-align:center;"><button onclick="abrirLightbox('${t.imagen}')" style="background:none; border:none; color:#2563eb; font-size:10px; font-weight:700; cursor:pointer;">🔍 Ampliar Render</button></div>` : ''}
+              </div>
+
+              <div style="display: flex; width: 100%; gap: 4px; margin-top: 10px;">
+                <button onclick="document.getElementById('specs-${t.id_terreno}').style.display = document.getElementById('specs-${t.id_terreno}').style.display === 'none' ? 'block' : 'none'" style="flex:1; padding:6px; font-size:10px; background:#e2e8f0; border:none; border-radius:6px; cursor:pointer; font-weight:700; color:#334155; transition:0.2s;" title="Mostrar/Ocultar Ficha Técnica">📑 Datos</button>
+                <button onclick="prepararEdicion(${t.id_terreno})" style="padding:6px 10px; font-size:10px; background:#eff6ff; color:#2563eb; border:none; border-radius:6px; cursor:pointer; font-weight:700; transition:0.2s;" title="Modificar Lote">✏️</button>
+                <button onclick="eliminarTerrenoLocal(${t.id_terreno})" style="padding:6px 10px; font-size:10px; background:#fee2e2; color:#dc2626; border:none; border-radius:6px; cursor:pointer; transition:0.2s;" title="Eliminar Lote">🗑️</button>
+              </div>
+
+            </article>
+          `;
+        });
+      }
+
+      // INYECTAR LAS TARJETAS FINALES SEPARADAS AL FINAL DEL CONTENEDOR
+      contenedor.innerHTML += `
+        <article class="lote-card-custom final-card" style="background: #3b07ff; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; cursor: pointer; transition: transform 0.2s ease; border: none; box-shadow: 0 8px 20px rgba(59, 7, 255, 0.25); box-sizing: border-box; padding: 14px; text-align:center;" onclick="toggleModal(true)" title="Hacer clic para registrar un lote nuevo">
+          <div style="width: 65px; height: 65px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+            <span style="color: #3b07ff; font-size: 40px; font-weight: 300; line-height: 0; display:inline-block; transform:translateY(-2px);">+</span>
+          </div>
+          <span style="color: #fff; font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; line-height:1.2;">AÑADIR LOTE NUEVO</span>
+          <span style="color: rgba(255,255,255,0.7); font-size: 9px; margin-top: 4px;">Formulario Catastral</span>
+        </article>
+
+        <article class="lote-card-custom final-card" style="background: #ffffff; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; cursor: pointer; transition: transform 0.2s ease; border: 2px dashed #cbd5e1; box-sizing: border-box; padding: 14px; text-align:center;" onclick="cargarTerrenos()" title="Recargar y sincronizar todos los predios">
+          <div style="width: 65px; height: 65px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: #475569; font-size: 24px;">
+            🔄
+          </div>
+          <span style="color: #0f172a; font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; line-height:1.2;">VER MAS LOTES</span>
+          <span style="color: #64748b; font-size: 9px; margin-top: 4px;">Sincronizar Inventario</span>
+        </article>
+      `;
     }
 
     // Manejo de la subida de imagen local en Base64
@@ -211,19 +591,75 @@
       const lote = listaTerrenosGlobal.find(item => item.id_terreno == id);
       if (lote) {
         document.getElementById('t_id_editar').value = lote.id_terreno;
-        document.getElementById('t_fracc').value = lote.fraccionamiento;
-        document.getElementById('t_superficie').value = lote.superficie;
-        document.getElementById('t_precio').value = lote.precio_venta || lote.precio_lista;
-        document.getElementById('t_ubicacion').value = lote.ubicacion || '';
+        document.getElementById('t_fracc').value = lote.fraccionamiento || '';
+        document.getElementById('t_numero_lote').value = lote.numero_lote || '';
+        document.getElementById('t_manzana').value = lote.manzana || '';
+        document.getElementById('t_clave_catastral').value = lote.clave_catastral || '';
+        if (lote.tipo_uso) document.getElementById('t_tipo_uso').value = lote.tipo_uso;
+        
+        if (lote.estado) {
+          const estLimp = lote.estado.toLowerCase().trim();
+          if (estLimp.includes('vendido')) document.getElementById('t_estado_inm').value = 'vendido';
+          else if (estLimp.includes('apartado') || estLimp.includes('reservado')) document.getElementById('t_estado_inm').value = 'apartado';
+          else document.getElementById('t_estado_inm').value = 'disponible';
+        } else {
+          document.getElementById('t_estado_inm').value = 'disponible';
+        }
+
+        document.getElementById('t_id_propietario').value = lote.id_propietario || '';
+
+        document.getElementById('t_superficie').value = lote.superficie || '';
+        document.getElementById('t_frente').value = lote.frente || '';
+        document.getElementById('t_fondo').value = lote.fondo || '';
+        document.getElementById('t_lado_izq').value = lote.lado_izquierdo || '';
+        document.getElementById('t_lado_der').value = lote.lado_derecho || '';
+        document.getElementById('t_col_norte').value = lote.colindancia_norte || '';
+        document.getElementById('t_col_sur').value = lote.colindancia_sur || '';
+        document.getElementById('t_col_este').value = lote.colindancia_este || '';
+        document.getElementById('t_col_oeste').value = lote.colindancia_oeste || '';
+
+        document.getElementById('t_direccion').value = lote.direccion || lote.ubicacion || '';
+        document.getElementById('t_colonia').value = lote.colonia || '';
+        document.getElementById('t_municipio').value = lote.municipio || '';
+        document.getElementById('t_estado_rep').value = lote.estado_rep || '';
+        document.getElementById('t_cp').value = lote.codigo_postal || '';
+        document.getElementById('t_latitud').value = lote.latitud || '';
+        document.getElementById('t_longitud').value = lote.longitud || '';
+
+        document.getElementById('t_precio').value = lote.precio_venta || lote.precio_lista || '';
+        document.getElementById('t_precio_lista').value = lote.precio_lista || '';
+        document.getElementById('t_anticipo').value = lote.anticipo || '';
+        
+        document.getElementById('t_serv_agua').checked = !!lote.servicio_agua;
+        document.getElementById('t_serv_luz').checked = !!lote.servicio_luz;
+        document.getElementById('t_serv_drenaje').checked = !!lote.servicio_drenaje;
+        document.getElementById('t_serv_internet').checked = !!lote.servicio_internet;
+        document.getElementById('t_calle_pav').checked = !!lote.calle_pavimentada;
+
+        document.getElementById('t_descripcion').value = lote.descripcion || '';
+        document.getElementById('t_observaciones').value = lote.observaciones || '';
+        document.getElementById('t_plano_lote').value = lote.plano_lote || '';
+        document.getElementById('t_escritura').value = lote.documento_escritura || '';
+        document.getElementById('t_galeria').value = lote.galeria_imagenes || '';
+
         document.querySelector('.modal-header h3').innerText = `✏️ Modificar Lote #${lote.id_terreno}`;
-        btnGuardarLote.innerText = 'Guardar Cambios';
+        const btnGuardarLote = document.getElementById('btnGuardarLote');
+        if (btnGuardarLote) btnGuardarLote.innerText = 'Guardar Cambios';
         toggleModal(true);
+
+        // Si ya hay lat/long, posicionar en el mapa al activar tab
+        if (lote.latitud && lote.longitud && mapaLeaflet) {
+          const ltlng = [parseFloat(lote.latitud), parseFloat(lote.longitud)];
+          mapaLeaflet.setView(ltlng, 15);
+          if (markerLeaflet) markerLeaflet.setLatLng(ltlng);
+          else markerLeaflet = L.marker(ltlng).addTo(mapaLeaflet);
+        }
       }
     }
 
     // Eliminar Terreno Local
     async function eliminarTerrenoLocal(id) {
-      if (!confirm(`¿Estás seguro de que deseas eliminar o archivar el lote #${id}?`)) return;
+      if (!confirm(`¿Estás seguro de que deseas archivar o eliminar el lote #${id}?`)) return;
       try {
         const res = await fetch(`/terrenos/${id}`, { method: 'DELETE' });
         if (!res.ok) {
@@ -236,23 +672,66 @@
       }
     }
 
-    // Enviar formulario de alta o modificación
+    // Enviar formulario integral al servidor
     const formLote = document.getElementById('formLote');
     const msgLote = document.getElementById('mensaje-lote');
-    const btnGuardarLote = document.getElementById('btnGuardarLote');
-
+    
     formLote.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const btnGuardarLote = document.getElementById('btnGuardarLote');
       msgLote.style.display = 'none';
-      btnGuardarLote.disabled = true;
-      const idEditar = document.getElementById('t_id_editar').value;
-      btnGuardarLote.innerText = idEditar ? 'Actualizando...' : 'Guardando...';
+      if (btnGuardarLote) {
+        btnGuardarLote.disabled = true;
+        btnGuardarLote.innerText = 'Guardando Expediente...';
+      }
 
-      const fraccionamiento = document.getElementById('t_fracc').value.trim();
-      const superficie = document.getElementById('t_superficie').value;
-      const precio_venta = document.getElementById('t_precio').value;
-      const ubicacion = document.getElementById('t_ubicacion').value.trim();
-      const imagen = document.getElementById('t_imagen_base64').value;
+      const idEditar = document.getElementById('t_id_editar').value;
+
+      const payload = {
+        fraccionamiento: document.getElementById('t_fracc').value.trim(),
+        numero_lote: document.getElementById('t_numero_lote').value.trim(),
+        manzana: document.getElementById('t_manzana').value.trim(),
+        clave_catastral: document.getElementById('t_clave_catastral').value.trim(),
+        tipo_uso: document.getElementById('t_tipo_uso').value,
+        estado: document.getElementById('t_estado_inm').value,
+        id_propietario: document.getElementById('t_id_propietario').value,
+        
+        superficie: document.getElementById('t_superficie').value,
+        frente: document.getElementById('t_frente').value,
+        fondo: document.getElementById('t_fondo').value,
+        lado_izquierdo: document.getElementById('t_lado_izq').value,
+        lado_derecho: document.getElementById('t_lado_der').value,
+        colindancia_norte: document.getElementById('t_col_norte').value.trim(),
+        colindancia_sur: document.getElementById('t_col_sur').value.trim(),
+        colindancia_este: document.getElementById('t_col_este').value.trim(),
+        colindancia_oeste: document.getElementById('t_col_oeste').value.trim(),
+
+        direccion: document.getElementById('t_direccion').value.trim(),
+        ubicacion: document.getElementById('t_direccion').value.trim(),
+        colonia: document.getElementById('t_colonia').value.trim(),
+        municipio: document.getElementById('t_municipio').value.trim(),
+        estado_rep: document.getElementById('t_estado_rep').value.trim(),
+        codigo_postal: document.getElementById('t_cp').value.trim(),
+        latitud: document.getElementById('t_latitud').value,
+        longitud: document.getElementById('t_longitud').value,
+
+        precio_venta: document.getElementById('t_precio').value,
+        precio_lista: document.getElementById('t_precio_lista').value,
+        anticipo: document.getElementById('t_anticipo').value,
+
+        servicio_agua: document.getElementById('t_serv_agua').checked,
+        servicio_luz: document.getElementById('t_serv_luz').checked,
+        servicio_drenaje: document.getElementById('t_serv_drenaje').checked,
+        servicio_internet: document.getElementById('t_serv_internet').checked,
+        calle_pavimentada: document.getElementById('t_calle_pav').checked,
+
+        descripcion: document.getElementById('t_descripcion').value.trim(),
+        observaciones: document.getElementById('t_observaciones').value.trim(),
+        plano_lote: document.getElementById('t_plano_lote').value.trim(),
+        documento_escritura: document.getElementById('t_escritura').value.trim(),
+        galeria_imagenes: document.getElementById('t_galeria').value.trim(),
+        imagen: document.getElementById('t_imagen_base64').value
+      };
 
       const url = idEditar ? `/terrenos/${idEditar}` : '/terrenos';
       const method = idEditar ? 'PUT' : 'POST';
@@ -261,7 +740,7 @@
         const res = await fetch(url, {
           method: method,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fraccionamiento, superficie, precio_venta, ubicacion, imagen })
+          body: JSON.stringify(payload)
         });
 
         if (!res.ok) {
@@ -270,22 +749,24 @@
             const errData = await res.json();
             if (errData.error) errorReal = errData.error;
           } catch (eNoJson) {
-            errorReal = `Error del servidor (HTTP ${res.status}): La imagen es demasiado pesada o la ruta no responde.`;
+            errorReal = `Error del servidor (HTTP ${res.status}).`;
           }
           throw new Error(errorReal);
         }
 
         msgLote.style.background = '#d1fae5';
         msgLote.style.color = '#065f46';
-        msgLote.innerText = idEditar ? '¡Lote modificado correctamente!' : '¡Lote añadido exitosamente al inventario!';
+        msgLote.innerText = idEditar ? '¡Expediente de lote actualizado!' : '¡Expediente de lote registrado con éxito!';
         msgLote.style.display = 'block';
 
         cargarTerrenos();
 
         setTimeout(() => {
           toggleModal(false);
-          btnGuardarLote.disabled = false;
-          btnGuardarLote.innerText = 'Agregar Lote';
+          if (btnGuardarLote) {
+            btnGuardarLote.disabled = false;
+            btnGuardarLote.innerText = 'Guardar Expediente de Lote';
+          }
         }, 1200);
 
       } catch (err) {
@@ -293,10 +774,65 @@
         msgLote.style.color = '#991b1b';
         msgLote.innerText = err.message;
         msgLote.style.display = 'block';
-        btnGuardarLote.disabled = false;
-        btnGuardarLote.innerText = idEditar ? 'Guardar Cambios' : 'Agregar Lote';
+        if (btnGuardarLote) {
+          btnGuardarLote.disabled = false;
+          btnGuardarLote.innerText = idEditar ? 'Guardar Cambios' : 'Guardar Expediente de Lote';
+        }
       }
     });
+
+    async function consultarCP(cp) {
+      const status = document.getElementById('statusCP');
+      if (!status) return;
+      const cpLimpio = cp.trim();
+      if (cpLimpio.length !== 5 || isNaN(cpLimpio)) {
+        status.innerText = '';
+        return;
+      }
+      
+      status.innerText = '⏳ Consultando código postal...';
+      status.style.color = '#eab308';
+      
+      try {
+        const res = await fetch(`https://api.zippopotam.us/mx/${cpLimpio}`);
+        if (!res.ok) {
+          status.innerText = '⚠️ CP no encontrado en base abierta, escribe la colonia.';
+          status.style.color = '#64748b';
+          return;
+        }
+        
+        const data = await res.json();
+        if (data && data.places && data.places.length > 0) {
+          const estado = data.places[0].state || '';
+          // Ocasionalmente el 'place name' (o la colonia/municipio principal) sirve como referencia
+          document.getElementById('t_estado_rep').value = estado;
+          
+          // Llenar datalist de colonias
+          const dl = document.getElementById('listaColonias');
+          if (dl) {
+            dl.innerHTML = '';
+            data.places.forEach(p => {
+              const opt = document.createElement('option');
+              opt.value = p['place name'];
+              dl.appendChild(opt);
+            });
+          }
+          
+          if (data.places.length === 1) {
+            document.getElementById('t_colonia').value = data.places[0]['place name'];
+          } else {
+            document.getElementById('t_colonia').placeholder = 'Selecciona del listado o escribe...';
+          }
+          
+          status.innerText = `✅ ¡${data.places.length} colonias disponibles!`;
+          status.style.color = '#16a34a';
+        } else {
+          status.innerText = '';
+        }
+      } catch (err) {
+        status.innerText = '';
+      }
+    }
 
     function abrirLightbox(url) {
       const lb = document.getElementById('lightbox');

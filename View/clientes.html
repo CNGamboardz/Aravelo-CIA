@@ -79,12 +79,12 @@
           
           <div class="form-group">
             <label for="c_nombre">Nombre Completo</label>
-            <input type="text" id="c_nombre" placeholder="Ej. Juan Pérez García" required>
+            <input type="text" id="c_nombre" placeholder="Ej. Juan Pérez García" maxlength="100" required>
           </div>
 
           <div class="form-group">
-            <label for="c_telefono">Teléfono / WhatsApp</label>
-            <input type="text" id="c_telefono" placeholder="Ej. 5544332211" required>
+            <label for="c_telefono">Teléfono / WhatsApp (10 dígitos)</label>
+            <input type="text" id="c_telefono" placeholder="Ej. 5544332211" maxlength="10" minlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
           </div>
 
           <div class="form-group">

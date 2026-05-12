@@ -174,14 +174,23 @@
           });
         }
 
-        // Terrenos
+        // Terrenos (Filtrar de forma estricta solo los disponibles/libres)
         const resTe = await fetch('/terrenos');
-        listadoTerrenos = await resTe.json();
+        const todosLosTerrenos = await resTe.json();
+        listadoTerrenos = Array.isArray(todosLosTerrenos) ? todosLosTerrenos : [];
+        
         const selTe = document.getElementById('selTerreno');
         selTe.innerHTML = '<option value="">Selecciona un lote disponible</option>';
-        if (listadoTerrenos && listadoTerrenos.length > 0) {
-          listadoTerrenos.forEach(t => {
-            selTe.innerHTML += `<option value="${t.id_terreno}">${t.fraccionamiento} - ${t.superficie}m² ($${parseFloat(t.precio_venta).toLocaleString()})</option>`;
+        
+        const lotesDisponibles = listadoTerrenos.filter(t => {
+          const e = (t.estado || 'disponible').toLowerCase();
+          return e.includes('libre') || e.includes('disponible');
+        });
+
+        if (lotesDisponibles.length > 0) {
+          lotesDisponibles.forEach(t => {
+            const p = parseFloat(t.precio_venta) || parseFloat(t.precio_lista) || 0;
+            selTe.innerHTML += `<option value="${t.id_terreno || t.id}">${t.fraccionamiento} - ${t.superficie}m² ($${p.toLocaleString('es-MX')})</option>`;
           });
         }
 
