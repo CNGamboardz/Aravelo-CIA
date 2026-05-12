@@ -28,44 +28,44 @@
     <ul class="sidebar-menu">
       <li>
         <a href="/dashboard.html" class="active">
-          <span>📊</span> Dashboard
+          <img src="/public/Inicio.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Dashboard
         </a>
       </li>
       <li>
         <a href="/clientes.html">
-          <span>👥</span> Clientes (CRM)
+          <img src="/public/expediente.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Clientes (CRM)
         </a>
       </li>
       <li>
         <a href="/terrenos.html">
-          <span>🗺️</span> Lotes Inmobiliarios
+          <img src="/public/terrenos.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Lotes Inmobiliarios
         </a>
       </li>
       <li>
         <a href="/contratos.html">
-          <span>🤝</span> Acuerdos / Contratos
+          <img src="/public/contrato.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Acuerdos / Contratos
         </a>
       </li>
       <li>
         <a href="/pagos.html">
-          <span>💰</span> Cobranza y Pagos
+          <img src="/public/cobranza.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Cobranza y Pagos
         </a>
       </li>
       <li id="menu-vendedores">
         <a href="/vendedores.html">
-          <span>👔</span> Vendedores
+          <img src="/public/vendedores.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Vendedores
         </a>
       </li>
       <li id="menu-configuracion">
         <a href="/configuracion.html">
-          <span>⚙️</span> Configuración
+          <img src="/public/estadistica.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Configuración
         </a>
       </li>
     </ul>
 
     <div class="sidebar-footer">
       <button class="btn-logout" onclick="cerrarSesion()">
-        <span>🚪</span> Cerrar sesión
+        <img src="/public/cerrar_sesión.png" style="width:18px; height:18px; object-fit:contain;" alt="logout"> Cerrar sesión
       </button>
     </div>
   </aside>
@@ -250,12 +250,38 @@
   </main>
 
   <script>
-    const userData = JSON.parse(localStorage.getItem('arevalo_user'));
+    let userData = JSON.parse(localStorage.getItem('arevalo_user'));
     if (userData) {
-      document.getElementById('userName').innerText = userData.nombre;
-      document.getElementById('userRol').innerText = userData.rol;
-      document.getElementById('userAvatar').innerText = userData.nombre.charAt(0).toUpperCase();
-      document.getElementById('tituloBienvenida').innerText = `¡Hola, ${userData.nombre.split(' ')[0]}!`;
+      function renderizarPerfilSuperior(u) {
+        document.getElementById('userName').innerText = u.nombre || 'Usuario';
+        document.getElementById('userRol').innerText = u.rol || 'Rol';
+        document.getElementById('tituloBienvenida').innerText = `¡Hola, ${(u.nombre || '').split(' ')[0]}!`;
+        
+        const av = document.getElementById('userAvatar');
+        if (u.foto) {
+          av.innerHTML = `<img src="${u.foto}" style="width:100%; height:100%; object-fit:cover; border-radius:50%; display:block;">`;
+          av.style.padding = '0';
+          av.style.overflow = 'hidden';
+          av.style.background = 'transparent';
+          av.style.border = '2px solid #570fff';
+        } else {
+          av.innerText = (u.nombre || 'A').charAt(0).toUpperCase();
+        }
+      }
+      renderizarPerfilSuperior(userData);
+
+      // Sincronizar en segundo plano el perfil más reciente desde Postgres por si se actualizó su foto en gerencia
+      if (userData.id_usuario) {
+        fetch('/api/vendedores/' + userData.id_usuario)
+          .then(res => res.json())
+          .then(perfilDB => {
+            if (perfilDB && perfilDB.id_usuario) {
+              userData = { ...userData, ...perfilDB };
+              localStorage.setItem('arevalo_user', JSON.stringify(userData));
+              renderizarPerfilSuperior(userData);
+            }
+          }).catch(err => console.log('Modo local/offline activo'));
+      }
     }
 
     // Configurar el Mini Calendario Visual
