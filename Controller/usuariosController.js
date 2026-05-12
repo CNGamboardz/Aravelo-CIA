@@ -94,8 +94,42 @@ const validarPin = (req, res) => {
   return res.status(401).json({ error: 'PIN de acceso incorrecto' });
 };
 
+// Controladores para la gestión avanzada de vendedores / agentes
+const listarVendedores = async (req, res) => {
+  try {
+    const data = await usuariosModel.getVendedores();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message || 'Error al obtener vendedores' });
+  }
+};
+
+const obtenerVendedor = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await usuariosModel.getVendedorById(id);
+    if (!data) return res.status(404).json({ error: 'Vendedor no encontrado' });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message || 'Error al obtener vendedor' });
+  }
+};
+
+const modificarVendedor = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const actualizado = await usuariosModel.actualizarVendedorDB(id, req.body);
+    res.json(actualizado);
+  } catch (error) {
+    res.status(500).json({ error: error.message || 'Error al actualizar vendedor' });
+  }
+};
+
 module.exports = {
   registrar,
   login,
-  validarPin
+  validarPin,
+  listarVendedores,
+  obtenerVendedor,
+  modificarVendedor
 };

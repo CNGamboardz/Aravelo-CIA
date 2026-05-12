@@ -51,6 +51,16 @@
           <span>💰</span> Cobranza y Pagos
         </a>
       </li>
+      <li id="menu-vendedores">
+        <a href="/vendedores.html">
+          <span>👔</span> Vendedores
+        </a>
+      </li>
+      <li id="menu-configuracion">
+        <a href="/configuracion.html">
+          <span>⚙️</span> Configuración
+        </a>
+      </li>
     </ul>
 
     <div class="sidebar-footer">
@@ -523,6 +533,16 @@
       localStorage.removeItem('arevalo_user');
       window.location.href = '/login.html';
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const u = JSON.parse(localStorage.getItem('arevalo_user'));
+      if (u && (u.rol === 'vendedor' || u.rol === 'asesor')) {
+        const mv = document.getElementById('menu-vendedores');
+        const mc = document.getElementById('menu-configuracion');
+        if (mv) mv.style.display = 'none';
+        if (mc) mc.style.display = 'none';
+      }
+    });
 
     cargarDashboard();
     cargarAgenda();

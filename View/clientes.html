@@ -42,6 +42,16 @@
           <span>💰</span> Cobranza y Pagos
         </a>
       </li>
+      <li id="menu-vendedores">
+        <a href="/vendedores.html">
+          <span>👔</span> Vendedores
+        </a>
+      </li>
+      <li id="menu-configuracion">
+        <a href="/configuracion.html">
+          <span>⚙️</span> Configuración
+        </a>
+      </li>
     </ul>
 
     <div class="sidebar-footer">
@@ -59,15 +69,17 @@
         <h1>Directorio de Clientes</h1>
         <p>Gestión de prospectos, compradores y estatus del CRM</p>
       </div>
-      <button class="btn-new-client" onclick="toggleModal(true)">
-        <span>➕</span> Nuevo Cliente
-      </button>
+      <div>
+        <a href="/registrar_cliente.html" style="background: linear-gradient(135deg, #570fff 0%, #7c3aed 100%); color: white; padding: 12px 25px; border-radius: 12px; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 10px 20px rgba(87, 15, 255, 0.25);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+          <span>⚡</span> Portal de Alta Dedicada
+        </a>
+      </div>
     </header>
 
-    <!-- FORMULARIO MODAL NUEVO CLIENTE -->
+    <!-- FORMULARIO MODAL NUEVO CLIENTE (29 COLUMNAS DE CAPTURA CONTABLE) -->
     <section class="modal-container" id="modalCliente">
       <div class="modal-header">
-        <h3>Registrar Nuevo Prospecto</h3>
+        <h3>🏢 Registrar / Auditar Ficha de Cliente</h3>
         <button class="btn-close" onclick="toggleModal(false)">✖</button>
       </div>
 
@@ -75,27 +87,170 @@
 
       <form id="formCliente">
         <input type="hidden" id="c_id_editar">
+        
+        <!-- SECCIÓN 1: IDENTIDAD -->
+        <h4 style="color: #570fff; font-size: 14px; margin-bottom: 12px; border-bottom: 2px solid #ede9fe; padding-bottom: 4px;">👤 Identidad Personal y Oficial</h4>
         <div class="form-grid">
-          
           <div class="form-group">
-            <label for="c_nombre">Nombre Completo</label>
-            <input type="text" id="c_nombre" placeholder="Ej. Juan Pérez García" maxlength="100" required>
+            <label for="c_nombre">Nombre(s) *</label>
+            <input type="text" id="c_nombre" placeholder="Ej. Juan" maxlength="100" required>
           </div>
-
           <div class="form-group">
-            <label for="c_telefono">Teléfono / WhatsApp (10 dígitos)</label>
-            <input type="text" id="c_telefono" placeholder="Ej. 5544332211" maxlength="10" minlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+            <label for="c_ap_paterno">Apellido Paterno</label>
+            <input type="text" id="c_ap_paterno" placeholder="Ej. Pérez" maxlength="100">
           </div>
-
           <div class="form-group">
-            <label for="c_email">Correo Electrónico</label>
-            <input type="email" id="c_email" placeholder="ejemplo@correo.com">
+            <label for="c_ap_materno">Apellido Materno</label>
+            <input type="text" id="c_ap_materno" placeholder="Ej. García" maxlength="100">
           </div>
-
+          <div class="form-group">
+            <label for="c_nacimiento">Fecha de Nacimiento</label>
+            <input type="date" id="c_nacimiento">
+          </div>
+          <div class="form-group">
+            <label for="c_sexo">Género</label>
+            <select id="c_sexo">
+              <option value="">Seleccionar</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Femenino">Femenino</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="c_estado_civil">Estado Civil</label>
+            <select id="c_estado_civil">
+              <option value="">Seleccionar</option>
+              <option value="Soltero(a)">Soltero(a)</option>
+              <option value="Casado(a)">Casado(a)</option>
+              <option value="Divorciado(a)">Divorciado(a)</option>
+              <option value="Viudo(a)">Viudo(a)</option>
+              <option value="Unión Libre">Unión Libre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="c_nacionalidad">Nacionalidad</label>
+            <input type="text" id="c_nacionalidad" value="Mexicana" maxlength="100">
+          </div>
+          <div class="form-group">
+            <label for="c_curp">CURP (18 Caracteres)</label>
+            <input type="text" id="c_curp" placeholder="Alfanumérico" maxlength="18" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
+          </div>
+          <div class="form-group">
+            <label for="c_rfc">RFC (13 Caracteres)</label>
+            <input type="text" id="c_rfc" placeholder="Alfanumérico" maxlength="13" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
+          </div>
         </div>
 
-        <div style="display: flex; justify-content: flex-end;">
-          <button type="submit" class="btn-submit-client" id="btnGuardarCliente">Guardar Cliente</button>
+        <!-- SECCIÓN 2: LOCALIZACIÓN Y CONTACTO -->
+        <h4 style="color: #570fff; font-size: 14px; margin: 20px 0 12px; border-bottom: 2px solid #ede9fe; padding-bottom: 4px;">📞 Contacto y Localización Geográfica</h4>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="c_telefono">Teléfono Principal *</label>
+            <input type="text" id="c_telefono" placeholder="10 dígitos numéricos" maxlength="10" minlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+          </div>
+          <div class="form-group">
+            <label for="c_tel_sec">Teléfono Secundario</label>
+            <input type="text" id="c_tel_sec" placeholder="10 dígitos numéricos" maxlength="10" minlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+          </div>
+          <div class="form-group">
+            <label for="c_correo">Correo Electrónico</label>
+            <input type="email" id="c_correo" placeholder="ejemplo@empresa.com" maxlength="150">
+          </div>
+          <div class="form-group">
+            <label for="c_cp">Código Postal *</label>
+            <input type="text" id="c_cp" placeholder="5 dígitos" maxlength="5" minlength="5" oninput="this.value = this.value.replace(/[^0-9]/g, ''); consultarCPClientes();" required>
+          </div>
+          <div class="form-group">
+            <label for="c_estado">Estado (Autocompletado)</label>
+            <input type="text" id="c_estado" readonly placeholder="Solo lectura">
+          </div>
+          <div class="form-group">
+            <label for="c_municipio">Municipio (Autocompletado)</label>
+            <input type="text" id="c_municipio" readonly placeholder="Solo lectura">
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label for="c_colonia">Colonia / Asentamiento (Seleccionable Estricto)</label>
+            <select id="c_colonia" style="background: #ede9fe; font-weight: 700; color: #4c1d95; border-color: #c4b5fd;">
+              <option value="">Ingresa CP para cargar colonias...</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label for="c_direccion">Calle, Número Exterior e Interior</label>
+          <textarea id="c_direccion" placeholder="Ingresa los datos exactos del domicilio..."></textarea>
+        </div>
+
+        <!-- SECCIÓN 3: PERFIL SOCIOECONÓMICO -->
+        <h4 style="color: #570fff; font-size: 14px; margin: 20px 0 12px; border-bottom: 2px solid #ede9fe; padding-bottom: 4px;">💼 Perfil Socioeconómico y Laboral</h4>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="c_ocupacion">Ocupación / Profesión</label>
+            <input type="text" id="c_ocupacion" placeholder="Ej. Ingeniero Civil" maxlength="150">
+          </div>
+          <div class="form-group">
+            <label for="c_empresa">Lugar de Trabajo / Empresa</label>
+            <input type="text" id="c_empresa" placeholder="Ej. Constructora del Norte" maxlength="150">
+          </div>
+          <div class="form-group">
+            <label for="c_ingresos">Ingreso Aprox. Mensual ($)</label>
+            <input type="number" step="any" id="c_ingresos" placeholder="0.00">
+          </div>
+        </div>
+
+        <!-- SECCIÓN 4: EXPEDIENTE DIGITAL -->
+        <h4 style="color: #570fff; font-size: 14px; margin: 20px 0 12px; border-bottom: 2px solid #ede9fe; padding-bottom: 4px;">📁 Expediente Digital y Documentación Oficial</h4>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="c_id_oficial">Tipo de Identificación Oficial</label>
+            <select id="c_id_oficial">
+              <option value="INE">Credencial INE</option>
+              <option value="Pasaporte">Pasaporte</option>
+              <option value="Cédula Profesional">Cédula Profesional</option>
+              <option value="Cartilla Militar">Cartilla Militar</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="c_num_id">Número de Identificación</label>
+            <input type="text" id="c_num_id" placeholder="Clave de elector o folio" maxlength="100">
+          </div>
+          <div class="form-group">
+            <label for="c_estatus">Estatus CRM</label>
+            <select id="c_estatus">
+              <option value="activo">Activo</option>
+              <option value="prospecto">Prospecto</option>
+              <option value="contactado">Contactado</option>
+              <option value="visito">Visitó Predio</option>
+              <option value="apartado">Con Apartado</option>
+              <option value="inactivo">Inactivo / Cancelado</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Foto del Cliente (Máx 2MB)</label>
+            <input type="file" accept="image/*,application/pdf" onchange="procesarArchivoBase64(this, 'c_foto_cli')">
+            <input type="hidden" id="c_foto_cli">
+            <div id="prev_c_foto_cli" style="font-size: 11px; margin-top: 2px;"></div>
+          </div>
+          <div class="form-group">
+            <label>Archivo INE / ID (Máx 2MB)</label>
+            <input type="file" accept="image/*,application/pdf" onchange="procesarArchivoBase64(this, 'c_foto_id')">
+            <input type="hidden" id="c_foto_id">
+            <div id="prev_c_foto_id" style="font-size: 11px; margin-top: 2px;"></div>
+          </div>
+          <div class="form-group">
+            <label>Comprobante Domicilio (Máx 2MB)</label>
+            <input type="file" accept="image/*,application/pdf" onchange="procesarArchivoBase64(this, 'c_comp_dom')">
+            <input type="hidden" id="c_comp_dom">
+            <div id="prev_c_comp_dom" style="font-size: 11px; margin-top: 2px;"></div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label for="c_observaciones">Observaciones y Comentarios Adicionales</label>
+          <textarea id="c_observaciones" placeholder="Detalles sobre el seguimiento, preferencias del lote, horarios de llamada..."></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
+          <button type="button" onclick="toggleModal(false)" style="padding: 12px 20px; border-radius: 10px; border: 1px solid #cbd5e1; background: #f8fafc; font-weight: 700; cursor: pointer; color: #475569;">Cancelar</button>
+          <button type="submit" class="btn-submit-client" id="btnGuardarCliente">Guardar Expediente</button>
         </div>
       </form>
     </section>
@@ -105,16 +260,16 @@
       <table class="crm-table">
         <thead>
           <tr>
-            <th>Nombre</th>
-            <th>Teléfono</th>
-            <th>Email</th>
-            <th>Etapa</th>
+            <th>Nombre Completo</th>
+            <th>Contacto</th>
+            <th>Ubicación</th>
+            <th>Estatus</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody id="tablaClientesBody">
           <tr>
-            <td colspan="4" style="text-align: center; color: #9ca3af;">Cargando clientes...</td>
+            <td colspan="5" style="text-align: center; color: #9ca3af;">Cargando clientes...</td>
           </tr>
         </tbody>
       </table>
@@ -126,9 +281,78 @@
     const userData = JSON.parse(localStorage.getItem('arevalo_user'));
     let listaClientesGlobal = [];
 
+    document.addEventListener('DOMContentLoaded', () => {
+      if (userData && (userData.rol === 'vendedor' || userData.rol === 'asesor')) {
+        const mv = document.getElementById('menu-vendedores');
+        const mc = document.getElementById('menu-configuracion');
+        if (mv) mv.style.display = 'none';
+        if (mc) mc.style.display = 'none';
+      }
+    });
+
     function cerrarSesion() {
       localStorage.removeItem('arevalo_user');
       window.location.href = '/login.html';
+    }
+
+    // Decodificador seguro de Blobs en memoria para evadir bloqueos de URLs de datos
+    function descargarBlobBase64(base64String, nombreArchivo) {
+      if (!base64String) return;
+      try {
+        const arr = base64String.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const blob = new Blob([u8arr], { type: mime });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombreArchivo || 'documento.pdf';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 150);
+      } catch (e) {
+        alert('⚠️ No se pudo decodificar el archivo digital seguro.');
+      }
+    }
+
+    // Lógica asíncrona para asimilación nativa Base64 con tope de 2MB
+    function procesarArchivoBase64(input, targetId) {
+      const file = input.files[0];
+      const prevDiv = document.getElementById('prev_' + targetId);
+      if (!file) {
+        prevDiv.innerHTML = '';
+        document.getElementById(targetId).value = '';
+        return;
+      }
+      
+      // Tope de 2MB (2 * 1024 * 1024 bytes)
+      if (file.size > 2 * 1024 * 1024) {
+        alert('⚠️ El archivo seleccionado excede el tamaño máximo permitido de 2MB. Por favor, comprímelo o elige uno más ligero.');
+        input.value = '';
+        prevDiv.innerHTML = '<span style="color: #dc2626; font-weight: 700;">❌ Archivo excede 2MB</span>';
+        document.getElementById(targetId).value = '';
+        return;
+      }
+
+      prevDiv.innerHTML = '<span style="color: #f59e0b; font-weight: 700;">⏳ Asimilando archivo digital...</span>';
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById(targetId).value = e.target.result;
+        prevDiv.innerHTML = '<span style="color: #10b981; font-weight: 700;">✅ Archivo asimilado nativamente en BD</span>';
+      };
+      reader.onerror = function() {
+        prevDiv.innerHTML = '<span style="color: #dc2626; font-weight: 700;">❌ Error de lectura</span>';
+      };
+      reader.readAsDataURL(file);
     }
 
     function toggleModal(show) {
@@ -138,7 +362,37 @@
         document.getElementById('formCliente').reset();
         document.getElementById('c_id_editar').value = '';
         document.getElementById('mensaje-cliente').style.display = 'none';
-        document.querySelector('.modal-header h3').innerText = 'Registrar Nuevo Prospecto';
+        document.querySelector('.modal-header h3').innerText = '🏢 Registrar / Auditar Ficha de Cliente';
+        document.getElementById('c_colonia').innerHTML = '<option value="">Ingresa CP para cargar colonias...</option>';
+        document.getElementById('prev_c_foto_cli').innerHTML = '';
+        document.getElementById('prev_c_foto_id').innerHTML = '';
+        document.getElementById('prev_c_comp_dom').innerHTML = '';
+      }
+    }
+
+    // Servicio API Postal Autocompletado
+    async function consultarCPClientes() {
+      const cp = document.getElementById('c_cp').value.trim();
+      const selColonia = document.getElementById('c_colonia');
+      if (cp.length === 5) {
+        selColonia.innerHTML = '<option value="">Consultando servicio geográfico...</option>';
+        try {
+          const res = await fetch(`https://api.zippopotam.us/mx/${cp}`);
+          if (res.ok) {
+            const data = await res.json();
+            document.getElementById('c_estado').value = data.places[0]['state'] || '';
+            document.getElementById('c_municipio').value = data.places[0]['place name'] || '';
+            
+            selColonia.innerHTML = '';
+            data.places.forEach(p => {
+              selColonia.innerHTML += `<option value="${p['place name']}">${p['place name']}</option>`;
+            });
+          } else {
+            selColonia.innerHTML = '<option value="">CP no hallado. Ingresa datos en dirección.</option>';
+          }
+        } catch (e) {
+          selColonia.innerHTML = '<option value="">Servicio no disponible</option>';
+        }
       }
     }
 
@@ -157,16 +411,46 @@
         }
 
         listaClientesGlobal.forEach(c => {
-          const etapaClase = `badge-${c.etapa || 'prospecto'}`;
+          const nomCompl = `${c.nombre || ''} ${c.apellido_paterno || ''} ${c.apellido_materno || ''}`.trim() || c.nombre || 'Sin Nombre';
+          const inicial = nomCompl.charAt(0).toUpperCase();
+          
+          let avatarHtml = '';
+          if (c.foto_cliente) {
+            if (c.foto_cliente.includes('application/pdf')) {
+              avatarHtml = `<a href="javascript:void(0)" onclick="descargarBlobBase64(listaClientesGlobal.find(i => i.id_cliente == ${c.id_cliente}).foto_cliente, 'Foto_Perfil.pdf')" style="width: 42px; height: 42px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px; flex-shrink: 0; border: 2px solid #fca5a5; text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1);" title="Descargar / Ver PDF">📄 PDF</a>`;
+            } else {
+              avatarHtml = `<img src="${c.foto_cliente}" alt="Avatar" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #c4b5fd; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">`;
+            }
+          } else {
+            avatarHtml = `<div style="width: 42px; height: 42px; border-radius: 50%; background: #ede9fe; color: #570fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; flex-shrink: 0; border: 2px solid #e2e8f0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">${inicial}</div>`;
+          }
+
+          const estatusClase = `badge-${(c.estatus || c.etapa || 'activo').toLowerCase()}`;
+          const estatusTxt = c.estatus || c.etapa || 'Activo';
+          
           tbody.innerHTML += `
             <tr>
-              <td style="font-weight: 600;">${c.nombre}</td>
-              <td>${c.telefono || 'N/A'}</td>
-              <td>${c.email || 'N/A'}</td>
-              <td><span class="badge ${etapaClase}">${c.etapa || 'Prospecto'}</span></td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 12px; text-align: left;">
+                  ${avatarHtml}
+                  <div>
+                    <div style="font-weight: 800; color: #0f172a; font-size: 14px;">${nomCompl}</div>
+                    <div style="font-size: 11px; color: #64748b; margin-top: 2px;">ID CRM: #${c.id_cliente}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div style="font-weight: 600; color: #1e293b;">📞 ${c.telefono || 'Sin teléfono'}</div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${c.correo || c.email || 'Sin correo'}</div>
+              </td>
+              <td>
+                <div style="font-weight: 700; color: #0f172a;">${c.colonia || c.municipio || 'Sin Asentamiento'}</div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${c.estado || 'Chiapas'}</div>
+              </td>
+              <td><span class="badge ${estatusClase}">${estatusTxt}</span></td>
               <td style="display: flex; gap: 6px; justify-content: center;">
-                <button onclick="editarCliente(${c.id_cliente})" style="padding: 4px 8px; border:none; background:#eff6ff; color:#2563eb; border-radius:4px; cursor:pointer; font-size:12px; font-weight:700;" title="Modificar">✏️</button>
-                <button onclick="eliminarClienteLocal(${c.id_cliente})" style="padding: 4px 8px; border:none; background:#fee2e2; color:#dc2626; border-radius:4px; cursor:pointer; font-size:12px;" title="Eliminar">🗑️</button>
+                <button onclick="editarCliente(${c.id_cliente})" style="padding: 6px 12px; border:none; background:#ede9fe; color:#570fff; border-radius:6px; cursor:pointer; font-size:12px; font-weight:800; transition:0.2s;" onmouseover="this.style.background='#d8b4fe'" onmouseout="this.style.background='#ede9fe'" title="Auditar / Modificar Ficha">✏️ Auditar</button>
+                <button onclick="eliminarClienteLocal(${c.id_cliente})" style="padding: 6px 12px; border:none; background:#fee2e2; color:#dc2626; border-radius:6px; cursor:pointer; font-size:12px; transition:0.2s;" onmouseover="this.style.background='#fca5a5'" onmouseout="this.style.background='#fee2e2'" title="Eliminar / Inactivar">🗑️</button>
               </td>
             </tr>
           `;
@@ -174,7 +458,7 @@
 
       } catch (error) {
         console.error('Error al cargar clientes:', error);
-        document.getElementById('tablaClientesBody').innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ef4444;">Error al cargar registros.</td></tr>`;
+        document.getElementById('tablaClientesBody').innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ef4444;">Error al cargar registros del CRM.</td></tr>`;
       }
     }
 
@@ -182,17 +466,56 @@
       const cliente = listaClientesGlobal.find(item => item.id_cliente == id);
       if (cliente) {
         document.getElementById('c_id_editar').value = cliente.id_cliente;
-        document.getElementById('c_nombre').value = cliente.nombre;
-        document.getElementById('c_telefono').value = cliente.telefono;
-        document.getElementById('c_email').value = cliente.email || '';
-        document.querySelector('.modal-header h3').innerText = `✏️ Editar Cliente #${cliente.id_cliente}`;
+        document.getElementById('c_nombre').value = cliente.nombre || '';
+        document.getElementById('c_ap_paterno').value = cliente.apellido_paterno || '';
+        document.getElementById('c_ap_materno').value = cliente.apellido_materno || '';
+        if (cliente.fecha_nacimiento) {
+          document.getElementById('c_nacimiento').value = cliente.fecha_nacimiento.split('T')[0];
+        } else {
+          document.getElementById('c_nacimiento').value = '';
+        }
+        document.getElementById('c_sexo').value = cliente.sexo || '';
+        document.getElementById('c_estado_civil').value = cliente.estado_civil || '';
+        document.getElementById('c_nacionalidad').value = cliente.nacionalidad || 'Mexicana';
+        document.getElementById('c_curp').value = cliente.curp || '';
+        document.getElementById('c_rfc').value = cliente.rfc || '';
+        document.getElementById('c_telefono').value = cliente.telefono || '';
+        document.getElementById('c_tel_sec').value = cliente.telefono_secundario || '';
+        document.getElementById('c_correo').value = cliente.correo || cliente.email || '';
+        document.getElementById('c_cp').value = cliente.codigo_postal || '';
+        document.getElementById('c_estado').value = cliente.estado || '';
+        document.getElementById('c_municipio').value = cliente.municipio || '';
+        
+        const selCol = document.getElementById('c_colonia');
+        selCol.innerHTML = `<option value="${cliente.colonia || ''}">${cliente.colonia || 'Seleccionar...'}</option>`;
+        
+        document.getElementById('c_direccion').value = cliente.direccion || '';
+        document.getElementById('c_ocupacion').value = cliente.ocupacion || '';
+        document.getElementById('c_empresa').value = cliente.empresa || '';
+        document.getElementById('c_ingresos').value = cliente.ingresos_mensuales || '';
+        document.getElementById('c_id_oficial').value = cliente.identificacion_oficial || 'INE';
+        document.getElementById('c_num_id').value = cliente.numero_identificacion || '';
+        document.getElementById('c_estatus').value = cliente.estatus || cliente.etapa || 'activo';
+        
+        document.getElementById('c_foto_cli').value = cliente.foto_cliente || '';
+        document.getElementById('prev_c_foto_cli').innerHTML = cliente.foto_cliente ? `<a href="javascript:void(0)" onclick="descargarBlobBase64(document.getElementById('c_foto_cli').value, 'Foto_Cliente.pdf')" style="color: #570fff; text-decoration: underline; font-weight: 700;">👁️ Ver / Descargar Archivo Guardado</a>` : 'Sin archivo previo';
+
+        document.getElementById('c_foto_id').value = cliente.foto_identificacion || '';
+        document.getElementById('prev_c_foto_id').innerHTML = cliente.foto_identificacion ? `<a href="javascript:void(0)" onclick="descargarBlobBase64(document.getElementById('c_foto_id').value, 'Identificacion_Oficial.pdf')" style="color: #570fff; text-decoration: underline; font-weight: 700;">👁️ Ver / Descargar Archivo Guardado</a>` : 'Sin archivo previo';
+
+        document.getElementById('c_comp_dom').value = cliente.comprobante_domicilio || '';
+        document.getElementById('prev_c_comp_dom').innerHTML = cliente.comprobante_domicilio ? `<a href="javascript:void(0)" onclick="descargarBlobBase64(document.getElementById('c_comp_dom').value, 'Comprobante_Domicilio.pdf')" style="color: #570fff; text-decoration: underline; font-weight: 700;">👁️ Ver / Descargar Archivo Guardado</a>` : 'Sin archivo previo';
+
+        document.getElementById('c_observaciones').value = cliente.observaciones || '';
+
+        document.querySelector('.modal-header h3').innerText = `✏️ Auditar / Modificar Cliente #${cliente.id_cliente}`;
         document.getElementById('btnGuardarCliente').innerText = 'Guardar Cambios';
         toggleModal(true);
       }
     }
 
     async function eliminarClienteLocal(id) {
-      if (!confirm(`¿Estás seguro de que deseas eliminar o inactivar al cliente #${id}?`)) return;
+      if (!confirm(`¿Estás seguro de que deseas archivar o inactivar el expediente del cliente #${id}?`)) return;
       try {
         const res = await fetch(`/clientes/${id}`, { method: 'DELETE' });
         if (!res.ok) {
@@ -205,7 +528,7 @@
       }
     }
 
-    // Guardar Cliente
+    // Guardar Expediente Completo
     const form = document.getElementById('formCliente');
     const msgBox = document.getElementById('mensaje-cliente');
     const btnGuardar = document.getElementById('btnGuardarCliente');
@@ -216,12 +539,39 @@
       msgBox.style.display = 'none';
       btnGuardar.disabled = true;
       const idEditar = document.getElementById('c_id_editar').value;
-      btnGuardar.innerText = idEditar ? 'Actualizando...' : 'Guardando...';
+      btnGuardar.innerText = idEditar ? 'Actualizando Expediente...' : 'Guardando Expediente...';
 
-      const nombre = document.getElementById('c_nombre').value.trim();
-      const telefono = document.getElementById('c_telefono').value.trim();
-      const email = document.getElementById('c_email').value.trim();
-      const id_asesor = userData ? userData.id_usuario : null;
+      const payload = {
+        nombre: document.getElementById('c_nombre').value.trim(),
+        apellido_paterno: document.getElementById('c_ap_paterno').value.trim(),
+        apellido_materno: document.getElementById('c_ap_materno').value.trim(),
+        fecha_nacimiento: document.getElementById('c_nacimiento').value || null,
+        sexo: document.getElementById('c_sexo').value,
+        estado_civil: document.getElementById('c_estado_civil').value,
+        nacionalidad: document.getElementById('c_nacionalidad').value.trim(),
+        curp: document.getElementById('c_curp').value.trim(),
+        rfc: document.getElementById('c_rfc').value.trim(),
+        telefono: document.getElementById('c_telefono').value.trim(),
+        telefono_secundario: document.getElementById('c_tel_sec').value.trim(),
+        correo: document.getElementById('c_correo').value.trim(),
+        email: document.getElementById('c_correo').value.trim(),
+        codigo_postal: document.getElementById('c_cp').value.trim(),
+        estado: document.getElementById('c_estado').value,
+        municipio: document.getElementById('c_municipio').value,
+        colonia: document.getElementById('c_colonia').value,
+        direccion: document.getElementById('c_direccion').value.trim(),
+        ocupacion: document.getElementById('c_ocupacion').value.trim(),
+        empresa: document.getElementById('c_empresa').value.trim(),
+        ingresos_mensuales: parseFloat(document.getElementById('c_ingresos').value) || 0,
+        identificacion_oficial: document.getElementById('c_id_oficial').value,
+        numero_identificacion: document.getElementById('c_num_id').value.trim(),
+        estatus: document.getElementById('c_estatus').value,
+        foto_cliente: document.getElementById('c_foto_cli').value.trim(),
+        foto_identificacion: document.getElementById('c_foto_id').value.trim(),
+        comprobante_domicilio: document.getElementById('c_comp_dom').value.trim(),
+        observaciones: document.getElementById('c_observaciones').value.trim(),
+        id_asesor: userData ? userData.id_usuario : null
+      };
 
       const url = idEditar ? `/clientes/${idEditar}` : '/clientes';
       const method = idEditar ? 'PUT' : 'POST';
@@ -230,23 +580,21 @@
         const res = await fetch(url, {
           method: method,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nombre, telefono, email, id_asesor })
+          body: JSON.stringify(payload)
         });
 
         if (!res.ok) {
-          let errorReal = 'Error del servidor al registrar el cliente';
+          let errorReal = 'Error al procesar la auditoría de base de datos';
           try {
             const errData = await res.json();
             if (errData.error) errorReal = errData.error;
-          } catch (eNoJson) {
-            errorReal = `Error del servidor (HTTP ${res.status})`;
-          }
+          } catch (eNoJson) {}
           throw new Error(errorReal);
         }
 
         msgBox.style.background = '#d1fae5';
         msgBox.style.color = '#065f46';
-        msgBox.innerText = idEditar ? '¡Cliente actualizado correctamente!' : '¡Cliente registrado correctamente!';
+        msgBox.innerText = idEditar ? '¡Ficha de cliente auditada y actualizada con éxito!' : '¡Expediente CRM formalizado con éxito!';
         msgBox.style.display = 'block';
 
         cargarClientes();
@@ -254,7 +602,7 @@
         setTimeout(() => {
           toggleModal(false);
           btnGuardar.disabled = false;
-          btnGuardar.innerText = 'Guardar Cliente';
+          btnGuardar.innerText = 'Guardar Expediente';
         }, 1500);
 
       } catch (err) {
@@ -263,11 +611,11 @@
         msgBox.innerText = err.message;
         msgBox.style.display = 'block';
         btnGuardar.disabled = false;
-        btnGuardar.innerText = idEditar ? 'Guardar Cambios' : 'Guardar Cliente';
+        btnGuardar.innerText = idEditar ? 'Guardar Cambios' : 'Guardar Expediente';
       }
     });
 
-    // Iniciar
+    // Iniciar renderizado
     cargarClientes();
   </script>
 

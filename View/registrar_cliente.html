@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Alta Rápida de Clientes - Arévalo & CIA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/style/styleclientes.css">
+  <style>
+    /* ESTILOS ESPECÍFICOS PARA PORTAL DE CAPTURA DE LUJO */
+    body {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .top-nav {
+      width: 100%;
+      max-width: 1000px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .btn-back {
+      background: #ffffff;
+      color: #475569;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      transition: 0.2s;
+      border: 1px solid #cbd5e1;
+    }
+
+    .btn-back:hover {
+      background: #f8fafc;
+      color: #0f172a;
+      transform: translateX(-3px);
+    }
+
+    .capture-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      width: 100%;
+      max-width: 1000px;
+      padding: 40px;
+    }
+
+    .portal-header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .portal-header h1 {
+      font-size: 28px;
+      color: #0f172a;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .portal-header p {
+      color: #64748b;
+      font-size: 15px;
+      margin-top: 5px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      color: #570fff;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 30px 0 15px;
+      border-bottom: 2px solid #ede9fe;
+      padding-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title:first-of-type {
+      margin-top: 0;
+    }
+
+    /* SOBREESCRIBIR INPUTS PARA SENSACIÓN ULTRA PREMIUM */
+    .form-group input, .form-group select, .form-group textarea {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      color: #1e293b;
+      transition: 0.2s;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: #570fff;
+      box-shadow: 0 0 0 4px rgba(87, 15, 255, 0.1);
+      background: #ffffff;
+    }
+
+    .form-group input[readonly] {
+      background-color: #f8fafc;
+      border-color: #cbd5e1;
+      color: #475569;
+      box-shadow: none;
+    }
+
+    .file-drop {
+      border: 2px dashed #cbd5e1;
+      padding: 15px;
+      border-radius: 12px;
+      background: #f8fafc;
+      text-align: center;
+      transition: 0.2s;
+    }
+
+    .file-drop:hover {
+      border-color: #570fff;
+      background: #ede9fe;
+    }
+
+    .file-drop input[type="file"] {
+      display: block;
+      width: 100%;
+      margin-top: 5px;
+      font-size: 12px;
+    }
+
+    .btn-submit-massive {
+      background: linear-gradient(135deg, #570fff 0%, #7c3aed 100%);
+      color: white;
+      border: none;
+      padding: 16px 35px;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(87, 15, 255, 0.3);
+      transition: 0.3s;
+      width: 100%;
+      margin-top: 30px;
+    }
+
+    .btn-submit-massive:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 35px rgba(87, 15, 255, 0.4);
+    }
+
+    #msg-portal {
+      display: none;
+      padding: 15px;
+      border-radius: 12px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 25px;
+      animation: fadeIn 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a href="/clientes.html" class="btn-back">⬅️ Volver al CRM de Clientes</a>
+    <img src="/public/LogoApp.png" alt="Logo" style="width: 45px; height: auto;">
+  </nav>
+
+  <main class="capture-card">
+    <header class="portal-header">
+      <h1>Portal de Captura del Prospecto</h1>
+      <p>Asimilación nativa con almacenamiento atómico digital e integridad de 29 columnas</p>
+    </header>
+
+    <div id="msg-portal"></div>
+
+    <form id="formRegistroSolo">
+      
+      <!-- SECCIÓN 1 -->
+      <div class="section-title"><span>👤</span> Identidad Personal y Cédula Oficial</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="r_nombre">Nombre(s) *</label>
+          <input type="text" id="r_nombre" placeholder="Ej. Carlos" maxlength="100" required>
+        </div>
+        <div class="form-group">
+          <label for="r_ap_pat">Apellido Paterno</label>
+          <input type="text" id="r_ap_pat" placeholder="Ej. Mendoza" maxlength="100">
+        </div>
+        <div class="form-group">
+          <label for="r_ap_mat">Apellido Materno</label>
+          <input type="text" id="r_ap_mat" placeholder="Ej. López" maxlength="100">
+        </div>
+        <div class="form-group">
+          <label for="r_nac">Fecha de Nacimiento</label>
+          <input type="date" id="r_nac">
+        </div>
+        <div class="form-group">
+          <label for="r_sexo">Género</label>
+          <select id="r_sexo">
+            <option value="">Seleccionar</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="r_edo_civil">Estado Civil</label>
+          <select id="r_edo_civil">
+            <option value="">Seleccionar</option>
+            <option value="Soltero(a)">Soltero(a)</option>
+            <option value="Casado(a)">Casado(a)</option>
+            <option value="Divorciado(a)">Divorciado(a)</option>
+            <option value="Viudo(a)">Viudo(a)</option>
+            <option value="Unión Libre">Unión Libre</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="r_nac_pais">Nacionalidad</label>
+          <input type="text" id="r_nac_pais" value="Mexicana" maxlength="100">
+        </div>
+        <div class="form-group">
+          <label for="r_curp">CURP (18 Caracteres)</label>
+          <input type="text" id="r_curp" placeholder="Alfanumérico" maxlength="18" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
+        </div>
+        <div class="form-group">
+          <label for="r_rfc">RFC (13 Caracteres)</label>
+          <input type="text" id="r_rfc" placeholder="Alfanumérico" maxlength="13" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
+        </div>
+      </div>
+
+      <!-- SECCIÓN 2 -->
+      <div class="section-title"><span>📞</span> Contacto y Localización Geográfica</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="r_tel">Teléfono Principal *</label>
+          <input type="text" id="r_tel" placeholder="10 dígitos numéricos" maxlength="10" minlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+        </div>
+        <div class="form-group">
+          <label for="r_tel2">Teléfono Secundario</label>
+          <input type="text" id="r_tel2" placeholder="10 dígitos numéricos" maxlength="10" minlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        </div>
+        <div class="form-group">
+          <label for="r_correo">Correo Electrónico</label>
+          <input type="email" id="r_correo" placeholder="prospecto@empresa.com" maxlength="150">
+        </div>
+        <div class="form-group">
+          <label for="r_cp">Código Postal *</label>
+          <input type="text" id="r_cp" placeholder="5 dígitos" maxlength="5" minlength="5" oninput="this.value = this.value.replace(/[^0-9]/g, ''); consultarCPPortal();" required>
+        </div>
+        <div class="form-group">
+          <label for="r_estado">Estado (Protegido)</label>
+          <input type="text" id="r_estado" readonly placeholder="Autollenado">
+        </div>
+        <div class="form-group">
+          <label for="r_mun">Municipio (Protegido)</label>
+          <input type="text" id="r_mun" readonly placeholder="Autollenado">
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label for="r_colonia">Colonia / Asentamiento (Selección Estricta)</label>
+          <select id="r_colonia" style="background: #ede9fe; font-weight: 700; color: #4c1d95; border-color: #c4b5fd;">
+            <option value="">Ingresa el CP para validar colonias...</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top: 15px;">
+        <label for="r_dir">Calle, Número Exterior e Interior</label>
+        <textarea id="r_dir" placeholder="Especifica detalles exactos de entrega de mensajería..."></textarea>
+      </div>
+
+      <!-- SECCIÓN 3 -->
+      <div class="section-title"><span>💼</span> Perfil Socioeconómico y Laboral</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="r_ocup">Ocupación u Oficio</label>
+          <input type="text" id="r_ocup" placeholder="Ej. Comerciante" maxlength="150">
+        </div>
+        <div class="form-group">
+          <label for="r_empresa">Empresa / Negocio</label>
+          <input type="text" id="r_empresa" placeholder="Ej. Distribuidora del Valle" maxlength="150">
+        </div>
+        <div class="form-group">
+          <label for="r_ingresos">Ingreso Promedio Mensual ($)</label>
+          <input type="number" step="any" id="r_ingresos" placeholder="0.00">
+        </div>
+      </div>
+
+      <!-- SECCIÓN 4 -->
+      <div class="section-title"><span>📁</span> Expediente Digital y Archivos (Máx 2MB por archivo)</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="r_id_tipo">Tipo de Identificación Oficial</label>
+          <select id="r_id_tipo">
+            <option value="INE">Credencial INE</option>
+            <option value="Pasaporte">Pasaporte</option>
+            <option value="Cédula Profesional">Cédula Profesional</option>
+            <option value="Cartilla Militar">Cartilla Militar</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="r_id_num">Número de Identificación</label>
+          <input type="text" id="r_id_num" placeholder="Folio o clave oficial" maxlength="100">
+        </div>
+        <div class="form-group">
+          <label for="r_estatus">Estatus de Entrada al CRM</label>
+          <select id="r_estatus">
+            <option value="prospecto">Prospecto Nuevo</option>
+            <option value="contactado">Ya Contactado</option>
+            <option value="visito">Visitó Fraccionamiento</option>
+            <option value="apartado">Con Intención de Apartado</option>
+            <option value="activo">Cliente Activo</option>
+          </select>
+        </div>
+        
+        <div class="form-group file-drop">
+          <label style="font-weight: 700; color: #0f172a;">📸 Foto del Cliente</label>
+          <input type="file" accept="image/*,application/pdf" onchange="convertirArchivo(this, 'val_foto_cli')">
+          <input type="hidden" id="val_foto_cli">
+          <div id="lbl_val_foto_cli" style="font-size: 11px; margin-top: 5px; color: #64748b;">Formatos JPG, PNG o PDF (Máx 2MB)</div>
+        </div>
+
+        <div class="form-group file-drop">
+          <label style="font-weight: 700; color: #0f172a;">🪪 Archivo INE / ID</label>
+          <input type="file" accept="image/*,application/pdf" onchange="convertirArchivo(this, 'val_foto_id')">
+          <input type="hidden" id="val_foto_id">
+          <div id="lbl_val_foto_id" style="font-size: 11px; margin-top: 5px; color: #64748b;">Escaneo frontal y reverso (Máx 2MB)</div>
+        </div>
+
+        <div class="form-group file-drop">
+          <label style="font-weight: 700; color: #0f172a;">📄 Comprobante Domicilio</label>
+          <input type="file" accept="image/*,application/pdf" onchange="convertirArchivo(this, 'val_comp_dom')">
+          <input type="hidden" id="val_comp_dom">
+          <div id="lbl_val_comp_dom" style="font-size: 11px; margin-top: 5px; color: #64748b;">Recibo de luz, agua o telefonía (Máx 2MB)</div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top: 15px;">
+        <label for="r_obs">Observaciones y Seguimiento Inicial</label>
+        <textarea id="r_obs" placeholder="Anota cómo nos conoció, presupuesto aproximado, lotes de interés particular..."></textarea>
+      </div>
+
+      <button type="submit" class="btn-submit-massive" id="btnProcesarAlta">Formalizar Ingreso al CRM</button>
+
+    </form>
+  </main>
+
+  <script>
+    // Conversión Base64 unificada con tope estricto de 2MB
+    function convertirArchivo(input, outputId) {
+      const file = input.files[0];
+      const lbl = document.getElementById('lbl_' + outputId);
+      if (!file) {
+        lbl.innerHTML = 'Formatos JPG, PNG o PDF (Máx 2MB)';
+        document.getElementById(outputId).value = '';
+        return;
+      }
+
+      if (file.size > 2 * 1024 * 1024) {
+        alert('⚠️ El archivo seleccionado supera el peso máximo autorizado de 2MB. Por favor, selecciona una versión comprimida.');
+        input.value = '';
+        lbl.innerHTML = '<span style="color: #dc2626; font-weight: 700;">❌ Excede 2MB. Carga anulada.</span>';
+        document.getElementById(outputId).value = '';
+        return;
+      }
+
+      lbl.innerHTML = '<span style="color: #f59e0b; font-weight: 700;">⏳ Empaquetando archivo digital...</span>';
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById(outputId).value = e.target.result;
+        lbl.innerHTML = '<span style="color: #10b981; font-weight: 800;">✅ Archivo digitalizado listo para Postgres</span>';
+      };
+      reader.onerror = function() {
+        lbl.innerHTML = '<span style="color: #dc2626; font-weight: 700;">❌ Fallo al procesar archivo</span>';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Consulta de Zippopotam.us
+    async function consultarCPPortal() {
+      const cp = document.getElementById('r_cp').value.trim();
+      const selCol = document.getElementById('r_colonia');
+      if (cp.length === 5) {
+        selCol.innerHTML = '<option value="">Conectando con catastro postal...</option>';
+        try {
+          const res = await fetch(`https://api.zippopotam.us/mx/${cp}`);
+          if (res.ok) {
+            const data = await res.json();
+            document.getElementById('r_estado').value = data.places[0]['state'] || '';
+            document.getElementById('r_mun').value = data.places[0]['place name'] || '';
+            
+            selCol.innerHTML = '';
+            data.places.forEach(p => {
+              selCol.innerHTML += `<option value="${p['place name']}">${p['place name']}</option>`;
+            });
+          } else {
+            selCol.innerHTML = '<option value="">CP no listado. Completa en recuadro de dirección.</option>';
+          }
+        } catch (e) {
+          selCol.innerHTML = '<option value="">Servicio postal desconectado</option>';
+        }
+      }
+    }
+
+    // Procesamiento de Formulario
+    const form = document.getElementById('formRegistroSolo');
+    const msg = document.getElementById('msg-portal');
+    const btn = document.getElementById('btnProcesarAlta');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      msg.style.display = 'none';
+      btn.disabled = true;
+      btn.innerText = 'Persistiendo en Base de Datos de Alta Seguridad...';
+
+      const uData = JSON.parse(localStorage.getItem('arevalo_user'));
+
+      const payload = {
+        nombre: document.getElementById('r_nombre').value.trim(),
+        apellido_paterno: document.getElementById('r_ap_pat').value.trim(),
+        apellido_materno: document.getElementById('r_ap_mat').value.trim(),
+        fecha_nacimiento: document.getElementById('r_nac').value || null,
+        sexo: document.getElementById('r_sexo').value,
+        estado_civil: document.getElementById('r_edo_civil').value,
+        nacionalidad: document.getElementById('r_nac_pais').value.trim(),
+        curp: document.getElementById('r_curp').value.trim(),
+        rfc: document.getElementById('r_rfc').value.trim(),
+        telefono: document.getElementById('r_tel').value.trim(),
+        telefono_secundario: document.getElementById('r_tel2').value.trim(),
+        correo: document.getElementById('r_correo').value.trim(),
+        email: document.getElementById('r_correo').value.trim(),
+        codigo_postal: document.getElementById('r_cp').value.trim(),
+        estado: document.getElementById('r_estado').value,
+        municipio: document.getElementById('r_mun').value,
+        colonia: document.getElementById('r_colonia').value,
+        direccion: document.getElementById('r_dir').value.trim(),
+        ocupacion: document.getElementById('r_ocup').value.trim(),
+        empresa: document.getElementById('r_empresa').value.trim(),
+        ingresos_mensuales: parseFloat(document.getElementById('r_ingresos').value) || 0,
+        identificacion_oficial: document.getElementById('r_id_tipo').value,
+        numero_identificacion: document.getElementById('r_id_num').value.trim(),
+        estatus: document.getElementById('r_estatus').value,
+        foto_cliente: document.getElementById('val_foto_cli').value,
+        foto_identificacion: document.getElementById('val_foto_id').value,
+        comprobante_domicilio: document.getElementById('val_comp_dom').value,
+        observaciones: document.getElementById('r_obs').value.trim(),
+        id_asesor: uData ? uData.id_usuario : null
+      };
+
+      try {
+        const res = await fetch('/clientes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          let errorReal = 'Discrepancia en el servidor al formalizar la persistencia';
+          try { const d = await res.json(); if (d.error) errorReal = d.error; } catch (e) {}
+          throw new Error(errorReal);
+        }
+
+        msg.style.background = '#d1fae5';
+        msg.style.color = '#065f46';
+        msg.innerHTML = '✨ <b>¡Expediente de Cliente asimilado exitosamente!</b> Todas las 29 propiedades y archivos en Base64 han sido asegurados.';
+        msg.style.display = 'block';
+
+        form.reset();
+        document.getElementById('r_colonia').innerHTML = '<option value="">Ingresa el CP para validar colonias...</option>';
+        document.getElementById('lbl_val_foto_cli').innerText = 'Formatos JPG, PNG o PDF (Máx 2MB)';
+        document.getElementById('lbl_val_foto_id').innerText = 'Escaneo frontal y reverso (Máx 2MB)';
+        document.getElementById('lbl_val_comp_dom').innerText = 'Recibo de luz, agua o telefonía (Máx 2MB)';
+        
+        // Scroll al mensaje de éxito
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      } catch (err) {
+        msg.style.background = '#fee2e2';
+        msg.style.color = '#991b1b';
+        msg.innerText = err.message;
+        msg.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Formalizar Ingreso al CRM';
+      }
+    });
+  </script>
+
+</body>
+</html>

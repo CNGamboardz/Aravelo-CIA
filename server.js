@@ -31,6 +31,11 @@ app.post('/api/usuarios/registrar', usuariosController.registrar);
 app.post('/api/usuarios/login', usuariosController.login);
 app.post('/api/registro-validar-pin', usuariosController.validarPin);
 
+// Rutas de API - Gestión de Vendedores (RBAC Admin)
+app.get('/api/vendedores', usuariosController.listarVendedores);
+app.get('/api/vendedores/:id', usuariosController.obtenerVendedor);
+app.put('/api/vendedores/:id', usuariosController.modificarVendedor);
+
 // Rutas de API - Agenda Personal
 app.get('/api/agenda', agendaController.listarEventos);
 app.post('/api/agenda', agendaController.guardarEvento);

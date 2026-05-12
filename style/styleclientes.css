@@ -304,3 +304,37 @@ body {
 .badge-apartado { background: #ffedd5; color: #c2410c; }
 .badge-activo { background: #d1fae5; color: #065f46; }
 .badge-riesgo { background: #fee2e2; color: #991b1b; }
+
+/* REGLAS CONTABLES PREMIUM PARA FORMULARIO EXTENDIDO */
+.form-group input[readonly] {
+  background-color: #ede9fe;
+  border-color: #c4b5fd;
+  color: #4c1d95;
+  font-weight: 700;
+  cursor: default;
+}
+
+.form-group textarea {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  background: #f9fafb;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-group textarea:focus {
+  border-color: #570fff;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(87, 15, 255, 0.1);
+}
+
+.modal-container {
+  max-width: 900px;
+  margin: 0 auto 30px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
