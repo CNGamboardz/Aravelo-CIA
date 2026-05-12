@@ -442,3 +442,139 @@ body {
   transform: translateY(-5px) scale(1.02);
   box-shadow: 0 15px 35px rgba(59, 7, 255, 0.4) !important;
 }
+
+/* ==========================================================================
+   MODO OSCURO / CLARO (DARK-LIGHT MODE) PREMIUM
+   ========================================================================== */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+body.dark-mode .sidebar {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-mode .sidebar-header h2 {
+  background: linear-gradient(45deg, #a78bfa, #fb923c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body.dark-mode .sidebar-menu a {
+  color: #cbd5e1;
+}
+
+body.dark-mode .sidebar-menu a:hover {
+  background-color: #334155;
+  color: #ffffff;
+}
+
+body.dark-mode .sidebar-menu a.active {
+  background: linear-gradient(45deg, rgba(167, 139, 250, 0.15), rgba(251, 146, 60, 0.15));
+  color: #a78bfa;
+  border-left-color: #a78bfa;
+}
+
+body.dark-mode .sidebar-footer {
+  border-color: #334155;
+}
+
+body.dark-mode .btn-logout {
+  background-color: #7f1d1d;
+  color: #fca5a5;
+}
+
+body.dark-mode .btn-logout:hover {
+  background-color: #991b1b;
+  color: #fee2e2;
+}
+
+/* CONTENEDORES INTERNOS TERRENOS EN MODO OSCURO */
+body.dark-mode .lote-card-custom,
+body.dark-mode .filter-bar,
+body.dark-mode .modal-content,
+body.dark-mode .action-bar {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc;
+}
+
+body.dark-mode .catalog-header-custom h1,
+body.dark-mode .lote-card-custom h3,
+body.dark-mode .modal-header h3,
+body.dark-mode h1[style*="color: #0f172a"],
+body.dark-mode p[style*="color: #0f172a"] {
+  color: #f8fafc !important;
+}
+
+body.dark-mode .lote-card-custom p,
+body.dark-mode .lote-specs-custom span {
+  color: #cbd5e1 !important;
+}
+
+body.dark-mode .filter-btn {
+  background-color: #334155 !important;
+  color: #cbd5e1 !important;
+  border-color: #475569 !important;
+}
+
+body.dark-mode .filter-btn.active {
+  background: linear-gradient(135deg, #a78bfa, #fb923c) !important;
+  color: #111827 !important;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group select,
+body.dark-mode .search-input {
+  background-color: #0f172a !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+body.dark-mode .form-group input:focus,
+body.dark-mode .form-group select:focus,
+body.dark-mode .search-input:focus {
+  border-color: #a78bfa !important;
+  background-color: #0f172a !important;
+}
+
+/* BOTÓN TOGGLE DE TEMA FLOTANTE/SIDEBAR */
+.btn-theme-toggle {
+  width: 100%;
+  padding: 10px;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.btn-theme-toggle:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+body.dark-mode .btn-theme-toggle {
+  background: #334155;
+  color: #f8fafc;
+  border-color: #475569;
+}
+
+body.dark-mode .btn-theme-toggle:hover {
+  background: #475569;
+  color: #ffffff;
+}

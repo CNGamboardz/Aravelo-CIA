@@ -8,6 +8,22 @@
 </head>
 
 <body>
+  <script>
+    if (localStorage.getItem('arevalo_theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+    function alternarTemaGlobal() {
+      const isDark = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('arevalo_theme', isDark ? 'dark' : 'light');
+      actualizarBotonesTema();
+    }
+    function actualizarBotonesTema() {
+      const isDark = document.body.classList.contains('dark-mode');
+      document.querySelectorAll('#iconoTema').forEach(el => el.innerText = isDark ? '☀️' : '🌙');
+      document.querySelectorAll('#textoTema').forEach(el => el.innerText = isDark ? 'Modo Claro' : 'Modo Oscuro');
+    }
+    document.addEventListener('DOMContentLoaded', actualizarBotonesTema);
+  </script>
 
   <!-- SIDEBAR LATERAL -->
   <aside class="sidebar">
@@ -55,6 +71,9 @@
     </ul>
 
     <div class="sidebar-footer">
+      <button class="btn-theme-toggle" onclick="alternarTemaGlobal()">
+        <span id="iconoTema">🌙</span> <span id="textoTema">Modo Oscuro</span>
+      </button>
       <button class="btn-logout" onclick="cerrarSesion()">
         <img src="/public/cerrar_sesión.png" style="width:18px; height:18px; object-fit:contain;" alt="logout"> Cerrar sesión
       </button>

@@ -17,6 +17,22 @@
 </head>
 
 <body>
+  <script>
+    if (localStorage.getItem('arevalo_theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+    function alternarTemaGlobal() {
+      const isDark = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('arevalo_theme', isDark ? 'dark' : 'light');
+      actualizarBotonesTema();
+    }
+    function actualizarBotonesTema() {
+      const isDark = document.body.classList.contains('dark-mode');
+      document.querySelectorAll('#iconoTema').forEach(el => el.innerText = isDark ? '☀️' : '🌙');
+      document.querySelectorAll('#textoTema').forEach(el => el.innerText = isDark ? 'Modo Claro' : 'Modo Oscuro');
+    }
+    document.addEventListener('DOMContentLoaded', actualizarBotonesTema);
+  </script>
 
   <!-- SIDEBAR LATERAL -->
   <aside class="sidebar">
@@ -64,6 +80,9 @@
     </ul>
 
     <div class="sidebar-footer">
+      <button class="btn-theme-toggle" onclick="alternarTemaGlobal()">
+        <span id="iconoTema">🌙</span> <span id="textoTema">Modo Oscuro</span>
+      </button>
       <button class="btn-logout" onclick="cerrarSesion()">
         <img src="/public/cerrar_sesión.png" style="width:18px; height:18px; object-fit:contain;" alt="logout"> Cerrar sesión
       </button>
@@ -93,9 +112,11 @@
     <section class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
       
       <!-- DINERO GENERADO -->
-      <div class="metric-card card-sales" onclick="abrirPestañaDetalle('vendidos')" style="cursor: pointer; border-left: 5px solid #3b07ff; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
+      <div class="metric-card card-sales" onclick="abrirPestañaDetalle('vendidos')" style="cursor: pointer; border-left: 5px solid #3b07ff; background: #ffffff;">
         <div class="metric-header">
-          <span style="color: #3b07ff; font-weight: 700; font-size: 13px;">💰 DINERO GENERADO</span>
+          <span style="color: #3b07ff; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+            <img src="/public/dinero_generado.png" style="width:16px; height:16px; object-fit:contain;" alt="icon"> DINERO GENERADO
+          </span>
           <span style="background: #ede9fe; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #570fff; font-weight: 800;">Ventas</span>
         </div>
         <div class="metric-value" id="valIngresosGenerados" style="font-size: 28px; color: #0f172a;">$0.00</div>
@@ -103,7 +124,7 @@
       </div>
 
       <!-- LOTES VENDIDOS -->
-      <div class="metric-card card-debt" onclick="abrirPestañaDetalle('vendidos')" style="cursor: pointer; border-left: 5px solid #dc2626; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
+      <div class="metric-card card-debt" onclick="abrirPestañaDetalle('vendidos')" style="cursor: pointer; border-left: 5px solid #dc2626; background: #ffffff;">
         <div class="metric-header">
           <span style="color: #dc2626; font-weight: 700; font-size: 13px;">🔴 LOTES VENDIDOS</span>
           <span style="background: #fee2e2; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #dc2626; font-weight: 800;">Cerrados</span>
@@ -113,7 +134,7 @@
       </div>
 
       <!-- LOTES DISPONIBLES -->
-      <div class="metric-card card-lotes" onclick="abrirPestañaDetalle('disponibles')" style="cursor: pointer; border-left: 5px solid #10b981; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
+      <div class="metric-card card-lotes" onclick="abrirPestañaDetalle('disponibles')" style="cursor: pointer; border-left: 5px solid #10b981; background: #ffffff;">
         <div class="metric-header">
           <span style="color: #10b981; font-weight: 700; font-size: 13px;">🟢 DISPONIBLES</span>
           <span style="background: #d1fae5; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #059669; font-weight: 800;">Catálogo</span>
@@ -123,7 +144,7 @@
       </div>
 
       <!-- LOTES APARTADOS -->
-      <div class="metric-card" onclick="abrirPestañaDetalle('apartados')" style="cursor: pointer; border-left: 5px solid #f59e0b; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.04); padding: 24px; border-radius: 16px; position: relative; overflow: hidden; border-top: 1px solid #f3f4f6; border-right: 1px solid #f3f4f6; border-bottom: 1px solid #f3f4f6; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+      <div class="metric-card" onclick="abrirPestañaDetalle('apartados')" style="cursor: pointer; border-left: 5px solid #f59e0b; background: #ffffff;">
         <div class="metric-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
           <span style="color: #f59e0b; font-weight: 700; font-size: 13px;">🟡 APARTADOS</span>
           <span style="background: #fef3c7; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #d97706; font-weight: 800;">Reservas</span>
@@ -138,7 +159,9 @@
     <section style="background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; margin-bottom: 40px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
         <div>
-          <h3 style="font-size: 18px; color: #0f172a; font-weight: 800;">📊 Estadística de Desempeño del Inventario</h3>
+          <h3 style="font-size: 18px; color: #0f172a; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+            <img src="/public/estadistica.png" style="width:22px; height:22px; object-fit:contain;" alt="icon"> Estadística de Desempeño del Inventario
+          </h3>
           <p style="color: #64748b; font-size: 13px;">Distribución porcentual de predios y captación financiera global</p>
         </div>
         <div style="font-size: 12px; font-weight: 700; color: #3b07ff; background: #f1f5f9; padding: 6px 12px; border-radius: 8px;">
@@ -224,7 +247,9 @@
       
       <!-- GESTIÓN DE TAREAS Y RECORDATORIOS -->
       <article class="agenda-card">
-        <h3>📅 Agenda Personal & Recordatorios</h3>
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <img src="/public/calendario.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Agenda Personal & Recordatorios
+        </h3>
         <p style="color: #6b7280; font-size: 13px; margin-bottom: 16px;">Programa tareas o citas con clientes para que no se te olviden:</p>
         
         <form class="agenda-form" id="formAgenda">

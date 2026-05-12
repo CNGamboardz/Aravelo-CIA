@@ -345,3 +345,188 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
 }
+
+/* ==========================================================================
+   MODO OSCURO / CLARO (DARK-LIGHT MODE) PREMIUM
+   ========================================================================== */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+body.dark-mode .sidebar {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-mode .sidebar-header h2 {
+  background: linear-gradient(45deg, #a78bfa, #fb923c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body.dark-mode .sidebar-menu a {
+  color: #cbd5e1;
+}
+
+body.dark-mode .sidebar-menu a:hover {
+  background-color: #334155;
+  color: #ffffff;
+}
+
+body.dark-mode .sidebar-menu a.active {
+  background: linear-gradient(45deg, rgba(167, 139, 250, 0.15), rgba(251, 146, 60, 0.15));
+  color: #a78bfa;
+  border-left-color: #a78bfa;
+}
+
+body.dark-mode .sidebar-footer {
+  border-color: #334155;
+}
+
+body.dark-mode .btn-logout {
+  background-color: #7f1d1d;
+  color: #fca5a5;
+}
+
+body.dark-mode .btn-logout:hover {
+  background-color: #991b1b;
+  color: #fee2e2;
+}
+
+/* CONTENEDORES INTERNOS PAGOS EN MODO OSCURO */
+body.dark-mode .table-container,
+body.dark-mode .form-card,
+body.dark-mode .list-card,
+body.dark-mode .tab-container,
+body.dark-mode .card-table,
+body.dark-mode .form-box,
+body.dark-mode #recibo-impresion {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+body.dark-mode .tab-btn {
+  color: #cbd5e1;
+}
+
+body.dark-mode .tab-btn.active {
+  background: linear-gradient(135deg, #a78bfa, #fb923c) !important;
+  color: #111827 !important;
+}
+
+body.dark-mode .pagos-header h1,
+body.dark-mode .form-box h2,
+body.dark-mode .form-group label {
+  color: #f8fafc !important;
+}
+
+body.dark-mode .pagos-header p {
+  color: #94a3b8 !important;
+}
+
+body.dark-mode .cobranza-table th {
+  background-color: #334155 !important;
+  color: #cbd5e1 !important;
+  border-color: #475569 !important;
+}
+
+body.dark-mode .cobranza-table tr,
+body.dark-mode .cobranza-table td {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+body.dark-mode .cobranza-table td b {
+  color: #f8fafc !important;
+}
+
+body.dark-mode .cobranza-table tr:hover td {
+  background-color: #334155 !important;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group select {
+  background-color: #0f172a !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+body.dark-mode .form-group input:focus,
+body.dark-mode .form-group select:focus {
+  border-color: #a78bfa !important;
+  background-color: #0f172a !important;
+}
+
+body.dark-mode .btn-cobrar {
+  background-color: #334155 !important;
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
+
+body.dark-mode .btn-cobrar:hover {
+  background-color: #a78bfa !important;
+  color: #111827 !important;
+}
+
+/* BOTÓN TOGGLE DE TEMA FLOTANTE/SIDEBAR */
+.btn-theme-toggle {
+  width: 100%;
+  padding: 10px;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.btn-theme-toggle:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+body.dark-mode .btn-theme-toggle {
+  background: #334155;
+  color: #f8fafc;
+  border-color: #475569;
+}
+
+body.dark-mode .btn-theme-toggle:hover {
+  background: #475569;
+  color: #ffffff;
+}
+
+/* ESTILOS BOTON COMPROBANTE */
+.btn-comprobante {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.btn-comprobante:hover {
+  background: #e2e8f0;
+}
+
+body.dark-mode .btn-comprobante {
+  background: #334155 !important;
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
+
+body.dark-mode .btn-comprobante:hover {
+  background: #475569 !important;
+  color: #ffffff !important;
+}
