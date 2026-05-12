@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Modificar Ficha de Predio - Arevalo & CIA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- LEAFLET JS PARA MAPAS PRECISOS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f1f5f9;
+      margin: 0;
+      padding: 40px 20px;
+      color: #0f172a;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    
+    body.dark-mode {
+      background: #0f172a;
+      color: #f8fafc;
+    }
+
+    /* CONTENEDOR GENERAL CENTRAL */
+    .wrapper {
+      max-width: 850px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* LOGOTIPO OFICIAL SUPERIOR DERECHO */
+    .top-logo-container {
+      position: absolute;
+      top: -10px;
+      right: 0;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 3px solid #f59e0b; /* Acento ámbar/dorado de modificación */
+      z-index: 10;
+    }
+    .top-logo-container img {
+      width: 75%;
+      height: auto;
+      object-fit: contain;
+    }
+
+    body.dark-mode .top-logo-container {
+      background: #1e293b;
+      border-color: #fbbf24;
+    }
+
+    /* TARJETA PRINCIPAL DEL FORMULARIO */
+    .form-card {
+      background: #ffffff;
+      border-radius: 32px;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+      border: 1px solid #e2e8f0;
+      margin-top: 20px;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    body.dark-mode .form-card {
+      background: #1e293b;
+      border-color: #334155;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: #64748b;
+      margin-top: 0;
+      margin-bottom: 28px;
+    }
+
+    body.dark-mode .page-title {
+      color: #f8fafc;
+    }
+    body.dark-mode .page-subtitle {
+      color: #94a3b8;
+    }
+
+    /* NAVEGACIÓN DE SECCIONES (TABS) */
+    .section-tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 12px;
+      margin-bottom: 30px;
+      overflow-x: auto;
+    }
+
+    body.dark-mode .section-tabs {
+      border-color: #334155;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #64748b;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .tab-btn.active {
+      background: #f59e0b;
+      color: #ffffff;
+    }
+
+    body.dark-mode .tab-btn {
+      color: #cbd5e1;
+    }
+    body.dark-mode .tab-btn:hover {
+      background: #334155;
+      color: #ffffff;
+    }
+    body.dark-mode .tab-btn.active {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #111827;
+    }
+
+    /* CONTENEDORES DE SECCIÓN */
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* GRILLA DE FORMULARIO */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    .form-group label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    body.dark-mode .form-group label {
+      color: #cbd5e1;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group select,
+    .form-group textarea {
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1px solid #cbd5e1;
+      outline: none;
+      font-size: 14px;
+      font-family: inherit;
+      background: #f8fafc;
+      color: #0f172a;
+      transition: 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: #f59e0b;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+    }
+
+    body.dark-mode .form-group input[type="text"],
+    body.dark-mode .form-group input[type="number"],
+    body.dark-mode .form-group select,
+    body.dark-mode .form-group textarea {
+      background: #0f172a;
+      border-color: #475569;
+      color: #f8fafc;
+    }
+
+    body.dark-mode .form-group input:focus,
+    body.dark-mode .form-group select:focus,
+    body.dark-mode .form-group textarea:focus {
+      border-color: #fbbf24;
+      background: #0f172a;
+      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
+    }
+
+    /* BOTONES DE PIE DE PÁGINA */
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 2px solid #f1f5f9;
+    }
+
+    body.dark-mode .footer-actions {
+      border-color: #334155;
+    }
+
+    .btn-back {
+      background: #f1f5f9;
+      color: #475569;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 16px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+
+    .btn-back:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    body.dark-mode .btn-back {
+      background: #334155;
+      color: #e2e8f0;
+    }
+    body.dark-mode .btn-back:hover {
+      background: #475569;
+      color: #ffffff;
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 16px;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);
+    }
+
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
+    }
+
+    /* BOTON DE MODO FLOTANTE SUPERIOR IZQUIERDO */
+    .theme-switch-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 10;
+    }
+
+    .btn-theme {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      transition: 0.2s;
+    }
+
+    body.dark-mode .btn-theme {
+      background: #1e293b;
+      border-color: #475569;
+      color: #f8fafc;
+    }
+
+    @media (max-width: 640px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .top-logo-container {
+        display: none;
+      }
+      .theme-switch-wrapper {
+        position: static;
+        margin-bottom: 16px;
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <script>
+    if (localStorage.getItem('arevalo_theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+    function alternarTema() {
+      const isDark = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('arevalo_theme', isDark ? 'dark' : 'light');
+      actualizarBtnTema();
+    }
+    function actualizarBtnTema() {
+      const isDark = document.body.classList.contains('dark-mode');
+      const btn = document.getElementById('btnTema');
+      if (btn) btn.innerHTML = isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro';
+    }
+    document.addEventListener('DOMContentLoaded', actualizarBtnTema);
+  </script>
+
+  <div class="wrapper">
+    
+    <div class="theme-switch-wrapper">
+      <button class="btn-theme" id="btnTema" onclick="alternarTema()">🌙 Modo Oscuro</button>
+    </div>
+
+    <!-- LOGOTIPO DE ESQUINA -->
+    <div class="top-logo-container">
+      <img src="/public/LogoApp.png" alt="Logo" onerror="this.src='https://placehold.co/80x80/f59e0b/ffffff?text=M'">
+    </div>
+
+    <!-- TARJETA DEL FORMULARIO -->
+    <div class="form-card">
+      <h1 class="page-title" id="tituloPagina">Modificar Predio #--</h1>
+      <p class="page-subtitle">Actualizar linderos, estatus y precios del inventario en tiempo real</p>
+
+      <div id="mensaje-box" style="display: none; padding: 12px; margin-bottom: 20px; border-radius: 12px; font-size: 13px; font-weight: 600; text-align: center;"></div>
+
+      <!-- TABS NAVEGABLES -->
+      <nav class="section-tabs">
+        <button class="tab-btn active" type="button" onclick="switchSection(1)">1. Datos Generales</button>
+        <button class="tab-btn" type="button" onclick="switchSection(2)">2. Medidas y Colindancias</button>
+        <button class="tab-btn" type="button" onclick="switchSection(3)">3. Ubicación y Mapa</button>
+        <button class="tab-btn" type="button" onclick="switchSection(4)">4. Precios y Servicios</button>
+        <button class="tab-btn" type="button" onclick="switchSection(5)">5. Documentos</button>
+      </nav>
+
+      <form id="formModificarLote">
+        <input type="hidden" id="t_id_editar">
+        
+        <!-- SECCIÓN 1 -->
+        <section class="tab-content active" id="sec-1">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label for="t_fracc">Fraccionamiento / Residencial *</label>
+              <input type="text" id="t_fracc" placeholder="Ej. Campestre Arévalo" maxlength="150" required>
+            </div>
+            <div class="form-group">
+              <label for="t_numero_lote">Número de Lote</label>
+              <input type="text" id="t_numero_lote" placeholder="Ej. 12" maxlength="50">
+            </div>
+            <div class="form-group">
+              <label for="t_manzana">Manzana</label>
+              <input type="text" id="t_manzana" placeholder="Ej. 3" maxlength="50">
+            </div>
+            <div class="form-group">
+              <label for="t_clave_catastral">Clave Catastral</label>
+              <input type="text" id="t_clave_catastral" placeholder="Ej. 001-029-399" maxlength="100">
+            </div>
+            <div class="form-group">
+              <label for="t_tipo_uso">Tipo de Uso</label>
+              <select id="t_tipo_uso">
+                <option value="habitacional">Habitacional</option>
+                <option value="comercial">Comercial</option>
+                <option value="industrial">Industrial</option>
+                <option value="mixto">Mixto</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="t_estado_inm">Estado Inmobiliario</label>
+              <select id="t_estado_inm">
+                <option value="disponible">🟢 Libre / Disponible</option>
+                <option value="apartado">🟡 Apartado / Reservado</option>
+                <option value="vendido">🔴 Vendido / Ocupado</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="t_id_propietario">ID Propietario</label>
+              <input type="number" id="t_id_propietario" placeholder="Ej. 1">
+            </div>
+          </div>
+        </section>
+
+        <!-- SECCIÓN 2 -->
+        <section class="tab-content" id="sec-2">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label for="t_superficie">Superficie Total (m²) *</label>
+              <input type="number" step="any" id="t_superficie" placeholder="Ej. 250.00" required>
+            </div>
+            <div class="form-group">
+              <label for="t_frente">Frente (m)</label>
+              <input type="number" step="any" id="t_frente" placeholder="Ej. 10.00">
+            </div>
+            <div class="form-group">
+              <label for="t_fondo">Fondo (m)</label>
+              <input type="number" step="any" id="t_fondo" placeholder="Ej. 25.00">
+            </div>
+            <div class="form-group">
+              <label for="t_lado_izq">Lado Izquierdo (m)</label>
+              <input type="number" step="any" id="t_lado_izq" placeholder="Ej. 25.00">
+            </div>
+            <div class="form-group">
+              <label for="t_lado_der">Lado Derecho (m)</label>
+              <input type="number" step="any" id="t_lado_der" placeholder="Ej. 25.00">
+            </div>
+            <div class="form-group full" style="margin-top: 10px;">
+              <span style="font-size: 11px; font-weight: 800; color: #f59e0b; text-transform: uppercase;">Colindancias Específicas</span>
+            </div>
+            <div class="form-group">
+              <label for="t_col_norte">Norte</label>
+              <input type="text" id="t_col_norte" placeholder="Ej. Lote 11">
+            </div>
+            <div class="form-group">
+              <label for="t_col_sur">Sur</label>
+              <input type="text" id="t_col_sur" placeholder="Ej. Calle Principal">
+            </div>
+            <div class="form-group">
+              <label for="t_col_este">Este</label>
+              <input type="text" id="t_col_este" placeholder="Ej. Lote 13">
+            </div>
+            <div class="form-group">
+              <label for="t_col_oeste">Oeste</label>
+              <input type="text" id="t_col_oeste" placeholder="Ej. Área Verde">
+            </div>
+          </div>
+        </section>
+
+        <!-- SECCIÓN 3 -->
+        <section class="tab-content" id="sec-3">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label for="t_direccion">Dirección / Ubicación General</label>
+              <input type="text" id="t_direccion" placeholder="Ej. Av. de los Pinos S/N" maxlength="250">
+            </div>
+            <div class="form-group">
+              <label for="t_colonia">Colonia / Localidad</label>
+              <input type="text" id="t_colonia" list="listaColonias" placeholder="Ej. Centro" maxlength="150">
+              <datalist id="listaColonias"></datalist>
+            </div>
+            <div class="form-group">
+              <label for="t_municipio">Municipio</label>
+              <input type="text" id="t_municipio" placeholder="Ej. Tuxtla Gutiérrez" maxlength="150">
+            </div>
+            <div class="form-group">
+              <label for="t_estado_rep">Estado</label>
+              <input type="text" id="t_estado_rep" placeholder="Ej. Chiapas" maxlength="100">
+            </div>
+            <div class="form-group">
+              <label for="t_cp">Código Postal (5 dígitos)</label>
+              <input type="text" id="t_cp" placeholder="Ej. 29000" maxlength="5" oninput="this.value = this.value.replace(/[^0-9]/g, ''); consultarCP(this.value)">
+              <span id="statusCP" style="font-size:11px; font-weight:700; display:block; margin-top:4px;"></span>
+            </div>
+            
+            <!-- CONTENEDOR DEL MAPA LEAFLET -->
+            <div class="form-group full" style="margin-top: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label>📍 Mapa GPS (Haz clic para capturar latitud/longitud)</label>
+                <span style="font-size: 10px; color: #64748b;">Leaflet OSM</span>
+              </div>
+              <div id="mapa-lote" style="height: 240px; width: 100%; border-radius: 14px; border: 1px solid #cbd5e1; z-index: 1;"></div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
+                <div class="form-group">
+                  <label>Latitud</label>
+                  <input type="number" step="any" id="t_latitud" placeholder="Ej. 16.7512">
+                </div>
+                <div class="form-group">
+                  <label>Longitud</label>
+                  <input type="number" step="any" id="t_longitud" placeholder="Ej. -93.1023">
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECCIÓN 4 -->
+        <section class="tab-content" id="sec-4">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label for="t_precio">Precio de Venta ($) *</label>
+              <input type="number" step="any" id="t_precio" placeholder="Ej. 450000" required>
+            </div>
+            <div class="form-group">
+              <label for="t_precio_lista">Precio de Lista Inicial ($)</label>
+              <input type="number" step="any" id="t_precio_lista" placeholder="Ej. 480000">
+            </div>
+            <div class="form-group">
+              <label for="t_anticipo">Anticipo Solicitado ($)</label>
+              <input type="number" step="any" id="t_anticipo" placeholder="Ej. 50000">
+            </div>
+            
+            <div class="form-group full" style="margin-top: 10px;">
+              <label>Servicios Disponibles a Pie de Lote</label>
+              <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px;">
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; text-transform:none; font-weight:600;"><input type="checkbox" id="t_serv_agua"> 💧 Agua Potable</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; text-transform:none; font-weight:600;"><input type="checkbox" id="t_serv_luz"> ⚡ Electricidad</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; text-transform:none; font-weight:600;"><input type="checkbox" id="t_serv_drenaje"> 🚰 Drenaje</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; text-transform:none; font-weight:600;"><input type="checkbox" id="t_serv_internet"> 🌐 Fibra / Internet</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; text-transform:none; font-weight:600;"><input type="checkbox" id="t_calle_pav"> 🛣️ Pavimentado</label>
+              </div>
+            </div>
+
+            <div class="form-group full">
+              <label for="t_descripcion">Descripción y Amenidades</label>
+              <textarea id="t_descripcion" rows="2" placeholder="Información promocional sobre el entorno..."></textarea>
+            </div>
+            <div class="form-group full">
+              <label for="t_observaciones">Observaciones Internas</label>
+              <textarea id="t_observaciones" rows="2" placeholder="Detalles de negociación o estatus legal interno..."></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECCIÓN 5 -->
+        <section class="tab-content" id="sec-5">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>Vista Actual Adjunta en el Expediente:</label>
+              <div id="vistaImagenPrevia" style="margin-bottom: 10px; color: #64748b; font-size: 12px;">Ninguna imagen cargada previamente</div>
+              <label for="t_archivo_img">📸 Reemplazar Render / Fotografía del Lote</label>
+              <input type="file" id="t_archivo_img" accept="image/*" style="padding: 10px; cursor: pointer;">
+              <input type="hidden" id="t_imagen_base64">
+            </div>
+            <div class="form-group">
+              <label for="t_plano_lote">Plano Cartográfico (Enlace)</label>
+              <input type="text" id="t_plano_lote" placeholder="URL o referencia del plano">
+            </div>
+            <div class="form-group">
+              <label for="t_escritura">Documento de Escrituras</label>
+              <input type="text" id="t_escritura" placeholder="Referencia de la escritura pública">
+            </div>
+            <div class="form-group full">
+              <label for="t_galeria">Galería Secundaria</label>
+              <input type="text" id="t_galeria" placeholder="Enlaces adicionales de fotos...">
+            </div>
+          </div>
+        </section>
+
+        <!-- PIE DE ACCIONES -->
+        <div class="footer-actions">
+          <a href="/terrenos.html" class="btn-back">← Descartar y Volver</a>
+          <button type="submit" class="btn-save" id="btnGuardar">Guardar Cambios</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let mapaLeaflet = null;
+    let markerLeaflet = null;
+    let targetId = null;
+
+    function switchSection(index) {
+      document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i + 1 === index));
+      document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i + 1 === index));
+
+      // Invalidar mapa para dibujar los tiles de OpenStreetMap
+      if (index === 3) {
+        setTimeout(() => {
+          initMap();
+          if (mapaLeaflet) mapaLeaflet.invalidateSize();
+        }, 150);
+      }
+    }
+
+    function initMap() {
+      if (mapaLeaflet !== null) return;
+      
+      let lat = 16.7532;
+      let lng = -93.1145;
+      const iLat = document.getElementById('t_latitud').value;
+      const iLng = document.getElementById('t_longitud').value;
+      if (iLat && iLng) {
+        lat = parseFloat(iLat);
+        lng = parseFloat(iLng);
+      }
+
+      mapaLeaflet = L.map('mapa-lote').setView([lat, lng], 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap',
+        maxZoom: 19
+      }).addTo(mapaLeaflet);
+
+      markerLeaflet = L.marker([lat, lng]).addTo(mapaLeaflet);
+
+      mapaLeaflet.on('click', function(e) {
+        const coords = e.latlng;
+        document.getElementById('t_latitud').value = coords.lat.toFixed(6);
+        document.getElementById('t_longitud').value = coords.lng.toFixed(6);
+
+        if (markerLeaflet) markerLeaflet.setLatLng(coords);
+        else markerLeaflet = L.marker(coords).addTo(mapaLeaflet);
+      });
+    }
+
+    // Código Postal
+    async function consultarCP(cp) {
+      const st = document.getElementById('statusCP');
+      if (!st) return;
+      const c = cp.trim();
+      if (c.length !== 5) { st.innerText = ''; return; }
+      
+      st.innerText = '⏳ Consultando...';
+      st.style.color = '#eab308';
+      
+      try {
+        const res = await fetch(`https://api.zippopotam.us/mx/${c}`);
+        if (!res.ok) {
+          st.innerText = '⚠️ CP local, escribe la colonia manualmente.';
+          st.style.color = '#64748b';
+          return;
+        }
+        const data = await res.json();
+        if (data && data.places && data.places.length > 0) {
+          document.getElementById('t_estado_rep').value = data.places[0].state || '';
+          const dl = document.getElementById('listaColonias');
+          if (dl) {
+            dl.innerHTML = '';
+            data.places.forEach(p => {
+              const opt = document.createElement('option');
+              opt.value = p['place name'];
+              dl.appendChild(opt);
+            });
+          }
+          if (data.places.length === 1) document.getElementById('t_colonia').value = data.places[0]['place name'];
+          st.innerText = `✅ ¡${data.places.length} colonias encontradas!`;
+          st.style.color = '#16a34a';
+        } else { st.innerText = ''; }
+      } catch (err) { st.innerText = ''; }
+    }
+
+    // Imagen Base64
+    document.getElementById('t_archivo_img').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          document.getElementById('t_imagen_base64').value = evt.target.result;
+          document.getElementById('vistaImagenPrevia').innerHTML = `<img src="${evt.target.result}" style="max-height:80px; border-radius:8px; object-fit:cover;">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Cargar y Autocompletar Lote al Iniciar
+    window.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(window.location.search);
+      targetId = params.get('id');
+      const msg = document.getElementById('mensaje-box');
+
+      if (!targetId) {
+        msg.style.background = '#fee2e2';
+        msg.style.color = '#b91c1c';
+        msg.innerText = '⚠️ No se especificó el ID del predio a modificar en la URL (?id=).';
+        msg.style.display = 'block';
+        document.getElementById('btnGuardar').disabled = true;
+        return;
+      }
+
+      document.getElementById('tituloPagina').innerText = `Modificar Predio #${targetId}`;
+      document.getElementById('t_id_editar').value = targetId;
+
+      try {
+        const res = await fetch('/terrenos');
+        const listado = await res.json();
+        const lote = listado.find(item => item.id_terreno == targetId);
+
+        if (!lote) {
+          throw new Error('El lote solicitado no se encuentra en el inventario activo.');
+        }
+
+        // Rellenar Pestaña 1
+        document.getElementById('t_fracc').value = lote.fraccionamiento || '';
+        document.getElementById('t_numero_lote').value = lote.numero_lote || '';
+        document.getElementById('t_manzana').value = lote.manzana || '';
+        document.getElementById('t_clave_catastral').value = lote.clave_catastral || '';
+        if (lote.tipo_uso) document.getElementById('t_tipo_uso').value = lote.tipo_uso;
+        
+        if (lote.estado) {
+          const eLimp = lote.estado.toLowerCase().trim();
+          if (eLimp.includes('vendido')) document.getElementById('t_estado_inm').value = 'vendido';
+          else if (eLimp.includes('apartado') || eLimp.includes('reservado')) document.getElementById('t_estado_inm').value = 'apartado';
+          else document.getElementById('t_estado_inm').value = 'disponible';
+        }
+        document.getElementById('t_id_propietario').value = lote.id_propietario || '';
+
+        // Rellenar Pestaña 2
+        document.getElementById('t_superficie').value = lote.superficie || '';
+        document.getElementById('t_frente').value = lote.frente || '';
+        document.getElementById('t_fondo').value = lote.fondo || '';
+        document.getElementById('t_lado_izq').value = lote.lado_izquierdo || '';
+        document.getElementById('t_lado_der').value = lote.lado_derecho || '';
+        document.getElementById('t_col_norte').value = lote.colindancia_norte || '';
+        document.getElementById('t_col_sur').value = lote.colindancia_sur || '';
+        document.getElementById('t_col_este').value = lote.colindancia_este || '';
+        document.getElementById('t_col_oeste').value = lote.colindancia_oeste || '';
+
+        // Rellenar Pestaña 3
+        document.getElementById('t_direccion').value = lote.direccion || lote.ubicacion || '';
+        document.getElementById('t_colonia').value = lote.colonia || '';
+        document.getElementById('t_municipio').value = lote.municipio || '';
+        document.getElementById('t_estado_rep').value = lote.estado_rep || '';
+        document.getElementById('t_cp').value = lote.codigo_postal || '';
+        document.getElementById('t_latitud').value = lote.latitud || '';
+        document.getElementById('t_longitud').value = lote.longitud || '';
+
+        // Rellenar Pestaña 4
+        document.getElementById('t_precio').value = lote.precio_venta || lote.precio_lista || '';
+        document.getElementById('t_precio_lista').value = lote.precio_lista || '';
+        document.getElementById('t_anticipo').value = lote.anticipo || '';
+        
+        document.getElementById('t_serv_agua').checked = !!lote.servicio_agua;
+        document.getElementById('t_serv_luz').checked = !!lote.servicio_luz;
+        document.getElementById('t_serv_drenaje').checked = !!lote.servicio_drenaje;
+        document.getElementById('t_serv_internet').checked = !!lote.servicio_internet;
+        document.getElementById('t_calle_pav').checked = !!lote.calle_pavimentada;
+
+        document.getElementById('t_descripcion').value = lote.descripcion || '';
+        document.getElementById('t_observaciones').value = lote.observaciones || '';
+        
+        // Rellenar Pestaña 5
+        document.getElementById('t_plano_lote').value = lote.plano_lote || '';
+        document.getElementById('t_escritura').value = lote.documento_escritura || '';
+        document.getElementById('t_galeria').value = lote.galeria_imagenes || '';
+
+        if (lote.imagen) {
+          document.getElementById('t_imagen_base64').value = lote.imagen;
+          document.getElementById('vistaImagenPrevia').innerHTML = `<img src="${lote.imagen}" style="max-height:80px; border-radius:8px; object-fit:cover; border: 2px solid #cbd5e1;">`;
+        } else {
+          document.getElementById('vistaImagenPrevia').innerHTML = 'Sin imagen cargada previamente';
+        }
+
+      } catch (err) {
+        msg.style.background = '#fef3c7';
+        msg.style.color = '#d97706';
+        msg.innerText = `⚠️ Precaución: ${err.message}`;
+        msg.style.display = 'block';
+      }
+    });
+
+    // Envío de la Actualización
+    const form = document.getElementById('formModificarLote');
+    const msg = document.getElementById('mensaje-box');
+    const btn = document.getElementById('btnGuardar');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.style.display = 'none';
+      btn.disabled = true;
+      btn.innerText = 'Sincronizando Cambios...';
+
+      const payload = {
+        fraccionamiento: document.getElementById('t_fracc').value.trim(),
+        numero_lote: document.getElementById('t_numero_lote').value.trim(),
+        manzana: document.getElementById('t_manzana').value.trim(),
+        clave_catastral: document.getElementById('t_clave_catastral').value.trim(),
+        tipo_uso: document.getElementById('t_tipo_uso').value,
+        estado: document.getElementById('t_estado_inm').value,
+        id_propietario: document.getElementById('t_id_propietario').value,
+        
+        superficie: document.getElementById('t_superficie').value,
+        frente: document.getElementById('t_frente').value,
+        fondo: document.getElementById('t_fondo').value,
+        lado_izquierdo: document.getElementById('t_lado_izq').value,
+        lado_derecho: document.getElementById('t_lado_der').value,
+        colindancia_norte: document.getElementById('t_col_norte').value.trim(),
+        colindancia_sur: document.getElementById('t_col_sur').value.trim(),
+        colindancia_este: document.getElementById('t_col_este').value.trim(),
+        colindancia_oeste: document.getElementById('t_col_oeste').value.trim(),
+
+        direccion: document.getElementById('t_direccion').value.trim(),
+        ubicacion: document.getElementById('t_direccion').value.trim(),
+        colonia: document.getElementById('t_colonia').value.trim(),
+        municipio: document.getElementById('t_municipio').value.trim(),
+        estado_rep: document.getElementById('t_estado_rep').value.trim(),
+        codigo_postal: document.getElementById('t_cp').value.trim(),
+        latitud: document.getElementById('t_latitud').value,
+        longitud: document.getElementById('t_longitud').value,
+
+        precio_venta: document.getElementById('t_precio').value,
+        precio_lista: document.getElementById('t_precio_lista').value,
+        anticipo: document.getElementById('t_anticipo').value,
+
+        servicio_agua: document.getElementById('t_serv_agua').checked,
+        servicio_luz: document.getElementById('t_serv_luz').checked,
+        servicio_drenaje: document.getElementById('t_serv_drenaje').checked,
+        servicio_internet: document.getElementById('t_serv_internet').checked,
+        calle_pavimentada: document.getElementById('t_calle_pav').checked,
+
+        descripcion: document.getElementById('t_descripcion').value.trim(),
+        observaciones: document.getElementById('t_observaciones').value.trim(),
+        plano_lote: document.getElementById('t_plano_lote').value.trim(),
+        documento_escritura: document.getElementById('t_escritura').value.trim(),
+        galeria_imagenes: document.getElementById('t_galeria').value.trim(),
+        imagen: document.getElementById('t_imagen_base64').value
+      };
+
+      try {
+        const res = await fetch(`/terrenos/${targetId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          let errReal = 'Error del servidor al modificar el predio';
+          try {
+            const errData = await res.json();
+            if (errData.error) errReal = errData.error;
+          } catch(e) {}
+          throw new Error(errReal);
+        }
+
+        msg.style.background = '#dcfce7';
+        msg.style.color = '#15803d';
+        msg.innerText = '¡Ficha del predio actualizada con absoluto éxito! Retornando...';
+        msg.style.display = 'block';
+
+        setTimeout(() => {
+          window.location.href = '/terrenos.html';
+        }, 1200);
+
+      } catch (err) {
+        msg.style.background = '#fee2e2';
+        msg.style.color = '#b91c1c';
+        msg.innerText = err.message;
+        msg.style.display = 'block';
+        btn.disabled = false;
+        btn.innerText = 'Guardar Cambios';
+      }
+    });
+  </script>
+</body>
+</html>

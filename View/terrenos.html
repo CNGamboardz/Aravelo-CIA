@@ -87,6 +87,10 @@
   <main class="main-content">
     
     <header class="catalog-header-custom" style="display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 30px; text-align: center; min-height: 120px;">
+      <!-- BOTÓN DE ACCESO DIRECTO A LA IZQUIERDA -->
+      <div style="position: absolute; left: 0; top: 35px;">
+        <a href="/registrarlote.html" style="background: linear-gradient(135deg, #3b07ff, #7c3aed); color: white; padding: 10px 20px; border-radius: 14px; font-weight: 800; font-size: 13px; text-decoration: none; box-shadow: 0 4px 15px rgba(59,7,255,0.25); display: inline-block; transition: 0.2s;">➕ Registrar Lote</a>
+      </div>
       <div>
         <h1 style="font-size: 32px; color: #0f172a; font-weight: 800; margin-bottom: 6px;">VENTA DE LOTES</h1>
         <p style="color: #0f172a; font-size: 19px; font-weight: 700;">ESCOJA EL LOTE QUE PREFIERA</p>
@@ -574,7 +578,7 @@
 
               <div style="display: flex; width: 100%; gap: 4px; margin-top: 10px;">
                 <button onclick="document.getElementById('specs-${t.id_terreno}').style.display = document.getElementById('specs-${t.id_terreno}').style.display === 'none' ? 'block' : 'none'" style="flex:1; padding:6px; font-size:10px; background:#e2e8f0; border:none; border-radius:6px; cursor:pointer; font-weight:700; color:#334155; transition:0.2s;" title="Mostrar/Ocultar Ficha Técnica">📑 Datos</button>
-                <button onclick="prepararEdicion(${t.id_terreno})" style="padding:6px 10px; font-size:10px; background:#eff6ff; color:#2563eb; border:none; border-radius:6px; cursor:pointer; font-weight:700; transition:0.2s;" title="Modificar Lote">✏️</button>
+                <button onclick="window.location.href='/modificarlote.html?id=${t.id_terreno}'" style="padding:6px 10px; font-size:10px; background:#eff6ff; color:#2563eb; border:none; border-radius:6px; cursor:pointer; font-weight:700; transition:0.2s;" title="Modificar Lote">✏️</button>
                 <button onclick="eliminarTerrenoLocal(${t.id_terreno})" style="padding:6px 10px; font-size:10px; background:#fee2e2; color:#dc2626; border:none; border-radius:6px; cursor:pointer; transition:0.2s;" title="Eliminar Lote">🗑️</button>
               </div>
 
@@ -585,7 +589,7 @@
 
       // INYECTAR LAS TARJETAS FINALES SEPARADAS AL FINAL DEL CONTENEDOR
       contenedor.innerHTML += `
-        <article class="lote-card-custom final-card" style="background: #3b07ff; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; cursor: pointer; transition: transform 0.2s ease; border: none; box-shadow: 0 8px 20px rgba(59, 7, 255, 0.25); box-sizing: border-box; padding: 14px; text-align:center;" onclick="toggleModal(true)" title="Hacer clic para registrar un lote nuevo">
+        <article class="lote-card-custom final-card" style="background: #3b07ff; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; cursor: pointer; transition: transform 0.2s ease; border: none; box-shadow: 0 8px 20px rgba(59, 7, 255, 0.25); box-sizing: border-box; padding: 14px; text-align:center;" onclick="window.location.href='/registrarlote.html'" title="Hacer clic para registrar un lote nuevo">
           <div style="width: 65px; height: 65px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
             <span style="color: #3b07ff; font-size: 40px; font-weight: 300; line-height: 0; display:inline-block; transform:translateY(-2px);">+</span>
           </div>
