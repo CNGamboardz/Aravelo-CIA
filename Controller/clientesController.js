@@ -12,7 +12,29 @@ const guardarCliente = async (req, res) => {
   res.json(nuevo);
 };
 
+const actualizarCliente = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const modificado = await clientesModel.actualizarClienteDB(id, req.body);
+    res.json(modificado);
+  } catch (error) {
+    res.status(500).json({ error: error.message || 'Error al actualizar cliente' });
+  }
+};
+
+const eliminarCliente = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await clientesModel.eliminarClienteDB(id);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message || 'Error al eliminar cliente' });
+  }
+};
+
 module.exports = {
   obtenerClientes,
-  guardarCliente
+  guardarCliente,
+  actualizarCliente,
+  eliminarCliente
 };

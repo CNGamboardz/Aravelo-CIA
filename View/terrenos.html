@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lotes Inmobiliarios - Arevalo & CIA</title>
+  <link rel="stylesheet" href="/style/styleterrenos.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+  <!-- SIDEBAR LATERAL -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="/public/LogoApp.png" alt="Logo">
+      <h2>Arévalo & CIA</h2>
+    </div>
+
+    <ul class="sidebar-menu">
+      <li>
+        <a href="/dashboard.html">
+          <span>📊</span> Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="/clientes.html">
+          <span>👥</span> Clientes (CRM)
+        </a>
+      </li>
+      <li>
+        <a href="/terrenos.html" class="active">
+          <span>🗺️</span> Lotes Inmobiliarios
+        </a>
+      </li>
+      <li>
+        <a href="/contratos.html">
+          <span>🤝</span> Acuerdos / Contratos
+        </a>
+      </li>
+      <li>
+        <a href="/pagos.html">
+          <span>💰</span> Cobranza y Pagos
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="cerrarSesion()">
+        <span>🚪</span> Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="main-content">
+    
+    <header class="catalog-header">
+      <div>
+        <h1 style="font-size: 26px; color: #111827; font-weight: 700;">Inventario de Lotes y Terrenos</h1>
+        <p style="color: #6b7280; font-size: 14px;">Catálogo interactivo de lotes en fraccionamiento listos para venta o financiamiento</p>
+      </div>
+      <button class="btn-new-lote" onclick="toggleModal(true)">
+        <span>➕</span> Dar de Alta Lote
+      </button>
+    </header>
+
+    <!-- FORMULARIO MODAL NUEVO LOTE -->
+    <section class="modal-container" id="modalLote">
+      <div class="modal-header">
+        <h3>Registrar Nuevo Lote al Inventario</h3>
+        <button class="btn-close" onclick="toggleModal(false)">✖</button>
+      </div>
+
+      <div id="mensaje-lote" style="display: none; padding: 10px; margin-bottom: 15px; border-radius: 8px; font-size: 13px; text-align: center;"></div>
+
+      <form id="formLote">
+        <input type="hidden" id="t_id_editar">
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label for="t_fracc">Fraccionamiento / Residencial</label>
+            <input type="text" id="t_fracc" placeholder="Ej. Campestre Arévalo" required>
+          </div>
+
+          <div class="form-group">
+            <label for="t_superficie">Superficie (m²)</label>
+            <input type="number" step="0.01" id="t_superficie" placeholder="Ej. 250.00" required>
+          </div>
+
+          <div class="form-group">
+            <label for="t_precio">Precio de Venta ($)</label>
+            <input type="number" step="0.01" id="t_precio" placeholder="Ej. 450000" required>
+          </div>
+
+          <div class="form-group">
+            <label for="t_ubicacion">Ubicación / Referencia</label>
+            <input type="text" id="t_ubicacion" placeholder="Ej. Lote 5 - Manzana 2">
+          </div>
+
+          <div class="form-group" style="grid-column: 1/-1;">
+            <label for="t_archivo_img">Subir Foto o Render del Lote desde tu Equipo</label>
+            <input type="file" id="t_archivo_img" accept="image/*" style="background: #ffffff; padding: 10px; cursor: pointer;">
+            <input type="hidden" id="t_imagen_base64">
+          </div>
+
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="submit" class="btn-submit-lote" id="btnGuardarLote">Agregar Lote</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- GRID DE TARJETAS -->
+    <section class="lotes-grid" id="contenedorLotes">
+      <p style="color: #9ca3af;">Cargando inventario disponible...</p>
+    </section>
+
+  </main>
+
+  <script>
+    let listaTerrenosGlobal = [];
+
+    function cerrarSesion() {
+      localStorage.removeItem('arevalo_user');
+      window.location.href = '/login.html';
+    }
+
+    function toggleModal(show) {
+      const modal = document.getElementById('modalLote');
+      modal.style.display = show ? 'block' : 'none';
+      if (!show) {
+        document.getElementById('formLote').reset();
+        document.getElementById('t_id_editar').value = '';
+        document.getElementById('t_imagen_base64').value = '';
+        document.getElementById('mensaje-lote').style.display = 'none';
+        document.querySelector('.modal-header h3').innerText = 'Registrar Nuevo Lote al Inventario';
+      }
+    }
+
+    async function cargarTerrenos() {
+      try {
+        const res = await fetch('/terrenos');
+        listaTerrenosGlobal = await res.json();
+        
+        const contenedor = document.getElementById('contenedorLotes');
+        contenedor.innerHTML = '';
+
+        if (!listaTerrenosGlobal || listaTerrenosGlobal.length === 0) {
+          contenedor.innerHTML = `
+            <div style="grid-column: 1/-1; padding: 20px; background: #fff; border-radius: 12px; border: 1px dashed #d1d5db; text-align: center; color: #6b7280;">
+              <p>No hay terrenos con estado 'disponible' registrados en este momento.</p>
+              <p style="font-size: 13px; margin-top: 5px;">Utiliza el botón <b>'Dar de Alta Lote'</b> para comenzar a alimentar tu catálogo.</p>
+            </div>
+          `;
+          return;
+        }
+
+        listaTerrenosGlobal.forEach(t => {
+          const precio = parseFloat(t.precio_venta || t.precio_lista || 0);
+          const superficieFormateada = parseFloat(t.superficie || 0).toLocaleString('es-MX', { maximumFractionDigits: 2 });
+          const estiloBg = t.imagen ? `background-image: url('${t.imagen}'); background-size: cover; background-position: center; cursor: pointer;` : '';
+          const contVisual = t.imagen ? `<div style="position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,0.6); color:#fff; padding:4px 8px; border-radius:4px; font-size:10px;">🔍 Ampliar</div>` : '🗺️';
+          const clickImg = t.imagen ? `onclick="abrirLightbox('${t.imagen}')"` : '';
+
+          contenedor.innerHTML += `
+            <article class="lote-card">
+              <div class="lote-visual" style="${estiloBg}; position:relative;" ${clickImg} title="Clic para ampliar imagen">
+                <span class="lote-badge">${t.estado || 'Disponible'}</span>
+                ${contVisual}
+              </div>
+              <div class="lote-details">
+                <h3>${t.fraccionamiento || 'Lote Residencial'}</h3>
+                <div class="lote-specs">
+                  <span>📐 ${superficieFormateada} m²</span>
+                  <span>📍 ${t.ubicacion || 'Sin referencia'}</span>
+                </div>
+                <div class="lote-price">
+                  <span class="price-label">Precio de venta</span>
+                  <span class="price-value">$${precio.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 14px; border-top: 1px solid #f1f5f9; padding-top: 12px;">
+                  <button onclick="prepararEdicion(${t.id_terreno})" style="flex:1; padding: 8px; border:none; background:#eff6ff; color:#2563eb; border-radius:8px; cursor:pointer; font-size:13px; font-weight:700; transition:0.2s;">✏️ Modificar</button>
+                  <button onclick="eliminarTerrenoLocal(${t.id_terreno})" style="padding: 8px 12px; border:none; background:#fee2e2; color:#dc2626; border-radius:8px; cursor:pointer; font-size:13px; transition:0.2s;" title="Eliminar Lote">🗑️</button>
+                </div>
+              </div>
+            </article>
+          `;
+        });
+
+      } catch (error) {
+        console.error('Error al cargar terrenos:', error);
+        document.getElementById('contenedorLotes').innerHTML = `<p style="color: #ef4444;">Error al cargar inventario.</p>`;
+      }
+    }
+
+    // Manejo de la subida de imagen local en Base64
+    document.getElementById('t_archivo_img').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          document.getElementById('t_imagen_base64').value = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Preparar el formulario modal para edición
+    function prepararEdicion(id) {
+      const lote = listaTerrenosGlobal.find(item => item.id_terreno == id);
+      if (lote) {
+        document.getElementById('t_id_editar').value = lote.id_terreno;
+        document.getElementById('t_fracc').value = lote.fraccionamiento;
+        document.getElementById('t_superficie').value = lote.superficie;
+        document.getElementById('t_precio').value = lote.precio_venta || lote.precio_lista;
+        document.getElementById('t_ubicacion').value = lote.ubicacion || '';
+        document.querySelector('.modal-header h3').innerText = `✏️ Modificar Lote #${lote.id_terreno}`;
+        btnGuardarLote.innerText = 'Guardar Cambios';
+        toggleModal(true);
+      }
+    }
+
+    // Eliminar Terreno Local
+    async function eliminarTerrenoLocal(id) {
+      if (!confirm(`¿Estás seguro de que deseas eliminar o archivar el lote #${id}?`)) return;
+      try {
+        const res = await fetch(`/terrenos/${id}`, { method: 'DELETE' });
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || 'No se pudo eliminar el lote');
+        }
+        cargarTerrenos();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    // Enviar formulario de alta o modificación
+    const formLote = document.getElementById('formLote');
+    const msgLote = document.getElementById('mensaje-lote');
+    const btnGuardarLote = document.getElementById('btnGuardarLote');
+
+    formLote.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msgLote.style.display = 'none';
+      btnGuardarLote.disabled = true;
+      const idEditar = document.getElementById('t_id_editar').value;
+      btnGuardarLote.innerText = idEditar ? 'Actualizando...' : 'Guardando...';
+
+      const fraccionamiento = document.getElementById('t_fracc').value.trim();
+      const superficie = document.getElementById('t_superficie').value;
+      const precio_venta = document.getElementById('t_precio').value;
+      const ubicacion = document.getElementById('t_ubicacion').value.trim();
+      const imagen = document.getElementById('t_imagen_base64').value;
+
+      const url = idEditar ? `/terrenos/${idEditar}` : '/terrenos';
+      const method = idEditar ? 'PUT' : 'POST';
+
+      try {
+        const res = await fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fraccionamiento, superficie, precio_venta, ubicacion, imagen })
+        });
+
+        if (!res.ok) {
+          let errorReal = 'Error del servidor al registrar el lote';
+          try {
+            const errData = await res.json();
+            if (errData.error) errorReal = errData.error;
+          } catch (eNoJson) {
+            errorReal = `Error del servidor (HTTP ${res.status}): La imagen es demasiado pesada o la ruta no responde.`;
+          }
+          throw new Error(errorReal);
+        }
+
+        msgLote.style.background = '#d1fae5';
+        msgLote.style.color = '#065f46';
+        msgLote.innerText = idEditar ? '¡Lote modificado correctamente!' : '¡Lote añadido exitosamente al inventario!';
+        msgLote.style.display = 'block';
+
+        cargarTerrenos();
+
+        setTimeout(() => {
+          toggleModal(false);
+          btnGuardarLote.disabled = false;
+          btnGuardarLote.innerText = 'Agregar Lote';
+        }, 1200);
+
+      } catch (err) {
+        msgLote.style.background = '#fee2e2';
+        msgLote.style.color = '#991b1b';
+        msgLote.innerText = err.message;
+        msgLote.style.display = 'block';
+        btnGuardarLote.disabled = false;
+        btnGuardarLote.innerText = idEditar ? 'Guardar Cambios' : 'Agregar Lote';
+      }
+    });
+
+    function abrirLightbox(url) {
+      const lb = document.getElementById('lightbox');
+      const img = document.getElementById('lightbox-img');
+      if (url && lb && img) {
+        img.src = url;
+        lb.style.display = 'flex';
+      }
+    }
+
+    cargarTerrenos();
+  </script>
+
+  <!-- LIGHTBOX MODAL PARA IMÁGENES -->
+  <div id="lightbox" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.9); z-index:99999; justify-content:center; align-items:center; backdrop-filter:blur(8px);">
+    <span onclick="document.getElementById('lightbox').style.display='none'" style="position:absolute; top:20px; right:30px; color:#fff; font-size:40px; cursor:pointer; font-weight:bold; transition:0.2s;" title="Cerrar">&times;</span>
+    <img id="lightbox-img" src="" style="max-width:90%; max-height:85vh; border-radius:12px; box-shadow:0 20px 40px rgba(0,0,0,0.6); object-fit:contain;">
+  </div>
+
+</body>
+</html>

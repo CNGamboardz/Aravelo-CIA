@@ -1,19 +1,248 @@
-<h1>Dashboard</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - Arevalo & CIA</title>
+  <link rel="stylesheet" href="/style/styledashboard.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 
-<div id="ventas"></div>
-<div id="cartera"></div>
+<body>
 
-<script>
-async function cargarDashboard() {
-  const res = await fetch('/dashboard');
-  const data = await res.json();
+  <!-- SIDEBAR LATERAL -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="/public/LogoApp.png" alt="Logo">
+      <h2>Arévalo & CIA</h2>
+    </div>
 
-  document.getElementById('ventas').innerText =
-    'Ventas del mes: ' + data.ventas.total_ventas;
+    <ul class="sidebar-menu">
+      <li>
+        <a href="/dashboard.html" class="active">
+          <span>📊</span> Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="/clientes.html">
+          <span>👥</span> Clientes (CRM)
+        </a>
+      </li>
+      <li>
+        <a href="/terrenos.html">
+          <span>🗺️</span> Lotes Inmobiliarios
+        </a>
+      </li>
+      <li>
+        <a href="/contratos.html">
+          <span>🤝</span> Acuerdos / Contratos
+        </a>
+      </li>
+      <li>
+        <a href="/pagos.html">
+          <span>💰</span> Cobranza y Pagos
+        </a>
+      </li>
+    </ul>
 
-  document.getElementById('cartera').innerText =
-    'Cartera vencida: $' + data.cartera.total_vencido;
-}
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="cerrarSesion()">
+        <span>🚪</span> Cerrar sesión
+      </button>
+    </div>
+  </aside>
 
-cargarDashboard();
-</script>
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="main-content">
+    
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="welcome-text">
+        <h1 id="tituloBienvenida">Panel de Control</h1>
+        <p>Resumen general de operaciones y cobranza</p>
+      </div>
+
+      <div class="user-profile">
+        <div class="avatar" id="userAvatar">A</div>
+        <div class="user-info">
+          <h4 id="userName">Asesor</h4>
+          <span id="userRol">Rol</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- METRICAS -->
+    <section class="metrics-grid">
+      
+      <div class="metric-card card-sales">
+        <div class="metric-header">
+          <span>Ventas del Mes</span>
+          <span>📈</span>
+        </div>
+        <div class="metric-value" id="valVentas">...</div>
+      </div>
+
+      <div class="metric-card card-debt">
+        <div class="metric-header">
+          <span>Cartera Vencida</span>
+          <span>⚠️</span>
+        </div>
+        <div class="metric-value" id="valCartera">...</div>
+      </div>
+
+      <div class="metric-card card-lotes">
+        <div class="metric-header">
+          <span>Lotes Disponibles</span>
+          <span>🟢</span>
+        </div>
+        <div class="metric-value" id="valLotes">...</div>
+      </div>
+
+    </section>
+
+    <!-- BANNER CENTRAL -->
+    <section class="dashboard-banner">
+      <div class="banner-content">
+        <h2>Gestión Comercial Activa</h2>
+        <p>Administra prospectos, realiza seguimientos de llamadas y cierra apartados de lotes de forma centralizada.</p>
+      </div>
+      <a href="/clientes.html" class="btn-banner">Ir al CRM →</a>
+    </section>
+
+    <!-- SECCIÓN DE AGENDA / CALENDARIO PERSONAL -->
+    <section class="agenda-section">
+      
+      <!-- GESTIÓN DE TAREAS Y RECORDATORIOS -->
+      <article class="agenda-card">
+        <h3>📅 Agenda Personal & Recordatorios</h3>
+        <p style="color: #6b7280; font-size: 13px; margin-bottom: 16px;">Programa tareas o citas con clientes para que no se te olviden:</p>
+        
+        <form class="agenda-form" id="formAgenda">
+          <input type="text" id="a_titulo" placeholder="Ej. Llamar a prospecto Lote 5" required>
+          <input type="date" id="a_fecha" required>
+          <button type="submit" class="btn-agenda">Agendar</button>
+        </form>
+
+        <ul class="agenda-list" id="listaAgenda">
+          <li style="color: #9ca3af; font-size: 13px;">Cargando tus tareas programadas...</li>
+        </ul>
+      </article>
+
+      <!-- MINI CALENDARIO VISUAL DEL DÍA -->
+      <aside class="mini-calendar">
+        <div class="mini-calendar-header">HOY ES</div>
+        <div class="mini-calendar-date" id="calDia">12</div>
+        <div class="mini-calendar-month" id="calMesAnio">MAYO 2026</div>
+      </aside>
+
+    </section>
+
+  </main>
+
+  <script>
+    const userData = JSON.parse(localStorage.getItem('arevalo_user'));
+    if (userData) {
+      document.getElementById('userName').innerText = userData.nombre;
+      document.getElementById('userRol').innerText = userData.rol;
+      document.getElementById('userAvatar').innerText = userData.nombre.charAt(0).toUpperCase();
+      document.getElementById('tituloBienvenida').innerText = `¡Hola, ${userData.nombre.split(' ')[0]}!`;
+    }
+
+    // Configurar el Mini Calendario Visual
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const hoy = new Date();
+    document.getElementById('calDia').innerText = hoy.getDate();
+    document.getElementById('calMesAnio').innerText = `${meses[hoy.getMonth()]} ${hoy.getFullYear()}`;
+    // Poner fecha de hoy por defecto en el input date
+    document.getElementById('a_fecha').value = hoy.toISOString().split('T')[0];
+
+    // Cargar métricas
+    async function cargarDashboard() {
+      try {
+        const resDash = await fetch('/dashboard');
+        const dataDash = await resDash.json();
+        document.getElementById('valVentas').innerText = dataDash.ventas ? dataDash.ventas.total_ventas : '0';
+        
+        const carteraMonto = dataDash.cartera && dataDash.cartera.total_vencido ? parseFloat(dataDash.cartera.total_vencido) : 0;
+        document.getElementById('valCartera').innerText = '$' + carteraMonto.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+
+        const resLotes = await fetch('/terrenos');
+        const dataLotes = await resLotes.json();
+        document.getElementById('valLotes').innerText = Array.isArray(dataLotes) ? dataLotes.length : '0';
+
+      } catch (error) {
+        console.error('Error al cargar métricas:', error);
+      }
+    }
+
+    // Cargar Agenda Personal
+    async function cargarAgenda() {
+      try {
+        const idParam = userData ? `?id_usuario=${userData.id_usuario}` : '';
+        const res = await fetch(`/api/agenda${idParam}`);
+        const eventos = await res.json();
+
+        const lista = document.getElementById('listaAgenda');
+        lista.innerHTML = '';
+
+        if (!eventos || eventos.length === 0) {
+          lista.innerHTML = `<li style="color: #6b7280; font-size: 13px;">No tienes tareas o recordatorios pendientes.</li>`;
+          return;
+        }
+
+        eventos.forEach(e => {
+          // Extraer fecha limpia
+          const f = new Date(e.fecha_evento + 'T00:00:00');
+          const fStr = isNaN(f) ? e.fecha_evento : `${f.getDate()} ${meses[f.getMonth()]}`;
+          
+          lista.innerHTML += `
+            <li class="agenda-item">
+              <div>
+                <div class="agenda-item-title">📌 ${e.titulo}</div>
+                <div class="agenda-item-date">Programado para: <b>${fStr}</b></div>
+              </div>
+            </li>
+          `;
+        });
+      } catch (err) {
+        console.error('Error al cargar agenda:', err);
+        document.getElementById('listaAgenda').innerHTML = `<li style="color: #ef4444; font-size: 13px;">Error al conectar con la agenda.</li>`;
+      }
+    }
+
+    // Guardar Tarea en la Agenda
+    const formAgenda = document.getElementById('formAgenda');
+    formAgenda.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const titulo = document.getElementById('a_titulo').value.trim();
+      const fecha_evento = document.getElementById('a_fecha').value;
+      const id_usuario = userData ? userData.id_usuario : null;
+
+      try {
+        const res = await fetch('/api/agenda', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_usuario, titulo, fecha_evento })
+        });
+
+        if (!res.ok) throw new Error('Error al programar tarea');
+        
+        document.getElementById('a_titulo').value = '';
+        cargarAgenda();
+
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    function cerrarSesion() {
+      localStorage.removeItem('arevalo_user');
+      window.location.href = '/login.html';
+    }
+
+    cargarDashboard();
+    cargarAgenda();
+  </script>
+
+</body>
+</html>

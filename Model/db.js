@@ -8,4 +8,8 @@ const pool = new Pool({
   port: 5432,
 });
 
+pool.on('connect', (client) => {
+  client.query('SET search_path TO sistema, public;');
+});
+
 module.exports = pool;

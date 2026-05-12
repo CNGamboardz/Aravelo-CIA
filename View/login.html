@@ -23,14 +23,16 @@
 
       <h1>Iniciar sesión</h1>
 
-      <form>
+      <div id="mensaje-box" style="display: none; padding: 10px; margin-bottom: 15px; border-radius: 8px; font-size: 14px; text-align: center; font-weight: 500;"></div>
+
+      <form id="formLogin">
 
         <label for="email">Ingresa tu email</label>
-        <input type="email" id="email" placeholder="Ingresa tu correo/usuario">
+        <input type="email" id="email" placeholder="Ingresa tu correo/usuario" required>
 
         <label for="password">Ingresa tu contraseña</label>
         <div class="password-box">
-          <input type="password" id="password" placeholder="************">
+          <input type="password" id="password" placeholder="************" required>
           
           <button type="button" class="eye">
             <img src="/public/eye.png" alt="Mostrar contraseña">
@@ -39,10 +41,14 @@
 
         <a href="#" class="forgot"><b>¿Olvidaste tu contraseña?</b></a>
 
-      <nav class="tabs">
-        <button type="button" class="tab active" id="tabLogin">Iniciar sesión</button>
-        <button type="button" class="tab" id="tabRegister">Registrarse</button>
-      </nav>
+        <div class="actions" style="margin-bottom: 20px;">
+          <button type="submit" class="btn-login" id="btnLoginSubmit">Iniciar sesión</button>
+        </div>
+
+        <nav class="tabs" style="left: 0; display: flex; justify-content: center;">
+          <button type="button" class="tab active" id="tabLogin">Iniciar sesión</button>
+          <button type="button" class="tab" id="tabRegister">Registrarse</button>
+        </nav>
 
       </form>
 
@@ -53,10 +59,10 @@
   <!-- DERECHA -->
   <aside class="visual">
 
-    <img src="/public/abajoderueda.png" class="bg-diagonal">
+    <img src="/public/abajoderueda.png" class="bg-diagonal" alt="Fondo">
 
     <div class="circle">
-      <img src="/public/ruedalogin.png">
+      <img src="/public/ruedalogin.png" alt="Rueda Inmobiliaria">
     </div>
 
   </aside>
@@ -72,25 +78,60 @@ eye.addEventListener('click', () => {
   pass.type = pass.type === 'password' ? 'text' : 'password';
 });
 
-// Tabs
-const tabs = document.querySelectorAll('.tab');
+// Tabs redirección
 const tabRegister = document.getElementById('tabRegister');
-const btnRegister = document.querySelector('.btn-register');
-
-tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    tabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-  });
-});
-
-// Redirección
 tabRegister.addEventListener('click', () => {
   window.location.href = "/registrar.html";
 });
 
-btnRegister.addEventListener('click', () => {
-  window.location.href = "/registrar.html";
+// Envío del Formulario al Backend
+const form = document.getElementById('formLogin');
+const mensajeBox = document.getElementById('mensaje-box');
+const btnLoginSubmit = document.getElementById('btnLoginSubmit');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  mensajeBox.style.display = 'none';
+  btnLoginSubmit.disabled = true;
+  btnLoginSubmit.innerText = 'Verificando...';
+
+  const correo = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  try {
+    const res = await fetch('/api/usuarios/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ correo, password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || 'Credenciales inválidas');
+    }
+
+    // Guardar sesión en el cliente
+    localStorage.setItem('arevalo_user', JSON.stringify(data.usuario));
+
+    mensajeBox.style.background = '#d1fae5';
+    mensajeBox.style.color = '#065f46';
+    mensajeBox.innerText = '¡Bienvenido! Cargando el sistema...';
+    mensajeBox.style.display = 'block';
+
+    setTimeout(() => {
+      window.location.href = '/dashboard.html';
+    }, 1200);
+
+  } catch (err) {
+    mensajeBox.style.background = '#fee2e2';
+    mensajeBox.style.color = '#991b1b';
+    mensajeBox.innerText = err.message;
+    mensajeBox.style.display = 'block';
+    btnLoginSubmit.disabled = false;
+    btnLoginSubmit.innerText = 'Iniciar sesión';
+  }
 });
 </script>
 

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Clientes CRM - Arevalo & CIA</title>
+  <link rel="stylesheet" href="/style/styleclientes.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+  <!-- SIDEBAR LATERAL -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="/public/LogoApp.png" alt="Logo">
+      <h2>Arévalo & CIA</h2>
+    </div>
+
+    <ul class="sidebar-menu">
+      <li>
+        <a href="/dashboard.html">
+          <span>📊</span> Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="/clientes.html" class="active">
+          <span>👥</span> Clientes (CRM)
+        </a>
+      </li>
+      <li>
+        <a href="/terrenos.html">
+          <span>🗺️</span> Lotes Inmobiliarios
+        </a>
+      </li>
+      <li>
+        <a href="/contratos.html">
+          <span>🤝</span> Acuerdos / Contratos
+        </a>
+      </li>
+      <li>
+        <a href="/pagos.html">
+          <span>💰</span> Cobranza y Pagos
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="cerrarSesion()">
+        <span>🚪</span> Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="main-content">
+    
+    <header class="crm-header">
+      <div class="crm-title">
+        <h1>Directorio de Clientes</h1>
+        <p>Gestión de prospectos, compradores y estatus del CRM</p>
+      </div>
+      <button class="btn-new-client" onclick="toggleModal(true)">
+        <span>➕</span> Nuevo Cliente
+      </button>
+    </header>
+
+    <!-- FORMULARIO MODAL NUEVO CLIENTE -->
+    <section class="modal-container" id="modalCliente">
+      <div class="modal-header">
+        <h3>Registrar Nuevo Prospecto</h3>
+        <button class="btn-close" onclick="toggleModal(false)">✖</button>
+      </div>
+
+      <div id="mensaje-cliente" style="display: none; padding: 10px; margin-bottom: 15px; border-radius: 8px; font-size: 13px; text-align: center;"></div>
+
+      <form id="formCliente">
+        <input type="hidden" id="c_id_editar">
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label for="c_nombre">Nombre Completo</label>
+            <input type="text" id="c_nombre" placeholder="Ej. Juan Pérez García" required>
+          </div>
+
+          <div class="form-group">
+            <label for="c_telefono">Teléfono / WhatsApp</label>
+            <input type="text" id="c_telefono" placeholder="Ej. 5544332211" required>
+          </div>
+
+          <div class="form-group">
+            <label for="c_email">Correo Electrónico</label>
+            <input type="email" id="c_email" placeholder="ejemplo@correo.com">
+          </div>
+
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="submit" class="btn-submit-client" id="btnGuardarCliente">Guardar Cliente</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- TABLA DE REGISTROS -->
+    <section class="table-container">
+      <table class="crm-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th>Etapa</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaClientesBody">
+          <tr>
+            <td colspan="4" style="text-align: center; color: #9ca3af;">Cargando clientes...</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <script>
+    const userData = JSON.parse(localStorage.getItem('arevalo_user'));
+    let listaClientesGlobal = [];
+
+    function cerrarSesion() {
+      localStorage.removeItem('arevalo_user');
+      window.location.href = '/login.html';
+    }
+
+    function toggleModal(show) {
+      const modal = document.getElementById('modalCliente');
+      modal.style.display = show ? 'block' : 'none';
+      if (!show) {
+        document.getElementById('formCliente').reset();
+        document.getElementById('c_id_editar').value = '';
+        document.getElementById('mensaje-cliente').style.display = 'none';
+        document.querySelector('.modal-header h3').innerText = 'Registrar Nuevo Prospecto';
+      }
+    }
+
+    // Cargar Listado de Clientes
+    async function cargarClientes() {
+      try {
+        const res = await fetch('/clientes');
+        listaClientesGlobal = await res.json();
+        
+        const tbody = document.getElementById('tablaClientesBody');
+        tbody.innerHTML = '';
+
+        if (!listaClientesGlobal || listaClientesGlobal.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #6b7280;">No hay clientes registrados en el sistema.</td></tr>`;
+          return;
+        }
+
+        listaClientesGlobal.forEach(c => {
+          const etapaClase = `badge-${c.etapa || 'prospecto'}`;
+          tbody.innerHTML += `
+            <tr>
+              <td style="font-weight: 600;">${c.nombre}</td>
+              <td>${c.telefono || 'N/A'}</td>
+              <td>${c.email || 'N/A'}</td>
+              <td><span class="badge ${etapaClase}">${c.etapa || 'Prospecto'}</span></td>
+              <td style="display: flex; gap: 6px; justify-content: center;">
+                <button onclick="editarCliente(${c.id_cliente})" style="padding: 4px 8px; border:none; background:#eff6ff; color:#2563eb; border-radius:4px; cursor:pointer; font-size:12px; font-weight:700;" title="Modificar">✏️</button>
+                <button onclick="eliminarClienteLocal(${c.id_cliente})" style="padding: 4px 8px; border:none; background:#fee2e2; color:#dc2626; border-radius:4px; cursor:pointer; font-size:12px;" title="Eliminar">🗑️</button>
+              </td>
+            </tr>
+          `;
+        });
+
+      } catch (error) {
+        console.error('Error al cargar clientes:', error);
+        document.getElementById('tablaClientesBody').innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ef4444;">Error al cargar registros.</td></tr>`;
+      }
+    }
+
+    function editarCliente(id) {
+      const cliente = listaClientesGlobal.find(item => item.id_cliente == id);
+      if (cliente) {
+        document.getElementById('c_id_editar').value = cliente.id_cliente;
+        document.getElementById('c_nombre').value = cliente.nombre;
+        document.getElementById('c_telefono').value = cliente.telefono;
+        document.getElementById('c_email').value = cliente.email || '';
+        document.querySelector('.modal-header h3').innerText = `✏️ Editar Cliente #${cliente.id_cliente}`;
+        document.getElementById('btnGuardarCliente').innerText = 'Guardar Cambios';
+        toggleModal(true);
+      }
+    }
+
+    async function eliminarClienteLocal(id) {
+      if (!confirm(`¿Estás seguro de que deseas eliminar o inactivar al cliente #${id}?`)) return;
+      try {
+        const res = await fetch(`/clientes/${id}`, { method: 'DELETE' });
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || 'No se pudo eliminar el cliente');
+        }
+        cargarClientes();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    // Guardar Cliente
+    const form = document.getElementById('formCliente');
+    const msgBox = document.getElementById('mensaje-cliente');
+    const btnGuardar = document.getElementById('btnGuardarCliente');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      msgBox.style.display = 'none';
+      btnGuardar.disabled = true;
+      const idEditar = document.getElementById('c_id_editar').value;
+      btnGuardar.innerText = idEditar ? 'Actualizando...' : 'Guardando...';
+
+      const nombre = document.getElementById('c_nombre').value.trim();
+      const telefono = document.getElementById('c_telefono').value.trim();
+      const email = document.getElementById('c_email').value.trim();
+      const id_asesor = userData ? userData.id_usuario : null;
+
+      const url = idEditar ? `/clientes/${idEditar}` : '/clientes';
+      const method = idEditar ? 'PUT' : 'POST';
+
+      try {
+        const res = await fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, telefono, email, id_asesor })
+        });
+
+        if (!res.ok) {
+          let errorReal = 'Error del servidor al registrar el cliente';
+          try {
+            const errData = await res.json();
+            if (errData.error) errorReal = errData.error;
+          } catch (eNoJson) {
+            errorReal = `Error del servidor (HTTP ${res.status})`;
+          }
+          throw new Error(errorReal);
+        }
+
+        msgBox.style.background = '#d1fae5';
+        msgBox.style.color = '#065f46';
+        msgBox.innerText = idEditar ? '¡Cliente actualizado correctamente!' : '¡Cliente registrado correctamente!';
+        msgBox.style.display = 'block';
+
+        cargarClientes();
+
+        setTimeout(() => {
+          toggleModal(false);
+          btnGuardar.disabled = false;
+          btnGuardar.innerText = 'Guardar Cliente';
+        }, 1500);
+
+      } catch (err) {
+        msgBox.style.background = '#fee2e2';
+        msgBox.style.color = '#991b1b';
+        msgBox.innerText = err.message;
+        msgBox.style.display = 'block';
+        btnGuardar.disabled = false;
+        btnGuardar.innerText = idEditar ? 'Guardar Cambios' : 'Guardar Cliente';
+      }
+    });
+
+    // Iniciar
+    cargarClientes();
+  </script>
+
+</body>
+</html>

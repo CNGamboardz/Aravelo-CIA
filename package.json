@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/CNGamboardz/Aravelo-CIA#readme",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
     "pg": "^8.20.0"
   }

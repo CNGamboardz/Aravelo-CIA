@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Acuerdos y Contratos - Arevalo & CIA</title>
+  <link rel="stylesheet" href="/style/stylecontratos.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+  <!-- SIDEBAR LATERAL -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="/public/LogoApp.png" alt="Logo">
+      <h2>Arévalo & CIA</h2>
+    </div>
+
+    <ul class="sidebar-menu">
+      <li>
+        <a href="/dashboard.html">
+          <span>📊</span> Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="/clientes.html">
+          <span>👥</span> Clientes (CRM)
+        </a>
+      </li>
+      <li>
+        <a href="/terrenos.html">
+          <span>🗺️</span> Lotes Inmobiliarios
+        </a>
+      </li>
+      <li>
+        <a href="/contratos.html" class="active">
+          <span>🤝</span> Acuerdos / Contratos
+        </a>
+      </li>
+      <li>
+        <a href="/pagos.html">
+          <span>💰</span> Cobranza y Pagos
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="cerrarSesion()">
+        <span>🚪</span> Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="main-content">
+    
+    <header class="contratos-header">
+      <h1>Emisión de Contratos Inmobiliarios</h1>
+      <p>Formaliza la venta o financiamiento vinculando clientes con lotes disponibles</p>
+    </header>
+
+    <div class="contratos-grid">
+      
+      <!-- FORMULARIO DE EMISIÓN -->
+      <section class="form-card">
+        <h2>✍️ Formalizar Nuevo Acuerdo</h2>
+        
+        <div id="mensaje-box" style="display: none; padding: 10px; margin-bottom: 15px; border-radius: 8px; font-size: 13px; text-align: center;"></div>
+
+        <form id="formContrato">
+          
+          <div class="form-group">
+            <label for="selCliente">Cliente Comprador</label>
+            <select id="selCliente" required>
+              <option value="">Cargando clientes...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="selTerreno">Lote a Adquirir</label>
+            <select id="selTerreno" required onchange="seleccionarTerreno()">
+              <option value="">Cargando lotes disponibles...</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="c_plan">Modalidad</label>
+              <select id="c_plan" required onchange="calcularCuota()">
+                <option value="contado">Al Contado</option>
+                <option value="financiamiento">Financiamiento</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="c_precio">Precio Total ($)</label>
+              <input type="number" step="any" id="c_precio" required oninput="calcularCuota()">
+            </div>
+          </div>
+
+          <div class="form-row" id="rowFinanciamiento">
+            <div class="form-group">
+              <label for="c_enganche">Enganche ($)</label>
+              <input type="number" step="any" id="c_enganche" value="0" oninput="calcularCuota()">
+            </div>
+
+            <div class="form-group">
+              <label for="c_plazo">Plazo (Meses)</label>
+              <input type="number" id="c_plazo" value="12" oninput="calcularCuota()">
+            </div>
+          </div>
+
+          <div class="form-group" style="background: #f1f5f9; padding: 12px; border-radius: 10px; margin-top: 5px;">
+            <label style="color: #0f172a; font-size: 12px;">Monto Mensual Proyectado:</label>
+            <div id="lblMensualidad" style="font-size: 20px; font-weight: 800; color: #570fff;">$0.00</div>
+          </div>
+
+          <div class="form-group" style="margin-top: 15px;">
+            <label for="c_doc">Referencia Legal / Documento</label>
+            <input type="text" id="c_doc" placeholder="Ej. Contrato Privado Compraventa v1.0">
+          </div>
+
+          <button type="submit" class="btn-contrato" id="btnEmitir">Generar Contrato</button>
+
+        </form>
+      </section>
+
+      <!-- LISTADO HISTÓRICO -->
+      <section class="list-card">
+        <div class="list-header">📜 Acuerdos y Contratos Vigentes</div>
+        <div class="table-container">
+          <table class="contratos-table">
+            <thead>
+              <tr>
+                <th>Folio</th>
+                <th>Cliente</th>
+                <th>Terreno</th>
+                <th>Plan</th>
+                <th>Precio Total</th>
+              </tr>
+            </thead>
+            <tbody id="tablaContratosBody">
+              <tr>
+                <td colspan="5" style="text-align: center; color: #9ca3af;">Cargando historial...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <script>
+    let listadoTerrenos = [];
+
+    function cerrarSesion() {
+      localStorage.removeItem('arevalo_user');
+      window.location.href = '/login.html';
+    }
+
+    // Cargar selectores iniciales
+    async function inicializarFormulario() {
+      try {
+        // Clientes
+        const resCl = await fetch('/clientes');
+        const clientes = await resCl.json();
+        const selCl = document.getElementById('selCliente');
+        selCl.innerHTML = '<option value="">Selecciona un comprador</option>';
+        if (clientes && clientes.length > 0) {
+          clientes.forEach(c => {
+            selCl.innerHTML += `<option value="${c.id_cliente}">${c.nombre}</option>`;
+          });
+        }
+
+        // Terrenos
+        const resTe = await fetch('/terrenos');
+        listadoTerrenos = await resTe.json();
+        const selTe = document.getElementById('selTerreno');
+        selTe.innerHTML = '<option value="">Selecciona un lote disponible</option>';
+        if (listadoTerrenos && listadoTerrenos.length > 0) {
+          listadoTerrenos.forEach(t => {
+            selTe.innerHTML += `<option value="${t.id_terreno}">${t.fraccionamiento} - ${t.superficie}m² ($${parseFloat(t.precio_venta).toLocaleString()})</option>`;
+          });
+        }
+
+      } catch (err) {
+        console.error('Error al cargar selectores:', err);
+      }
+    }
+
+    function seleccionarTerreno() {
+      const id = document.getElementById('selTerreno').value;
+      const t = listadoTerrenos.find(item => item.id_terreno == id);
+      if (t) {
+        document.getElementById('c_precio').value = t.precio_venta;
+        calcularCuota();
+      }
+    }
+
+    function calcularCuota() {
+      const plan = document.getElementById('c_plan').value;
+      const precio = parseFloat(document.getElementById('c_precio').value) || 0;
+      const enganche = parseFloat(document.getElementById('c_enganche').value) || 0;
+      const plazo = parseInt(document.getElementById('c_plazo').value) || 1;
+
+      const lbl = document.getElementById('lblMensualidad');
+      
+      if (plan === 'contado') {
+        lbl.innerText = 'Pago Único';
+        lbl.style.color = '#15803d';
+      } else {
+        const saldo = Math.max(0, precio - enganche);
+        const mensual = saldo / plazo;
+        lbl.innerText = '$' + mensual.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+        lbl.style.color = '#570fff';
+      }
+    }
+
+    // Cargar Historial de Contratos
+    async function cargarHistorial() {
+      try {
+        const res = await fetch('/contratos');
+        const contratos = await res.json();
+        
+        const tbody = document.getElementById('tablaContratosBody');
+        tbody.innerHTML = '';
+
+        if (!contratos || contratos.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #6b7280;">No se han emitido contratos formalizados aún.</td></tr>`;
+          return;
+        }
+
+        contratos.forEach(c => {
+          const badge = `badge-${c.tipo_plan || 'contado'}`;
+          tbody.innerHTML += `
+            <tr>
+              <td><b>#${c.id_contrato}</b></td>
+              <td style="font-weight: 600;">${c.cliente_nombre}</td>
+              <td>${c.fraccionamiento} (${c.superficie}m²)</td>
+              <td><span class="badge-plan ${badge}">${c.tipo_plan}</span></td>
+              <td style="font-weight: 700; color: #0f172a;">$${parseFloat(c.precio_total).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        console.error('Error al consultar historial:', err);
+      }
+    }
+
+    // Emitir Contrato
+    const formContrato = document.getElementById('formContrato');
+    const msgBox = document.getElementById('mensaje-box');
+    const btnEmitir = document.getElementById('btnEmitir');
+
+    formContrato.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msgBox.style.display = 'none';
+      btnEmitir.disabled = true;
+      btnEmitir.innerText = 'Procesando Acuerdo...';
+
+      const id_cliente = document.getElementById('selCliente').value;
+      const id_terreno = document.getElementById('selTerreno').value;
+      const tipo_plan = document.getElementById('c_plan').value;
+      const precio_total = document.getElementById('c_precio').value;
+      const enganche = document.getElementById('c_enganche').value;
+      const plazo = document.getElementById('c_plazo').value;
+      
+      // Calcular mensualidad para la base de datos
+      const saldo = Math.max(0, parseFloat(precio_total) - parseFloat(enganche || 0));
+      const monto_mensual = tipo_plan === 'financiamiento' ? (saldo / (parseInt(plazo) || 1)).toFixed(2) : 0;
+      const documento_ref = document.getElementById('c_doc').value.trim();
+
+      try {
+        const res = await fetch('/contratos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_cliente, id_terreno, tipo_plan, precio_total, enganche, plazo, monto_mensual, documento_ref })
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || 'No se pudo generar el contrato relacional');
+        }
+
+        msgBox.style.background = '#d1fae5';
+        msgBox.style.color = '#065f46';
+        msgBox.innerText = '¡Contrato formalizado exitosamente! Lote marcado como vendido.';
+        msgBox.style.display = 'block';
+
+        // Refrescar
+        cargarHistorial();
+        inicializarFormulario(); // Para quitar el lote vendido del select
+        formContrato.reset();
+        document.getElementById('lblMensualidad').innerText = '$0.00';
+
+        setTimeout(() => { msgBox.style.display = 'none'; }, 4000);
+
+      } catch (err) {
+        msgBox.style.background = '#fee2e2';
+        msgBox.style.color = '#991b1b';
+        msgBox.innerText = err.message;
+        msgBox.style.display = 'block';
+      } finally {
+        btnEmitir.disabled = false;
+        btnEmitir.innerText = 'Generar Contrato';
+      }
+    });
+
+    inicializarFormulario();
+    cargarHistorial();
+  </script>
+
+</body>
+</html>
