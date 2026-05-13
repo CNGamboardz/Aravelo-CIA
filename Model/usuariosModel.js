@@ -34,7 +34,8 @@ const asegurarColumnasUsuarios = async () => {
     'cp VARCHAR(10)',
     'foto TEXT',
     'arroba VARCHAR(50)',
-    'estado BOOLEAN DEFAULT true'
+    'estado BOOLEAN DEFAULT true',
+    'ultimo_acceso TIMESTAMP DEFAULT NOW()'
   ];
   for (const col of columnas) {
     try {
@@ -46,14 +47,14 @@ const asegurarColumnasUsuarios = async () => {
 // Obtener todos los vendedores / usuarios del sistema
 const getVendedores = async () => {
   await asegurarColumnasUsuarios();
-  const res = await db.query('SELECT id_usuario, nombre, correo, rol, telefono, ciudad, estado_dir, colonia, calle, numero_exterior, numero_interior, cp, foto, arroba, estado FROM sistema.usuarios ORDER BY id_usuario DESC');
+  const res = await db.query('SELECT id_usuario, nombre, correo, rol, telefono, ciudad, estado_dir, colonia, calle, numero_exterior, numero_interior, cp, foto, arroba, estado, ultimo_acceso FROM sistema.usuarios ORDER BY id_usuario DESC');
   return res.rows;
 };
 
 // Obtener un vendedor específico por ID
 const getVendedorById = async (id) => {
   await asegurarColumnasUsuarios();
-  const res = await db.query('SELECT id_usuario, nombre, correo, rol, telefono, ciudad, estado_dir, colonia, calle, numero_exterior, numero_interior, cp, foto, arroba, estado FROM sistema.usuarios WHERE id_usuario = $1', [id]);
+  const res = await db.query('SELECT id_usuario, nombre, correo, rol, telefono, ciudad, estado_dir, colonia, calle, numero_exterior, numero_interior, cp, foto, arroba, estado, ultimo_acceso FROM sistema.usuarios WHERE id_usuario = $1', [id]);
   return res.rows[0];
 };
 
@@ -67,12 +68,21 @@ const actualizarVendedorDB = async (id, datos) => {
          colonia = $6, calle = $7, numero_exterior = $8, numero_interior = $9, 
          cp = $10, foto = $11, arroba = $12, rol = $13, estado = $14
      WHERE id_usuario = $15 
-     RETURNING id_usuario, nombre, correo, rol, telefono, ciudad, estado_dir, colonia, calle, numero_exterior, numero_interior, cp, foto, arroba, estado`,
+     RETURNING id_usuario, nombre, correo, rol, telefono, ciudad, estado_dir, colonia, calle, numero_exterior, numero_interior, cp, foto, arroba, estado, ultimo_acceso`,
     [
       nombre || '', correo || '', telefono || '', ciudad || '', estado_dir || '', 
       colonia || '', calle || '', numero_exterior || '', numero_interior || '', 
       cp || '', foto || '', arroba || '', rol || 'vendedor', estado !== undefined ? estado : true, id
     ]
+  );
+  return res.rows[0];
+};
+
+// Actualizar de forma atómica y ligera la presencia estampando la fecha de última actividad
+const actualizarEstadoSesionDB = async (id, estadoBool) => {
+  const res = await db.query(
+    `UPDATE sistema.usuarios SET estado = $1, ultimo_acceso = NOW() WHERE id_usuario = $2 RETURNING id_usuario, estado, ultimo_acceso`,
+    [estadoBool, id]
   );
   return res.rows[0];
 };
@@ -87,5 +97,6 @@ module.exports = {
   getUsuarioByCorreo,
   getVendedores,
   getVendedorById,
-  actualizarVendedorDB
+  actualizarVendedorDB,
+  actualizarEstadoSesionDB
 };

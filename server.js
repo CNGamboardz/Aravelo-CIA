@@ -29,6 +29,7 @@ app.get('/', (req, res) => {
 // Rutas de API - Usuarios & Seguridad
 app.post('/api/usuarios/registrar', usuariosController.registrar);
 app.post('/api/usuarios/login', usuariosController.login);
+app.post('/api/usuarios/logout', usuariosController.logout);
 app.post('/api/registro-validar-pin', usuariosController.validarPin);
 
 // Rutas de API - Gestión de Vendedores (RBAC Admin)

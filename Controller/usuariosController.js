@@ -64,10 +64,8 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Credenciales incorrectas' });
     }
 
-    // Verificar si el usuario está activo
-    if (!usuario.estado) {
-      return res.status(403).json({ error: 'La cuenta está desactivada. Contacta a administración.' });
-    }
+    // Encender atómicamente la presencia del usuario regida por la columna de estado
+    await usuariosModel.actualizarEstadoSesionDB(usuario.id_usuario, true);
 
     // Retornar datos del usuario sin la contraseña
     res.json({
@@ -88,7 +86,7 @@ const login = async (req, res) => {
 // Validar PIN de propietario para acceso al registro
 const validarPin = (req, res) => {
   const { pin } = req.body;
-  if (pin === 'AREVALO777') {
+  if (pin === 'AREVALO781') { // PIN de cumpleaños
     return res.json({ success: true });
   }
   return res.status(401).json({ error: 'PIN de acceso incorrecto' });
@@ -125,9 +123,23 @@ const modificarVendedor = async (req, res) => {
   }
 };
 
+// Cerrar sesión y desconectar presencia atómicamente
+const logout = async (req, res) => {
+  try {
+    const { id_usuario } = req.body;
+    if (id_usuario) {
+      await usuariosModel.actualizarEstadoSesionDB(id_usuario, false);
+    }
+    res.json({ success: true, mensaje: 'Presencia desconectada' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al desconectar presencia' });
+  }
+};
+
 module.exports = {
   registrar,
   login,
+  logout,
   validarPin,
   listarVendedores,
   obtenerVendedor,

@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mi Perfil - Arevalo & CIA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f8fafc;
+      margin: 0;
+      padding: 40px 20px;
+      color: #0f172a;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    
+    body.dark-mode {
+      background: #0f172a;
+      color: #f8fafc;
+    }
+
+    /* CONTENEDOR GENERAL CENTRAL */
+    .wrapper {
+      max-width: 720px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* LOGOTIPO OFICIAL SUPERIOR DERECHO */
+    .top-logo-container {
+      position: absolute;
+      top: -15px;
+      right: 0;
+      width: 85px;
+      height: 85px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 3px solid #2563eb;
+      z-index: 10;
+    }
+    .top-logo-container img {
+      width: 70%;
+      height: auto;
+      object-fit: contain;
+    }
+
+    body.dark-mode .top-logo-container {
+      background: #1e293b;
+      border-color: #3b82f6;
+    }
+
+    /* TARJETA SUPERIOR DE IDENTIDAD */
+    .profile-card {
+      background: linear-gradient(135deg, #2563eb 0%, #3b07ff 100%);
+      border-radius: 28px;
+      padding: 35px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: white;
+      box-shadow: 0 15px 35px rgba(37, 99, 235, 0.25);
+      position: relative;
+      margin-bottom: 24px;
+      margin-top: 20px;
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .avatar-circle {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      font-weight: 800;
+      color: #3b07ff;
+      border: 4px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      overflow: hidden;
+    }
+    .avatar-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .btn-upload-icon {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: #f59e0b;
+      color: white;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      border: 2px solid white;
+      transition: transform 0.2s;
+    }
+    .btn-upload-icon:hover {
+      transform: scale(1.1);
+      background: #d97706;
+    }
+    .file-input-hidden {
+      display: none;
+    }
+
+    .user-arroba input {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 6px 14px;
+      border-radius: 20px;
+      color: white;
+      font-weight: 700;
+      font-size: 13px;
+      text-align: center;
+      outline: none;
+      width: 160px;
+      transition: 0.2s;
+    }
+    .user-arroba input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    .user-arroba input:focus {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: white;
+      width: 180px;
+    }
+
+    .user-email {
+      font-size: 12px;
+      color: #e2e8f0;
+      margin-top: 8px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    /* TARJETA PRINCIPAL DEL FORMULARIO */
+    .form-card {
+      background: #ffffff;
+      border-radius: 28px;
+      padding: 35px 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+      border: 1px solid #e2e8f0;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    body.dark-mode .form-card {
+      background: #1e293b;
+      border-color: #334155;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    body.dark-mode .section-title {
+      color: #f8fafc;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    .form-group label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    body.dark-mode .form-group label {
+      color: #cbd5e1;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="tel"] {
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1px solid #cbd5e1;
+      outline: none;
+      font-size: 13px;
+      font-family: inherit;
+      background: #f8fafc;
+      color: #0f172a;
+      transition: 0.2s;
+    }
+
+    .form-group input:focus {
+      border-color: #2563eb;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    body.dark-mode .form-group input[type="text"],
+    body.dark-mode .form-group input[type="email"],
+    body.dark-mode .form-group input[type="tel"] {
+      background: #0f172a;
+      border-color: #475569;
+      color: #f8fafc;
+    }
+    body.dark-mode .form-group input:focus {
+      border-color: #3b82f6;
+      background: #0f172a;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    /* CAMPOS INMUTABLES DE SOLO LECTURA (RBAC BLINDADO) */
+    .input-readonly {
+      background: #f1f5f9 !important;
+      color: #64748b !important;
+      border-color: #e2e8f0 !important;
+      cursor: not-allowed;
+      font-weight: 600;
+    }
+    body.dark-mode .input-readonly {
+      background: #0f172a !important;
+      color: #64748b !important;
+      border-color: #1e293b !important;
+    }
+
+    /* BOTONES DE PIE DE PÁGINA */
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #f1f5f9;
+    }
+    body.dark-mode .footer-actions {
+      border-color: #334155;
+    }
+
+    .btn-back {
+      background: #f1f5f9;
+      color: #475569;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+    .btn-back:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+    body.dark-mode .btn-back {
+      background: #334155;
+      color: #cbd5e1;
+    }
+    body.dark-mode .btn-back:hover {
+      background: #475569;
+      color: #ffffff;
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, #2563eb 0%, #3b07ff 100%);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);
+    }
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+    }
+
+    /* BOTON FLOTANTE DE TEMA SUPERIOR IZQUIERDO */
+    .theme-switch-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 10;
+    }
+    .btn-theme {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 11px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      transition: 0.2s;
+    }
+    body.dark-mode .btn-theme {
+      background: #1e293b;
+      border-color: #475569;
+      color: #f8fafc;
+    }
+
+    #mensaje-box {
+      display: none;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 540px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .top-logo-container {
+        display: none;
+      }
+      .theme-switch-wrapper {
+        position: static;
+        margin-bottom: 16px;
+        display: block;
+      }
+      .form-card {
+        padding: 25px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <script>
+    if (localStorage.getItem('arevalo_theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+    function alternarTemaPerfil() {
+      const isDark = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('arevalo_theme', isDark ? 'dark' : 'light');
+      actualizarBotonTema();
+    }
+    function actualizarBotonTema() {
+      const isDark = document.body.classList.contains('dark-mode');
+      const btn = document.getElementById('btnTema');
+      if (btn) btn.innerHTML = isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro';
+    }
+    document.addEventListener('DOMContentLoaded', actualizarBotonTema);
+  </script>
+
+  <div class="wrapper">
+    
+    <div class="theme-switch-wrapper">
+      <button class="btn-theme" id="btnTema" onclick="alternarTemaPerfil()">🌙 Modo Oscuro</button>
+    </div>
+
+    <!-- LOGOTIPO CORPORATIVO -->
+    <div class="top-logo-container">
+      <img src="/public/LogoApp.png" alt="Logo" onerror="this.src='https://placehold.co/80x80/2563eb/ffffff?text=A'">
+    </div>
+
+    <form id="formMiPerfil">
+      <input type="hidden" id="p_id_usuario">
+      <input type="hidden" id="p_foto_base64">
+      <input type="hidden" id="p_rol_original">
+      <input type="hidden" id="p_estado_original">
+
+      <!-- TARJETA SUPERIOR PREMIÚM DE AVATAR -->
+      <div class="profile-card">
+        <div class="avatar-wrapper">
+          <div class="avatar-circle" id="vistaAvatar">
+            👤
+          </div>
+          <label for="archivoFoto" class="btn-upload-icon" title="Cambiar fotografía de perfil">📷</label>
+          <input type="file" id="archivoFoto" class="file-input-hidden" accept="image/*">
+        </div>
+
+        <div class="user-arroba">
+          <input type="text" id="p_arroba" placeholder="@MiUsuario">
+        </div>
+        <div class="user-email" id="lblCorreoSuperior">cargando_perfil@inmobiliaria.com</div>
+      </div>
+
+      <!-- FORMULARIO INFERIOR DE COMPLEMENTO DE DATOS -->
+      <div class="form-card">
+        <div id="mensaje-box"></div>
+
+        <div class="section-title">
+          <span>Datos Personales y Domicilio</span>
+          <span style="font-size: 11px; color: #2563eb; font-weight: 700; background: #eff6ff; padding: 4px 8px; border-radius: 6px;">Ficha Técnica Interna</span>
+        </div>
+
+        <div class="form-grid">
+          
+          <div class="form-group full">
+            <label for="p_nombre">Nombre y Apellidos *</label>
+            <input type="text" id="p_nombre" placeholder="Ej. Carlos Arévalo" required>
+          </div>
+
+          <div class="form-group">
+            <label for="p_correo">Correo Electrónico *</label>
+            <input type="email" id="p_correo" placeholder="correo@ejemplo.com" required oninput="document.getElementById('lblCorreoSuperior').innerText = this.value || 'correo@ejemplo.com'">
+          </div>
+
+          <div class="form-group">
+            <label for="p_telefono">Teléfono Celular / WhatsApp</label>
+            <input type="tel" id="p_telefono" placeholder="Ej. 961 123 4567">
+          </div>
+
+          <!-- SECCIÓN DE DIRECCIÓN -->
+          <div class="form-group full" style="margin-top: 8px;">
+            <span style="font-size: 10px; font-weight: 800; color: #64748b; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; display: block;">DOMICILIO DE CONTACTO</span>
+          </div>
+
+          <div class="form-group full">
+            <label for="p_calle">Calle o Avenida</label>
+            <input type="text" id="p_calle" placeholder="Ej. Av. Central Poniente">
+          </div>
+
+          <div class="form-group">
+            <label for="p_num_ext">Número Exterior</label>
+            <input type="text" id="p_num_ext" placeholder="Ej. 1042">
+          </div>
+
+          <div class="form-group">
+            <label for="p_num_int">Número Interior</label>
+            <input type="text" id="p_num_int" placeholder="Ej. Depto 4B">
+          </div>
+
+          <div class="form-group full">
+            <label for="p_colonia">Colonia o Fraccionamiento</label>
+            <input type="text" id="p_colonia" placeholder="Ej. Barrio San Roque">
+          </div>
+
+          <div class="form-group">
+            <label for="p_cp">Código Postal</label>
+            <input type="text" id="p_cp" placeholder="Ej. 29000" maxlength="5">
+          </div>
+
+          <div class="form-group">
+            <label for="p_ciudad">Ciudad o Municipio</label>
+            <input type="text" id="p_ciudad" placeholder="Ej. Tuxtla Gutiérrez">
+          </div>
+
+          <div class="form-group full">
+            <label for="p_estado_dir">Estado</label>
+            <input type="text" id="p_estado_dir" placeholder="Ej. Chiapas">
+          </div>
+
+          <!-- CAMPOS DE SISTEMA INMUTABLES (RBAC) -->
+          <div class="form-group full" style="margin-top: 8px;">
+            <span style="font-size: 10px; font-weight: 800; color: #10b981; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; display: block;">PERMISOS DE SISTEMA (SOLO LECTURA 🔒)</span>
+          </div>
+
+          <div class="form-group">
+            <label>Nivel de Rol Asignado</label>
+            <input type="text" id="p_rol_vista" class="input-readonly" readonly value="vendedor" title="El rol es administrado centralmente por Dirección">
+          </div>
+
+          <div class="form-group">
+            <label>Estatus de Cuenta</label>
+            <input type="text" class="input-readonly" readonly value="🟢 Activa y Verificada" title="Cuenta en operación normal">
+          </div>
+
+        </div>
+
+        <div class="footer-actions">
+          <a href="/dashboard.html" class="btn-back">← Volver al Dashboard</a>
+          <button type="submit" class="btn-save" id="btnGuardarPerfil">Sincronizar y Guardar</button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <script>
+    let sesionActual = null;
+
+    // 1. CARGA INICIAL Y BLINDAJE DE SESIÓN
+    window.addEventListener('DOMContentLoaded', async () => {
+      const msg = document.getElementById('mensaje-box');
+      try {
+        sesionActual = JSON.parse(localStorage.getItem('arevalo_user'));
+        if (!sesionActual || !sesionActual.id_usuario) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const id = sesionActual.id_usuario;
+        document.getElementById('p_id_usuario').value = id;
+
+        // Precargar desde API para obtener los datos más frescos
+        const res = await fetch(`/api/vendedores/${id}`);
+        let perfil = sesionActual;
+        if (res.ok) {
+          perfil = await res.json();
+        }
+
+        // Rellenar Identidad
+        document.getElementById('p_nombre').value = perfil.nombre || '';
+        document.getElementById('p_correo').value = perfil.correo || '';
+        document.getElementById('lblCorreoSuperior').innerText = perfil.correo || 'sin_correo@inmobiliaria.com';
+        document.getElementById('p_telefono').value = perfil.telefono || '';
+        
+        const defaultArroba = `@${(perfil.nombre || 'Agente').split(' ')[0]}`;
+        document.getElementById('p_arroba').value = perfil.arroba || defaultArroba;
+
+        // Rellenar Domicilio
+        document.getElementById('p_calle').value = perfil.calle || '';
+        document.getElementById('p_num_ext').value = perfil.numero_exterior || '';
+        document.getElementById('p_num_int').value = perfil.numero_interior || '';
+        document.getElementById('p_colonia').value = perfil.colonia || '';
+        document.getElementById('p_cp').value = perfil.cp || '';
+        document.getElementById('p_ciudad').value = perfil.ciudad || '';
+        document.getElementById('p_estado_dir').value = perfil.estado_dir || '';
+
+        // Campos Inmutables RBAC
+        document.getElementById('p_rol_original').value = perfil.rol || 'vendedor';
+        document.getElementById('p_rol_vista').value = (perfil.rol || 'vendedor').toUpperCase();
+        document.getElementById('p_estado_original').value = perfil.estado !== false ? 'true' : 'false';
+
+        // Procesar Render de Foto
+        if (perfil.foto) {
+          document.getElementById('p_foto_base64').value = perfil.foto;
+          document.getElementById('vistaAvatar').innerHTML = `<img src="${perfil.foto}" alt="Avatar">`;
+        } else {
+          const inicial = (perfil.nombre || 'A').charAt(0).toUpperCase();
+          document.getElementById('vistaAvatar').innerHTML = inicial;
+        }
+
+      } catch (err) {
+        msg.style.background = '#fee2e2';
+        msg.style.color = '#b91c1c';
+        msg.innerText = '⚠️ Se cargó el perfil en modo local debido a intermitencia de red.';
+        msg.style.display = 'block';
+      }
+    });
+
+    // 2. CONVERSIÓN DE FOTOGRAFÍA A BASE64 CON LÍMITE DE 2MB
+    document.getElementById('archivoFoto').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (file.size > 2 * 1024 * 1024) {
+        alert('⚠️ La fotografía excede el límite de 2MB. Por favor, selecciona una imagen más ligera para un rendimiento óptimo.');
+        this.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        document.getElementById('p_foto_base64').value = evt.target.result;
+        document.getElementById('vistaAvatar').innerHTML = `<img src="${evt.target.result}" alt="Avatar">`;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // 3. PERSISTENCIA Y RE-SINCRONIZACIÓN EN VIVO DE SESIÓN
+    const form = document.getElementById('formMiPerfil');
+    const btn = document.getElementById('btnGuardarPerfil');
+    const msg = document.getElementById('mensaje-box');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.style.display = 'none';
+      btn.disabled = true;
+      btn.innerText = 'Sincronizando Perfil...';
+
+      const id = document.getElementById('p_id_usuario').value;
+      const rolProtegido = document.getElementById('p_rol_original').value;
+      const estadoProtegido = document.getElementById('p_estado_original').value === 'true';
+
+      const payload = {
+        nombre: document.getElementById('p_nombre').value.trim(),
+        correo: document.getElementById('p_correo').value.trim(),
+        telefono: document.getElementById('p_telefono').value.trim(),
+        calle: document.getElementById('p_calle').value.trim(),
+        numero_exterior: document.getElementById('p_num_ext').value.trim(),
+        numero_interior: document.getElementById('p_num_int').value.trim(),
+        colonia: document.getElementById('p_colonia').value.trim(),
+        cp: document.getElementById('p_cp').value.trim(),
+        ciudad: document.getElementById('p_ciudad').value.trim(),
+        estado_dir: document.getElementById('p_estado_dir').value.trim(),
+        arroba: document.getElementById('p_arroba').value.trim(),
+        foto: document.getElementById('p_foto_base64').value,
+        
+        // Conservar inmutables
+        rol: rolProtegido,
+        estado: estadoProtegido
+      };
+
+      try {
+        const res = await fetch(`/api/vendedores/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          let errReal = 'Error del servidor al actualizar perfil';
+          try {
+            const errData = await res.json();
+            if (errData.error) errReal = errData.error;
+          } catch(err) {}
+          throw new Error(errReal);
+        }
+
+        const devuelto = await res.json();
+
+        // Actualizar sesión en localStorage para que el Topbar se refresque en tiempo real
+        const sesionFrensca = {
+          id_usuario: id,
+          nombre: payload.nombre,
+          correo: payload.correo,
+          rol: rolProtegido,
+          foto: payload.foto,
+          arroba: payload.arroba
+        };
+        localStorage.setItem('arevalo_user', JSON.stringify(sesionFrensca));
+
+        msg.style.background = '#dcfce7';
+        msg.style.color = '#15803d';
+        msg.innerText = '¡Tus datos personales han sido guardados y sincronizados con rotundo éxito!';
+        msg.style.display = 'block';
+
+        setTimeout(() => {
+          window.location.href = '/dashboard.html';
+        }, 1200);
+
+      } catch (err) {
+        msg.style.background = '#fee2e2';
+        msg.style.color = '#b91c1c';
+        msg.innerText = err.message;
+        msg.style.display = 'block';
+        btn.disabled = false;
+        btn.innerText = 'Sincronizar y Guardar';
+      }
+    });
+  </script>
+</body>
+</html>

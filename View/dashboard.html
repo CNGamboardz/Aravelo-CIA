@@ -67,6 +67,11 @@
           <img src="/public/cobranza.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Cobranza y Pagos
         </a>
       </li>
+      <li>
+        <a href="/miperfil.html">
+          <span style="font-size: 16px; margin-right: 12px; display: inline-block; width: 20px; text-align: center;">👤</span> Mi Perfil
+        </a>
+      </li>
       <li id="menu-vendedores">
         <a href="/vendedores.html">
           <img src="/public/vendedores.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Vendedores
@@ -99,10 +104,10 @@
         <p>Resumen general de operaciones y cobranza</p>
       </div>
 
-      <div class="user-profile">
+      <div class="user-profile" onclick="window.location.href='/miperfil.html'" style="cursor: pointer; transition: transform 0.2s ease;" title="Hacer clic para ver y completar mi perfil personal">
         <div class="avatar" id="userAvatar">A</div>
         <div class="user-info">
-          <h4 id="userName">Asesor</h4>
+          <h4 id="userName" style="display: flex; align-items: center; gap: 4px;">Asesor <span style="font-size: 10px; color: #2563eb;">✏️</span></h4>
           <span id="userRol">Rol</span>
         </div>
       </div>
@@ -580,7 +585,17 @@
       }
     });
 
-    function cerrarSesion() {
+    async function cerrarSesion() {
+      const u = JSON.parse(localStorage.getItem('arevalo_user'));
+      if (u && u.id_usuario) {
+        try {
+          await fetch('/api/usuarios/logout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_usuario: u.id_usuario })
+          });
+        } catch(e) {}
+      }
       localStorage.removeItem('arevalo_user');
       window.location.href = '/login.html';
     }

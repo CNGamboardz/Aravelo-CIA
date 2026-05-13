@@ -145,7 +145,17 @@
   </main>
 
   <script>
-    function cerrarSesion() {
+    async function cerrarSesion() {
+      const u = JSON.parse(localStorage.getItem('arevalo_user'));
+      if (u && u.id_usuario) {
+        try {
+          await fetch('/api/usuarios/logout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_usuario: u.id_usuario })
+          });
+        } catch(e) {}
+      }
       localStorage.removeItem('arevalo_user');
       window.location.href = '/login.html';
     }
@@ -169,6 +179,7 @@
 
     async function cargarVendedores() {
       try {
+        const u = JSON.parse(localStorage.getItem('arevalo_user'));
         const res = await fetch('/api/vendedores');
         const lista = await res.json();
         const tbody = document.getElementById('tablaVendedoresBody');
@@ -187,7 +198,34 @@
           
           const arrobaTxt = v.arroba || `@${(v.nombre || 'asesor').toLowerCase().replace(/\s+/g, '')}`;
           const badgeRol = v.rol === 'administrativo' ? 'badge-admin' : v.rol === 'direccion' ? 'badge-direccion' : 'badge-vendedor';
-          const estatusBadge = v.estado ? '<span style="color:#10b981; font-weight:800;">● Activo</span>' : '<span style="color:#dc2626; font-weight:800;">○ Inactivo</span>';
+          const isSelf = u && u.id_usuario === v.id_usuario;
+          const isActivo = v.estado || isSelf;
+
+          // Calcular tiempo relativo de inactividad
+          let txtInactivo = 'Inactivo';
+          if (v.ultimo_acceso) {
+            const diffSegundos = Math.floor((new Date() - new Date(v.ultimo_acceso)) / 1000);
+            if (diffSegundos < 60) {
+              txtInactivo = 'hace unos segundos';
+            } else {
+              const diffMinutos = Math.floor(diffSegundos / 60);
+              if (diffMinutos < 60) {
+                txtInactivo = `hace ${diffMinutos} min`;
+              } else {
+                const diffHoras = Math.floor(diffMinutos / 60);
+                if (diffHoras < 24) {
+                  txtInactivo = `hace ${diffHoras} ${diffHoras === 1 ? 'hora' : 'horas'}`;
+                } else {
+                  const diffDias = Math.floor(diffHoras / 24);
+                  txtInactivo = `hace ${diffDias} ${diffDias === 1 ? 'día' : 'días'}`;
+                }
+              }
+            }
+          }
+
+          const estatusBadge = isActivo 
+            ? `<span style="background: #dcfce7; color: #15803d; padding: 4px 10px; border-radius: 12px; font-weight: 800; font-size: 11px; display: inline-flex; align-items: center; gap: 6px;"><span style="width:7px; height:7px; background:#10b981; border-radius:50%; box-shadow:0 0 6px #10b981;"></span> ${isSelf ? 'Tú (En línea)' : 'Activo'}</span>` 
+            : `<span style="background: #f1f5f9; color: #64748b; padding: 4px 10px; border-radius: 12px; font-weight: 700; font-size: 11px; display: inline-flex; align-items: center; gap: 6px;" title="Última conexión registrada">⚪ ${txtInactivo}</span>`;
 
           tbody.innerHTML += `
             <tr>
