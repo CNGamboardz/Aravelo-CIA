@@ -11,6 +11,7 @@ const terrenosController = require('./Controller/terrenosController');
 const agendaController = require('./Controller/agendaController');
 const contratosController = require('./Controller/contratosController');
 const pagosController = require('./Controller/pagosController');
+const portalController = require('./Controller/portalClienteController');
 
 // Middlewares
 app.use(express.json({ limit: '50mb' }));
@@ -64,6 +65,24 @@ app.post('/pagos', pagosController.aplicarPago);
 
 // Rutas de API - Dashboard
 app.get('/dashboard', dashboardController.dashboard);
+
+// ====================================================
+// PORTAL DE CLIENTES (Auto-Servicio)
+// ====================================================
+app.post('/api/portal/registrar', portalController.registrarPortal);
+app.post('/api/portal/login', portalController.loginPortal);
+app.get('/api/portal/lotes', portalController.getLotesPortal);
+app.get('/api/portal/asesores', portalController.getAsesoresPortal);
+app.post('/api/portal/apartar', portalController.apartarLote);
+app.post('/api/portal/asesor', portalController.asignarAsesor);
+app.post('/api/portal/cita', portalController.agendarCita);
+app.get('/api/portal/mis-pagos/:id_cliente', portalController.getMisPagos);
+app.get('/api/portal/cliente/:id', portalController.getClientePortal);
+app.get('/api/portal/datos-banco', portalController.getDatosBanco);
+app.post('/api/portal/stripe-intent', portalController.crearStripeIntent);
+app.post('/api/portal/pagar', portalController.registrarPagoPortal);
+app.get('/api/portal/mis-apartados/:id_cliente', portalController.getMisApartados);
+app.post('/api/portal/liberar', portalController.liberarLote);
 
 // Servidor
 app.listen(3000, () => {

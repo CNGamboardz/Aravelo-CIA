@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Portal — Arévalo & CIA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- STRIPE JS PARA PAGOS REALES CON TARJETA -->
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    :root {
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --bg-base: #0f172a;
+      --bg-surface: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER CORPORATIVO */
+    .portal-navbar {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .navbar-brand img {
+      width: 42px; height: 42px;
+      object-fit: contain;
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #6ee7b7, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .user-info {
+      text-align: right;
+    }
+
+    .user-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .user-id {
+      font-size: 11px;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-logout:hover {
+      background: #ef4444;
+      color: #ffffff;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .main-layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* BARRA LATERAL DE NAVEGACIÓN MODULAR */
+    .sidebar-menu {
+      width: 260px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-color);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.2s;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+    }
+
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+    }
+
+    .menu-item.active {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--primary);
+      font-weight: 700;
+      border-left: 4px solid var(--primary);
+    }
+
+    /* ÁREA DE CONTENIDO DINÁMICO */
+    .content-area {
+      flex: 1;
+      padding: 32px 48px;
+      overflow-y: auto;
+    }
+
+    .section-view { display: none; animation: fadeIn 0.3s ease; }
+    .section-view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .section-header {
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .section-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* TARJETAS DE LOTES DISPONIBLES */
+    .lotes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .lote-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lote-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+      border-color: var(--primary);
+    }
+
+    .lote-img {
+      width: 100%; height: 160px;
+      object-fit: cover;
+      background: #334155;
+    }
+
+    .lote-info {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .lote-fraccionamiento {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .lote-codigo {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin: 4px 0 12px;
+    }
+
+    .lote-specs {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .lote-precio {
+      font-size: 20px;
+      font-weight: 900;
+      color: #10b981;
+      margin-bottom: 16px;
+    }
+
+    .btn-apartar {
+      width: 100%;
+      padding: 12px;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: auto;
+    }
+
+    .btn-apartar:hover {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(16,185,129,0.3);
+    }
+
+    /* TARJETAS DE ASESORES */
+    .asesores-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .asesor-card {
+      background: var(--bg-surface);
+      border: 2px solid var(--border-color);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      transition: 0.3s;
+      position: relative;
+    }
+
+    .asesor-card.asignado {
+      border-color: var(--primary);
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    .badge-asignado {
+      position: absolute;
+      top: 12px; right: 12px;
+      background: var(--primary);
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 8px;
+      text-transform: uppercase;
+    }
+
+    .asesor-avatar {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #cbd5e1;
+      margin: 0 auto 16px;
+      background: #475569;
+    }
+
+    .asesor-nombre {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .asesor-rol {
+      font-size: 12px;
+      color: var(--primary);
+      font-weight: 600;
+      text-transform: capitalize;
+      margin-top: 2px;
+    }
+
+    .asesor-contacto {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin: 12px 0 20px;
+      line-height: 1.5;
+    }
+
+    .btn-seleccionar-asesor {
+      padding: 10px 20px;
+      background: var(--bg-base);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+      width: 100%;
+    }
+
+    .btn-seleccionar-asesor:hover {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    /* FORMULARIO DE CITAS */
+    .cita-container {
+      max-width: 600px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 36px;
+    }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block; font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 14px 16px; background: var(--bg-base); border: 1px solid var(--border-color);
+      border-radius: 12px; color: var(--text-main); font-family: inherit; font-size: 14px; outline: none;
+      transition: 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--primary); box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+    }
+
+    .btn-submit {
+      padding: 16px 32px; background: var(--primary); color: #ffffff; border: none; border-radius: 14px;
+      font-weight: 800; font-size: 15px; cursor: pointer; transition: 0.3s; width: 100%;
+    }
+    .btn-submit:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16,185,129,0.3); }
+
+    /* TABLA DE PAGOS Y ACCIÓN DE PAGO */
+    .pagos-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    .pagos-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .pagos-table th {
+      background: rgba(0,0,0,0.2);
+      padding: 16px 24px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .pagos-table td {
+      padding: 18px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      font-size: 14px;
+      color: var(--text-main);
+    }
+
+    .badge-metodo {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge-estatus {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .btn-nuevo-pago {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(59,130,246,0.3);
+      transition: 0.2s;
+    }
+    .btn-nuevo-pago:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.4); }
+
+    /* MODAL DE PAGO ESPECTACULAR */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px);
+      z-index: 1000; display: none; align-items: center; justify-content: center;
+      animation: fadeIn 0.2s ease;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal-box {
+      width: 100%; max-width: 580px; background: var(--bg-surface);
+      border: 1px solid var(--border-color); border-radius: 28px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5); overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+
+    .modal-header {
+      padding: 24px 32px; background: rgba(0,0,0,0.2);
+      border-bottom: 1px solid var(--border-color);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-header h3 { font-size: 18px; font-weight: 800; }
+    .btn-close-modal { background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
+
+    .modal-body { padding: 32px; }
+
+    .metodo-tabs {
+      display: flex; background: var(--bg-base); border-radius: 14px; padding: 6px; margin-bottom: 24px;
+    }
+    .metodo-btn {
+      flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-muted);
+      font-weight: 700; font-size: 13px; border-radius: 10px; cursor: pointer; transition: 0.2s;
+    }
+    .metodo-btn.active { background: var(--bg-surface); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+    .datos-bancarios-box {
+      background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2);
+      padding: 20px; border-radius: 16px; margin-bottom: 24px;
+    }
+    .dato-line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+    .dato-line:last-child { margin-bottom: 0; }
+    .dato-label { color: var(--text-muted); font-weight: 600; }
+    .dato-val { font-weight: 800; color: var(--text-main); font-family: monospace; font-size: 14px; }
+
+    /* STRIPE CARD ELEMENT EMBED */
+    .stripe-input-box {
+      padding: 16px; background: var(--bg-base); border: 1px solid var(--border-color);
+      border-radius: 12px; margin-bottom: 20px;
+    }
+
+    .msg-toast {
+      padding: 12px 16px; border-radius: 12px; font-size: 13px; font-weight: 700;
+      margin-bottom: 20px; display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="portal-navbar">
+    <div class="navbar-brand">
+      <img src="/public/LogoApp.png" alt="Logo">
+      <span class="brand-title">Arévalo & CIA</span>
+    </div>
+    <div class="user-profile">
+      <div class="user-info">
+        <div class="user-name" id="navUserName">Cargando...</div>
+        <div class="user-id" id="navUserId">Cliente</div>
+      </div>
+      <button class="btn-logout" onclick="cerrarSesionPortal()">Cerrar Sesión</button>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR CENTRAL -->
+  <main class="main-layout">
+    
+    <!-- MENÚ LATERAL MODULAR -->
+    <aside class="sidebar-menu">
+      <button class="menu-item active" onclick="switchSection('lotes', this)">
+        <span>🏠</span> Lotes Disponibles
+      </button>
+      <button class="menu-item" onclick="switchSection('apartados', this)">
+        <span>🏷️</span> Mis Lotes Apartados
+      </button>
+      <button class="menu-item" onclick="switchSection('asesor', this)">
+        <span>👤</span> Mi Asesor
+      </button>
+      <button class="menu-item" onclick="switchSection('cita', this)">
+        <span>📅</span> Agendar Cita
+      </button>
+      <button class="menu-item" onclick="switchSection('pagos', this)">
+        <span>💳</span> Mis Pagos
+      </button>
+    </aside>
+
+    <!-- ÁREA DE CONTENIDOS -->
+    <section class="content-area">
+      
+      <!-- NOTIFICACIONES RÁPIDAS -->
+      <div id="portalGlobalMsg" class="msg-toast" style="background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3);"></div>
+
+      <!-- SECCIÓN 1: LOTES DISPONIBLES -->
+      <div class="section-view active" id="sec-lotes">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Lotes y Terrenos Disponibles</h2>
+            <p class="section-desc">Explora los predios con disponibilidad inmediata para inversión patrimonial.</p>
+          </div>
+        </div>
+        <div class="lotes-grid" id="gridLotes">
+          <p style="color: var(--text-muted);">Consultando inventario en tiempo real...</p>
+        </div>
+      </div>
+
+      <!-- SECCIÓN MIS APARTADOS -->
+      <div class="section-view" id="sec-apartados">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Mis Lotes Apartados y Reservados</h2>
+            <p class="section-desc">Visualiza tus predios en resguardo temporal y coordina una visita presencial con tu asesor.</p>
+          </div>
+        </div>
+        <div class="lotes-grid" id="gridMisApartados">
+          <p style="color: var(--text-muted);">Cargando tus reservas activas...</p>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 2: MI ASESOR -->
+      <div class="section-view" id="sec-asesor">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Directorio de Asesores Patrimoniales</h2>
+            <p class="section-desc">Selecciona o confirma al agente comercial que llevará el seguimiento de tu inversión.</p>
+          </div>
+        </div>
+        <div class="asesores-grid" id="gridAsesores">
+          <p style="color: var(--text-muted);">Cargando directorio de asesores...</p>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 3: AGENDAR CITA -->
+      <div class="section-view" id="sec-cita">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Agendar Recorrido o Reunión</h2>
+            <p class="section-desc">Programa una visita presencial a nuestros fraccionamientos o una videollamada con tu asesor.</p>
+          </div>
+        </div>
+        <div class="cita-container">
+          <div class="form-group">
+            <label for="cita_fecha">Fecha y Hora Propuesta *</label>
+            <input type="datetime-local" id="cita_fecha" required>
+          </div>
+          <div class="form-group">
+            <label for="cita_lote">Lote de Interés (Opcional)</label>
+            <select id="cita_lote">
+              <option value="">Selecciona un lote de nuestro catálogo...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cita_nota">Notas o Comentarios Adicionales</label>
+            <textarea id="cita_nota" rows="4" placeholder="Ej. Me gustaría visitar el lote por la mañana, iré con mi familia..."></textarea>
+          </div>
+          <button class="btn-submit" onclick="confirmarCita()">Confirmar mi Cita</button>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 4: MIS PAGOS -->
+      <div class="section-view" id="sec-pagos">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Historial de Pagos y Estado de Cuenta</h2>
+            <p class="section-desc">Consulta tus aportaciones registradas o formaliza un nuevo pago en línea.</p>
+          </div>
+          <button class="btn-nuevo-pago" onclick="abrirModalPago()">
+            <span>💳</span> Realizar un Pago
+          </button>
+        </div>
+        <div class="pagos-container">
+          <table class="pagos-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Concepto / Lote</th>
+                <th>Monto</th>
+                <th>Método</th>
+                <th>Estatus</th>
+              </tr>
+            </thead>
+            <tbody id="tablaPagosBody">
+              <tr><td colspan="5" style="text-align:center; color: var(--text-muted);">Cargando historial financiero...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- MODAL DE PAGO ESPECTACULAR (MULTI-MÉTODO CON STRIPE) -->
+  <div class="modal-overlay" id="modalPago">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>💳 Módulo de Pago Seguro</h3>
+        <button class="btn-close-modal" onclick="cerrarModalPago()">✖</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- PESTAÑAS DE MÉTODOS -->
+        <div class="metodo-tabs">
+          <button class="metodo-btn active" onclick="switchMetodo('transferencia', this)">🏦 Transferencia</button>
+          <button class="metodo-btn" onclick="switchMetodo('deposito', this)">🏧 Depósito</button>
+          <button class="metodo-btn" onclick="switchMetodo('tarjeta', this)">💳 Tarjeta</button>
+        </div>
+
+        <div id="modalMsg" class="msg-toast"></div>
+
+        <!-- TAB 1: TRANSFERENCIA -->
+        <div class="tab-content active" id="tab-transferencia">
+          <div class="datos-bancarios-box">
+            <div class="dato-line"><span class="dato-label">Banco:</span><span class="dato-val" id="banco_nombre">BBVA</span></div>
+            <div class="dato-line"><span class="dato-label">Titular:</span><span class="dato-val" id="banco_titular">Arévalo & CIA</span></div>
+            <div class="dato-line"><span class="dato-label">CLABE Interbancaria:</span><span class="dato-val" style="color: var(--primary);" id="banco_clabe">Cargando...</span></div>
+            <div class="dato-line"><span class="dato-label">Referencia Única:</span><span class="dato-val" style="color: #3b82f6;" id="banco_ref">AREVALO-CLI</span></div>
+          </div>
+          <div class="form-group">
+            <label>Monto Transferido ($ MXN) *</label>
+            <input type="number" id="p_monto_trans" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label>Concepto o Número de Lote</label>
+            <input type="text" id="p_concepto_trans" placeholder="Ej. Enganche Lote 12">
+          </div>
+          <div class="form-group">
+            <label>Folio de Rastreo o Comprobante</label>
+            <input type="text" id="p_comp_trans" placeholder="Clave de rastreo bancario">
+          </div>
+          <button class="btn-submit" onclick="registrarPagoManual('transferencia')">Confirmar Transferencia</button>
+        </div>
+
+        <!-- TAB 2: DEPÓSITO -->
+        <div class="tab-content" id="tab-deposito">
+          <div class="datos-bancarios-box" style="border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.05);">
+            <div class="dato-line"><span class="dato-label">Convenio / Cuenta:</span><span class="dato-val" id="banco_cuenta">1234567890</span></div>
+            <div class="dato-line"><span class="dato-label">Referencia Bancaria:</span><span class="dato-val" style="color: #3b82f6;" id="banco_ref_dep">AREVALO-CLI</span></div>
+            <p style="font-size: 11px; color: var(--text-muted); margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
+              Acude a cualquier sucursal bancaria o practicaja e ingresa el número de cuenta y tu referencia única asignada.
+            </p>
+          </div>
+          <div class="form-group">
+            <label>Monto Depositado ($ MXN) *</label>
+            <input type="number" id="p_monto_dep" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label>Concepto del Depósito</label>
+            <input type="text" id="p_concepto_dep" placeholder="Ej. Mensualidad 1">
+          </div>
+          <button class="btn-submit" onclick="registrarPagoManual('deposito')">Notificar Depósito Realizado</button>
+        </div>
+
+        <!-- TAB 3: TARJETA DE CRÉDITO / DÉBITO (STRIPE) -->
+        <div class="tab-content" id="tab-tarjeta">
+          <div class="form-group">
+            <label>Monto a Pagar ($ MXN) *</label>
+            <input type="number" id="p_monto_tarjeta" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label>Concepto</label>
+            <input type="text" id="p_concepto_tarjeta" placeholder="Pago Seguro Arévalo & CIA">
+          </div>
+          <div class="form-group">
+            <label>Datos de la Tarjeta</label>
+            <div class="stripe-input-box" id="card-element"></div>
+            <div id="card-errors" style="color: #fca5a5; font-size: 12px; margin-top: 4px;"></div>
+          </div>
+          <button class="btn-submit" id="btnPagarStripe" onclick="procesarPagoStripe()">Pagar Seguro con Tarjeta</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let clienteLogueado = null;
+    let listaLotesCache = [];
+    let stripeInstance = null;
+    let cardElement = null;
+
+    // INICIALIZACIÓN Y VALIDACIÓN DE SESIÓN
+    document.addEventListener('DOMContentLoaded', async () => {
+      const ses = localStorage.getItem('portal_cliente');
+      if (!ses) {
+        window.location.href = '/login-cliente.html';
+        return;
+      }
+      try {
+        clienteLogueado = JSON.parse(ses);
+        document.getElementById('navUserName').innerText = `${clienteLogueado.nombre || ''} ${clienteLogueado.apellido_paterno || ''}`.trim() || 'Cliente';
+        document.getElementById('navUserId').innerText = `ID Portal: #${clienteLogueado.id_cliente}`;
+        
+        // Cargar vistas dinámicas
+        cargarLotes();
+        cargarMisApartados();
+        cargarAsesores();
+        cargarPagos();
+        cargarDatosBancarios();
+        inicializarStripe();
+
+      } catch (e) {
+        window.location.href = '/login-cliente.html';
+      }
+    });
+
+    function cerrarSesionPortal() {
+      localStorage.removeItem('portal_cliente');
+      window.location.href = '/login-cliente.html';
+    }
+
+    function switchSection(sec, btn) {
+      document.querySelectorAll('.sidebar-menu .menu-item').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.section-view').forEach(s => s.classList.remove('active'));
+      document.getElementById(`sec-${sec}`).classList.add('active');
+    }
+
+    function showToast(txt, isError = false) {
+      const b = document.getElementById('portalGlobalMsg');
+      b.style.background = isError ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)';
+      b.style.borderColor = isError ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)';
+      b.style.color = isError ? '#fca5a5' : '#34d399';
+      b.innerText = txt;
+      b.style.display = 'block';
+      setTimeout(() => { b.style.display = 'none'; }, 5000);
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // CARGA DE LOTES Y APARTADO (CON MENSAJE AL BOT KOMMO)
+    // ─────────────────────────────────────────────────────────
+    async function cargarLotes() {
+      try {
+        const res = await fetch('/api/portal/lotes');
+        listaLotesCache = await res.json();
+        const grid = document.getElementById('gridLotes');
+        const selCita = document.getElementById('cita_lote');
+        
+        grid.innerHTML = '';
+        
+        // Preservar de forma robusta las opciones de reservas para evitar carreras asíncronas
+        let reservasGuardadas = '';
+        if (selCita) {
+          reservasGuardadas = Array.from(selCita.querySelectorAll('option')).filter(o => o.innerText.includes('Reservado')).map(o => o.outerHTML).join('');
+          selCita.innerHTML = '<option value="">Selecciona un lote de nuestro catálogo...</option>' + reservasGuardadas;
+        }
+
+        if (!listaLotesCache || listaLotesCache.length === 0) {
+          grid.innerHTML = '<p style="color: var(--text-muted);">No hay lotes disponibles en este momento.</p>';
+          return;
+        }
+
+        listaLotesCache.forEach(l => {
+          // Llenar select de citas solo si no existe ya para ese lote
+          if (selCita && !selCita.querySelector(`option[value="${l.id_terreno}"]`)) {
+            selCita.innerHTML += `<option value="${l.id_terreno}">${l.fraccionamiento || 'Predio'} — Lote ${l.lote}</option>`;
+          }
+
+          const pVenta = parseFloat(l.precio_venta || l.precio_lista || 0).toLocaleString('es-MX', {minimumFractionDigits:2});
+          const img = l.imagen_principal || 'https://placehold.co/400x250/1e293b/94a3b8?text=Lote+Residencial';
+          
+          grid.innerHTML += `
+            <div class="lote-card">
+              <img src="${img}" class="lote-img" alt="Lote">
+              <div class="lote-info">
+                <span class="lote-fraccionamiento">${l.fraccionamiento || 'Desarrollo Arévalo'}</span>
+                <h4 class="lote-codigo">Lote ${l.lote || 'S/N'} ${l.manzana ? `— Mz ${l.manzana}` : ''}</h4>
+                <div class="lote-specs">
+                  <span>Superficie: <b>${l.superficie || 'N/D'} m²</b></span>
+                  <span>Mun: <b>${l.municipio || 'Chiapas'}</b></span>
+                </div>
+                <div class="lote-precio">$${pVenta} MXN</div>
+                <button class="btn-apartar" onclick="apartarPredio(${l.id_terreno}, '${l.fraccionamiento || 'Predio'} Lote ${l.lote}')">
+                  Apartar este Lote
+                </button>
+              </div>
+            </div>
+          `;
+        });
+      } catch (e) {
+        document.getElementById('gridLotes').innerHTML = '<p style="color: #fca5a5;">Error al cargar el inventario.</p>';
+      }
+    }
+
+    async function apartarPredio(idLote, descLote) {
+      if (!confirm(`¿Estás seguro de apartar el predio ${descLote}? Un asesor se pondrá en contacto contigo de inmediato para coordinar la formalización.`)) return;
+      
+      try {
+        const res = await fetch('/api/portal/apartar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            id_lote: idLote, 
+            id_cliente: clienteLogueado.id_cliente,
+            nombre_cliente: `${clienteLogueado.nombre} ${clienteLogueado.apellido_paterno || ''}`.trim()
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'No se pudo procesar el apartado.');
+
+        showToast(`¡Felicidades! Has apartado exitosamente el predio ${descLote}. Notificando a tu asesor vía KOMMO...`);
+        cargarLotes(); // Recargar para quitarlo de disponibles
+
+        // INYECTAR EVENTO DE NOTIFICACIÓN EN EL WIDGET DE CHAT (KOMMO) DEL CLIENTE PARA IMPACTO VISUAL
+        setTimeout(() => {
+          const panelChat = document.querySelector('.kommo-messages');
+          if (panelChat) {
+            const msgNotif = document.createElement('div');
+            msgNotif.className = 'kommo-bubble bot';
+            msgNotif.style.background = '#ecfdf5';
+            msgNotif.style.borderLeft = '4px solid #10b981';
+            msgNotif.innerHTML = `🔔 <b>Notificación Automática:</b><br>Hemos registrado tu intención de apartado para el <b>${descLote}</b>. Tu agente asignado ha sido notificado exitosamente en su terminal CRM.`;
+            panelChat.appendChild(msgNotif);
+            panelChat.scrollTo({ top: panelChat.scrollHeight, behavior: 'smooth' });
+          }
+        }, 1500);
+
+        // GUARDAR NOTIFICACIÓN PERSISTENTE EN LOCALSTORAGE PARA KOMMO CON EXCLUSIVIDAD DE ASESOR
+        try {
+          const nomCliente = `${clienteLogueado.nombre || ''} ${clienteLogueado.apellido_paterno || ''}`.trim() || 'Cliente Web';
+          const telCliente = clienteLogueado.telefono || 'Sin teléfono';
+          const correoCliente = clienteLogueado.correo || 'Sin correo';
+          
+          const guardadas = JSON.parse(localStorage.getItem('kommo_notifications') || '[]');
+          guardadas.push({
+            id_asesor: clienteLogueado.id_asesor_asignado,
+            texto: `🔔 <b>¡Nuevo Lote Apartado por tu Cliente!</b><br><br><b>👤 Prospecto:</b> ${nomCliente}<br><b>📞 Teléfono:</b> ${telCliente}<br><b>✉️ Correo:</b> ${correoCliente}<br><br><b>🏡 Terreno Reservado:</b> ${descLote}<br><b>📌 Estatus:</b> Bloqueado temporalmente en catálogo para formalización.`,
+            fecha: new Date().toLocaleString()
+          });
+          localStorage.setItem('kommo_notifications', JSON.stringify(guardadas));
+          window.dispatchEvent(new Event('kommo_update'));
+        } catch(e) {}
+
+        cargarMisApartados();
+
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // CARGA DE MIS LOTES APARTADOS Y AGENDAMIENTO CONDICIONADO
+    // ─────────────────────────────────────────────────────────
+    async function cargarMisApartados() {
+      try {
+        const res = await fetch(`/api/portal/mis-apartados/${clienteLogueado.id_cliente}`);
+        const list = await res.json();
+        const grid = document.getElementById('gridMisApartados');
+        grid.innerHTML = '';
+
+        if (!list || list.length === 0) {
+          grid.innerHTML = '<p style="color: var(--text-muted);">Aún no tienes lotes apartados o en proceso de reserva.</p>';
+          return;
+        }
+
+        const selCita = document.getElementById('cita_lote');
+
+        list.forEach(l => {
+          if (selCita && !selCita.querySelector(`option[value="${l.id_terreno}"]`)) {
+            selCita.innerHTML += `<option value="${l.id_terreno}" style="background:#1e293b; color:#38bdf8; font-weight:700;">🏷️ Reservado: ${l.fraccionamiento || ''} — Lote ${l.lote}</option>`;
+          }
+
+          const img = l.imagen_principal || 'https://placehold.co/400x250/1e293b/94a3b8?text=Lote+Reservado';
+          
+          grid.innerHTML += `
+            <div class="lote-card" style="border-color: #3b82f6;">
+              <img src="${img}" class="lote-img" alt="Lote">
+              <div class="lote-info">
+                <span class="lote-fraccionamiento" style="color: #3b82f6;">${l.fraccionamiento || 'Desarrollo'}</span>
+                <h4 class="lote-codigo">Lote ${l.lote || 'S/N'}</h4>
+                <div class="lote-specs">
+                  <span>Superficie: <b>${l.superficie || 'N/D'} m²</b></span>
+                  <span style="color: #34d399; font-weight:800;">¡Reserva Exclusiva!</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:8px; margin-top:auto;">
+                  <button class="btn-apartar" style="background: linear-gradient(to right, #3b82f6, #1d4ed8); color: white; border: none; width:100%;" onclick="agendarCitaDesdeApartado(${l.id_terreno}, '${l.fraccionamiento || ''} Lote ${l.lote}')">
+                    📅 Agendar Cita
+                  </button>
+                  <button class="btn-apartar" style="background: transparent; color: #fca5a5; border: 1px solid #ef4444; width:100%; padding:6px; font-size:12px;" onclick="liberarApartadoDirecto(${l.id_terreno}, '${l.fraccionamiento || ''} Lote ${l.lote}')">
+                    ❌ Liberar Apartado
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      } catch(e) {
+        document.getElementById('gridMisApartados').innerHTML = '<p style="color: #fca5a5;">Error cargando tus reservas.</p>';
+      }
+    }
+
+    function agendarCitaDesdeApartado(idLote, descLote) {
+      const sel = document.getElementById('cita_lote');
+      if (sel) {
+        sel.value = idLote;
+        setTimeout(() => { sel.value = idLote; }, 50);
+      }
+      
+      const txtNota = document.getElementById('cita_nota');
+      if (txtNota && !txtNota.value) {
+        txtNota.value = `Solicitud prioritaria de recorrido presencial para el predio reservado: ${descLote}.`;
+      }
+
+      // Disparar alerta exclusiva para su asesor
+      try {
+        const guardadas = JSON.parse(localStorage.getItem('kommo_notifications') || '[]');
+        guardadas.push({
+          id_asesor: clienteLogueado.id_asesor_asignado,
+          texto: `📅 <b>Alerta de Cita Agendada:</b><br>El cliente ha solicitado una cita en terreno para el predio reservado <b>${descLote}</b>.`,
+          fecha: new Date().toLocaleString()
+        });
+        localStorage.setItem('kommo_notifications', JSON.stringify(guardadas));
+      } catch(e) {}
+
+      // Activar sección de citas
+      document.querySelectorAll('.sidebar-menu .menu-item').forEach(b => b.classList.remove('active'));
+      const btnCita = document.querySelector('.sidebar-menu .menu-item:nth-child(3)');
+      if (btnCita) btnCita.classList.add('active');
+
+      document.querySelectorAll('.section-view').forEach(s => s.classList.remove('active'));
+      const sec = document.getElementById('sec-cita');
+      if (sec) sec.classList.add('active');
+
+      showToast(`Formulario listo para coordinar tu cita en el predio reservado.`);
+    }
+
+    async function liberarApartadoDirecto(idLote, descLote) {
+      if (!confirm(`¿Estás seguro de cancelar tu reserva del predio ${descLote}? Volverá a estar disponible libremente en el inventario general.`)) return;
+      try {
+        const res = await fetch('/api/portal/liberar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_lote: idLote, id_cliente: clienteLogueado.id_cliente })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error al liberar el lote.');
+
+        showToast(`Reserva cancelada exitosamente. El predio ${descLote} ha sido liberado.`);
+        cargarMisApartados();
+        cargarLotes();
+
+        try {
+          const guardadas = JSON.parse(localStorage.getItem('kommo_notifications') || '[]');
+          guardadas.push({
+            id_asesor: clienteLogueado.id_asesor_asignado,
+            texto: `⚠️ <b>Cancelación de Apartado:</b><br>El cliente ha liberado de forma voluntaria el resguardo temporal del predio <b>${descLote}</b>. Disponible en catálogo.`,
+            fecha: new Date().toLocaleString()
+          });
+          localStorage.setItem('kommo_notifications', JSON.stringify(guardadas));
+        } catch(e) {}
+
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // CARGA Y SELECCIÓN DE ASESORES
+    // ─────────────────────────────────────────────────────────
+    async function cargarAsesores() {
+      try {
+        const res = await fetch('/api/portal/asesores');
+        const asesores = await res.json();
+        const grid = document.getElementById('gridAsesores');
+        grid.innerHTML = '';
+
+        if (!asesores || asesores.length === 0) {
+          grid.innerHTML = '<p style="color: var(--text-muted);">Directorio comercial en actualización.</p>';
+          return;
+        }
+
+        let forzarListado = window.forzarListadoAsesores || false;
+        const idAsignado = clienteLogueado.id_asesor_asignado;
+        const listaMostrar = (idAsignado && !forzarListado) ? asesores.filter(a => a.id_usuario == idAsignado) : asesores;
+
+        if (listaMostrar.length === 0 && idAsignado) {
+          grid.innerHTML = '<p style="color: var(--text-muted);">Tu asesor exclusivo se encuentra listado en seguimiento corporativo.</p>';
+          return;
+        }
+
+        listaMostrar.forEach(a => {
+          const showAsignadoBadge = idAsignado && idAsignado == a.id_usuario;
+          const img = a.foto || 'https://placehold.co/100/3b82f6/ffffff?text=👔';
+          
+          grid.innerHTML += `
+            <div class="asesor-card ${showAsignadoBadge ? 'asignado' : ''}" style="${showAsignadoBadge ? 'border-color: #10b981; max-width: 350px; margin: 0 auto;' : ''}">
+              ${showAsignadoBadge ? '<span class="badge-asignado" style="background:#10b981;">Tu Asesor Exclusivo</span>' : ''}
+              <img src="${img}" class="asesor-avatar" alt="Asesor">
+              <h4 class="asesor-nombre">${a.nombre || 'Asesor'}</h4>
+              <div class="asesor-rol">${a.arroba || a.rol || 'Agente Inmobiliario'}</div>
+              <div class="asesor-contacto">
+                📞 ${a.telefono || 'Atención en oficina'}<br>
+                ✉️ ${a.correo || 'contacto@arevalo.com'}
+              </div>
+              <button class="btn-seleccionar-asesor" onclick="elegirAsesor(${a.id_usuario}, '${a.nombre}')" ${showAsignadoBadge ? 'style="display:none;"' : ''}>
+                Elegir como mi Asesor
+              </button>
+              ${showAsignadoBadge ? `<button class="btn-seleccionar-asesor" style="background:transparent; color:#94a3b8; border:1px dashed #64748b; margin-top:8px; font-size:11px;" onclick="window.forzarListadoAsesores=true; cargarAsesores();">🔄 Cambiar de Asesor</button>` : ''}
+            </div>
+          `;
+        });
+      } catch (e) {
+        document.getElementById('gridAsesores').innerHTML = '<p style="color: #fca5a5;">Error cargando asesores.</p>';
+      }
+    }
+
+    async function elegirAsesor(idAsesor, nombreAsesor) {
+      try {
+        const res = await fetch('/api/portal/asesor', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_cliente: clienteLogueado.id_cliente, id_asesor: idAsesor })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error al asignar asesor.');
+
+        clienteLogueado.id_asesor_asignado = idAsesor;
+        localStorage.setItem('portal_cliente', JSON.stringify(clienteLogueado));
+        window.forzarListadoAsesores = false;
+        showToast(`Has elegido a ${nombreAsesor} como tu asesor exclusivo.`);
+        cargarAsesores();
+
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // AGENDAR CITAS
+    // ─────────────────────────────────────────────────────────
+    async function confirmarCita() {
+      const fecha = document.getElementById('cita_fecha').value;
+      const idLote = document.getElementById('cita_lote').value;
+      const nota = document.getElementById('cita_nota').value.trim();
+
+      if (!fecha) {
+        showToast('Por favor selecciona una fecha y hora para la cita.', true);
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/portal/cita', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_cliente: clienteLogueado.id_cliente, fecha, id_lote: idLote || null, nota })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'No se pudo agendar la cita.');
+
+        showToast('¡Cita programada exitosamente! Te esperamos.');
+        
+        // DESPACHAR NOTIFICACIÓN ULTRA RICA EXCLUSIVAMENTE AL ASESOR ASIGNADO
+        try {
+          const descLote = idLote ? (document.querySelector(`#cita_lote option[value="${idLote}"]`)?.innerText.replace('🏷️ Reservado: ', '').trim() || `Lote #${idLote}`) : 'Visita General en Oficina';
+          const nomCliente = `${clienteLogueado.nombre || ''} ${clienteLogueado.apellido_paterno || ''}`.trim() || 'Cliente Web';
+          const telCliente = clienteLogueado.telefono || 'Sin teléfono';
+          const correoCliente = clienteLogueado.correo || 'Sin correo';
+          
+          const guardadas = JSON.parse(localStorage.getItem('kommo_notifications') || '[]');
+          guardadas.push({
+            id_asesor: clienteLogueado.id_asesor_asignado,
+            texto: `📅 <b>¡Nueva Cita Confirmada por tu Cliente!</b><br><br><b>👤 Prospecto:</b> ${nomCliente}<br><b>📞 Teléfono:</b> ${telCliente}<br><b>✉️ Correo:</b> ${correoCliente}<br><br><b>🏡 Interés / Predio:</b> ${descLote}<br><b>⏰ Fecha Programada:</b> ${new Date(fecha).toLocaleString('es-MX', {dateStyle:'medium', timeStyle:'short'})}<br><br><b>📝 Notas o Comentarios del Cliente:</b><br><span style="color:#047857; font-style:italic;">"${nota || 'Sin comentarios adicionales.'}"</span>`,
+            fecha: new Date().toLocaleString()
+          });
+          localStorage.setItem('kommo_notifications', JSON.stringify(guardadas));
+          window.dispatchEvent(new Event('kommo_update'));
+        } catch(eNotif) {}
+
+        document.getElementById('cita_fecha').value = '';
+        document.getElementById('cita_lote').value = '';
+        document.getElementById('cita_nota').value = '';
+
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // PAGOS Y MODAL STRIPE
+    // ─────────────────────────────────────────────────────────
+    async function cargarPagos() {
+      try {
+        const res = await fetch(`/api/portal/mis-pagos/${clienteLogueado.id_cliente}`);
+        const pagos = await res.json();
+        const tbody = document.getElementById('tablaPagosBody');
+        tbody.innerHTML = '';
+
+        if (!pagos || pagos.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No tienes pagos registrados en el sistema.</td></tr>';
+          return;
+        }
+
+        pagos.forEach(p => {
+          const f = p.fecha_pago ? p.fecha_pago.split('T')[0] : 'N/D';
+          const monto = parseFloat(p.monto || 0).toLocaleString('es-MX', {minimumFractionDigits:2});
+          const descLote = p.lote ? `Lote ${p.lote} ${p.fraccionamiento || ''}` : p.concepto || 'Aportación';
+          
+          tbody.innerHTML += `
+            <tr>
+              <td><b>${f}</b></td>
+              <td>${descLote}</td>
+              <td style="color: var(--primary); font-weight:800;">$${monto}</td>
+              <td><span class="badge-metodo">${p.metodo_pago || 'Transferencia'}</span></td>
+              <td><span class="badge-estatus">${p.estatus || 'Pagado'}</span></td>
+            </tr>
+          `;
+        });
+      } catch (e) {
+        document.getElementById('tablaPagosBody').innerHTML = '<tr><td colspan="5" style="text-align:center; color: #fca5a5;">Error cargando pagos.</td></tr>';
+      }
+    }
+
+    async function cargarDatosBancarios() {
+      try {
+        const res = await fetch('/api/portal/datos-banco');
+        const db = await res.json();
+        document.getElementById('banco_nombre').innerText = db.banco || 'BBVA';
+        document.getElementById('banco_titular').innerText = db.titular || 'Arévalo & CIA';
+        document.getElementById('banco_clabe').innerText = db.clabe || '012345678901234567';
+        document.getElementById('banco_cuenta').innerText = db.numero_cuenta || '1234567890';
+        
+        // Referencias personalizadas
+        const refPersonal = `${db.referencia_base || 'AREVALO'}-CLI-${clienteLogueado.id_cliente}`;
+        document.getElementById('banco_ref').innerText = refPersonal;
+        document.getElementById('banco_ref_dep').innerText = refPersonal;
+      } catch(e) {}
+    }
+
+    function abrirModalPago() {
+      document.getElementById('modalPago').classList.add('active');
+      document.getElementById('modalMsg').style.display = 'none';
+    }
+
+    function cerrarModalPago() {
+      document.getElementById('modalPago').classList.remove('active');
+    }
+
+    function switchMetodo(met, btn) {
+      document.querySelectorAll('.metodo-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.getElementById(`tab-${met}`).classList.add('active');
+    }
+
+    function showModalMsg(txt, isErr = false) {
+      const m = document.getElementById('modalMsg');
+      m.style.background = isErr ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)';
+      m.style.color = isErr ? '#fca5a5' : '#6ee7b7';
+      m.style.border = `1px solid ${isErr ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)'}`;
+      m.innerText = txt;
+      m.style.display = 'block';
+    }
+
+    async function registrarPagoManual(metodo) {
+      const suf = metodo === 'transferencia' ? '_trans' : '_dep';
+      const monto = document.getElementById(`p_monto${suf}`).value;
+      const concepto = document.getElementById(`p_concepto${suf}`).value.trim();
+      const comp = metodo === 'transferencia' ? document.getElementById('p_comp_trans').value.trim() : '';
+
+      if (!monto || parseFloat(monto) <= 0) {
+        showModalMsg('Ingresa un monto válido mayor a cero.', true);
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/portal/pagar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id_cliente: clienteLogueado.id_cliente,
+            monto,
+            concepto: concepto || `Pago en línea (${metodo})`,
+            metodo_pago: metodo,
+            comprobante: comp
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error registrando el pago.');
+
+        showModalMsg('¡Pago registrado con éxito! Validaremos el depósito a la brevedad.');
+        cargarPagos();
+        setTimeout(() => { cerrarModalPago(); }, 1500);
+
+      } catch (err) {
+        showModalMsg(err.message, true);
+      }
+    }
+
+    // INICIALIZACIÓN PREMIUM DE STRIPE ELEMENTS
+    function inicializarStripe() {
+      // Reemplaza con tu Publishable Key real de Stripe
+      const PK_KEY = 'pk_test_TYooMQauvdEDq54NiTphI7jx'; 
+      try {
+        stripeInstance = Stripe(PK_KEY);
+        const elements = stripeInstance.elements();
+        
+        // Estilos Dark Mode / Premium para el Card Element
+        cardElement = elements.create('card', {
+          style: {
+            base: {
+              iconColor: '#10b981',
+              color: '#f8fafc',
+              fontWeight: '500',
+              fontFamily: 'Inter, Roboto, Open Sans, sans-serif',
+              fontSize: '15px',
+              fontSmoothing: 'antialiased',
+              ':-webkit-autofill': { color: '#fce883' },
+              '::placeholder': { color: '#64748b' }
+            },
+            invalid: { iconColor: '#ef4444', color: '#ef4444' }
+          }
+        });
+        cardElement.mount('#card-element');
+        
+        cardElement.on('change', (event) => {
+          const displayError = document.getElementById('card-errors');
+          displayError.textContent = event.error ? event.error.message : '';
+        });
+      } catch (e) {
+        document.getElementById('card-errors').innerText = 'El módulo de pago en línea requiere claves de Stripe válidas.';
+      }
+    }
+
+    async function procesarPagoStripe() {
+      const monto = document.getElementById('p_monto_tarjeta').value;
+      const concepto = document.getElementById('p_concepto_tarjeta').value.trim();
+      const btn = document.getElementById('btnPagarStripe');
+
+      if (!monto || parseFloat(monto) <= 0) {
+        showModalMsg('Ingresa un monto a pagar válido.', true);
+        return;
+      }
+      if (!stripeInstance || !cardElement) {
+        showModalMsg('La pasarela de pago Stripe no está configurada.', true);
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Conectando con Stripe...';
+      document.getElementById('card-errors').textContent = '';
+
+      try {
+        // 1. Solicitar PaymentIntent al backend
+        const resIntent = await fetch('/api/portal/stripe-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ monto, id_cliente: clienteLogueado.id_cliente, concepto })
+        });
+        const dataIntent = await resIntent.json();
+        if (!resIntent.ok) throw new Error(dataIntent.error || 'No se pudo inicializar la pasarela.');
+
+        btn.innerText = 'Procesando cargo seguro...';
+
+        // 2. Confirmar pago con la tarjeta ingresada
+        const result = await stripeInstance.confirmCardPayment(dataIntent.clientSecret, {
+          payment_method: {
+            card: cardElement,
+            billing_details: {
+              name: `${clienteLogueado.nombre} ${clienteLogueado.apellido_paterno || ''}`.trim(),
+              email: clienteLogueado.correo
+            }
+          }
+        });
+
+        if (result.error) {
+          throw new Error(result.error.message);
+        } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+          
+          // 3. Registrar pago exitoso en nuestra base de datos
+          btn.innerText = '¡Cargo Aprobado! Registrando...';
+          const resSave = await fetch('/api/portal/pagar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id_cliente: clienteLogueado.id_cliente,
+              monto,
+              concepto: concepto || 'Pago Seguro con Tarjeta',
+              metodo_pago: 'tarjeta',
+              stripe_payment_id: result.paymentIntent.id
+            })
+          });
+          
+          showModalMsg('¡Pago procesado exitosamente mediante Stripe! Gracias por tu confianza.');
+          cargarPagos();
+          cardElement.clear();
+          document.getElementById('p_monto_tarjeta').value = '';
+          setTimeout(() => { cerrarModalPago(); btn.disabled = false; btn.innerText = 'Pagar Seguro con Tarjeta'; }, 2000);
+        }
+
+      } catch (err) {
+        showModalMsg(err.message, true);
+        btn.disabled = false;
+        btn.innerText = 'Pagar Seguro con Tarjeta';
+      }
+    }
+  </script>
+
+  <!-- WIDGET AUTÓNOMO DE ASISTENTE VIRTUAL KOMMO -->
+  <script src="/public/kommoChat.js"></script>
+
+</body>
+</html>

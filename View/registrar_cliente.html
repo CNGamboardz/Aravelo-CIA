@@ -343,9 +343,17 @@
           <div id="lbl_val_comp_dom" style="font-size: 11px; margin-top: 5px; color: #64748b;">Recibo de luz, agua o telefonía (Máx 2MB)</div>
         </div>
       </div>
-      <div class="form-group" style="margin-top: 15px;">
-        <label for="r_obs">Observaciones y Seguimiento Inicial</label>
-        <textarea id="r_obs" placeholder="Anota cómo nos conoció, presupuesto aproximado, lotes de interés particular..."></textarea>
+      
+      <!-- SECCIÓN EXTRA: ACCESO AL PORTAL DE CLIENTES -->
+      <div class="section-title" style="margin-top: 30px;"><span>🔐</span> Acceso al Portal de Clientes (Opcional)</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="r_portal_pass">Contraseña para su Portal Personal</label>
+          <input type="password" id="r_portal_pass" placeholder="Asigna una clave para que el cliente acceda a apartar lotes">
+        </div>
+        <div class="form-group" style="display: flex; align-items: center; padding-top: 25px;">
+          <span style="font-size: 12px; color: #64748b;">El cliente iniciará sesión usando su correo electrónico capturado arriba.</span>
+        </div>
       </div>
 
       <button type="submit" class="btn-submit-massive" id="btnProcesarAlta">Formalizar Ingreso al CRM</button>
@@ -452,8 +460,9 @@
         foto_cliente: document.getElementById('val_foto_cli').value,
         foto_identificacion: document.getElementById('val_foto_id').value,
         comprobante_domicilio: document.getElementById('val_comp_dom').value,
-        observaciones: document.getElementById('r_obs').value.trim(),
-        id_asesor: uData ? uData.id_usuario : null
+        observaciones: document.getElementById('r_obs') ? document.getElementById('r_obs').value.trim() : '',
+        id_asesor: uData ? uData.id_usuario : null,
+        password_cliente: document.getElementById('r_portal_pass') ? document.getElementById('r_portal_pass').value : ''
       };
 
       try {

@@ -1,8 +1,14 @@
 const agendaModel = require('../Model/agendaModel');
+const { desencriptarId } = require('./cryptoHelper');
 
 const listarEventos = async (req, res) => {
   try {
-    const id_usuario = req.query.id_usuario ? parseInt(req.query.id_usuario) : null;
+    let id_usuario = null;
+    if (req.query.id_usuario && req.query.id_usuario !== 'undefined' && req.query.id_usuario !== 'null') {
+      const dec = desencriptarId(req.query.id_usuario);
+      const parsed = parseInt(dec || req.query.id_usuario);
+      if (!isNaN(parsed)) id_usuario = parsed;
+    }
     const eventos = await agendaModel.getAgenda(id_usuario);
     res.json(eventos);
   } catch (error) {
@@ -13,14 +19,21 @@ const listarEventos = async (req, res) => {
 
 const guardarEvento = async (req, res) => {
   try {
-    const { id_usuario, titulo, descripcion, fecha_evento } = req.body;
+    let { id_usuario, titulo, descripcion, fecha_evento } = req.body;
 
     if (!titulo || !fecha_evento) {
       return res.status(400).json({ error: 'El título y la fecha son obligatorios' });
     }
 
+    let idLimpio = null;
+    if (id_usuario && id_usuario !== 'undefined' && id_usuario !== 'null') {
+      const dec = desencriptarId(id_usuario);
+      const parsed = parseInt(dec || id_usuario);
+      if (!isNaN(parsed)) idLimpio = parsed;
+    }
+
     const nuevo = await agendaModel.crearEvento({
-      id_usuario: id_usuario || null,
+      id_usuario: idLimpio,
       titulo,
       descripcion: descripcion || '',
       fecha_evento

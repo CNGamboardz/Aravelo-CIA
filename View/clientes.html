@@ -262,6 +262,17 @@
             <div id="prev_c_comp_dom" style="font-size: 11px; margin-top: 2px;"></div>
           </div>
         </div>
+        </div>
+
+        <!-- SECCIÓN 5: ACCESO AL PORTAL WEB -->
+        <h4 style="color: #570fff; font-size: 14px; margin: 20px 0 12px; border-bottom: 2px solid #ede9fe; padding-bottom: 4px;">🌐 Acceso al Portal Inmobiliario Web</h4>
+        <div class="form-grid" style="grid-template-columns: 1fr;">
+          <div class="form-group">
+            <label for="c_password">Contraseña de Acceso Web (Opcional - Llena para otorgar/actualizar clave al cliente)</label>
+            <input type="text" id="c_password" placeholder="Definir contraseña temporal (ej. Teléfono o clave alfanumérica)">
+          </div>
+        </div>
+
         <div class="form-group" style="margin-bottom: 20px;">
           <label for="c_observaciones">Observaciones y Comentarios Adicionales</label>
           <textarea id="c_observaciones" placeholder="Detalles sobre el seguimiento, preferencias del lote, horarios de llamada..."></textarea>
@@ -422,8 +433,11 @@
         let dataGlobal = await res.json();
         
         // FILTRADO ESTRICTO DE CARTERA (RBAC MULTI-TENANT)
-        if (userData && (userData.rol === 'vendedor' || userData.rol === 'asesor')) {
-          dataGlobal = dataGlobal.filter(c => c.id_asesor === userData.id_usuario);
+        if (userData && userData.rol) {
+          const rCrm = userData.rol.toLowerCase();
+          if (rCrm === 'vendedor' || rCrm === 'asesor') {
+            dataGlobal = dataGlobal.filter(c => c.id_asesor === userData.id_usuario);
+          }
         }
         listaClientesGlobal = dataGlobal;
         
@@ -532,6 +546,7 @@
         document.getElementById('prev_c_comp_dom').innerHTML = cliente.comprobante_domicilio ? `<a href="javascript:void(0)" onclick="descargarBlobBase64(document.getElementById('c_comp_dom').value, 'Comprobante_Domicilio.pdf')" style="color: #570fff; text-decoration: underline; font-weight: 700;">👁️ Ver / Descargar Archivo Guardado</a>` : 'Sin archivo previo';
 
         document.getElementById('c_observaciones').value = cliente.observaciones || '';
+        document.getElementById('c_password').value = ''; // Por seguridad, no se muestra el hash anterior, pero se puede escribir una nueva
 
         document.querySelector('.modal-header h3').innerText = `✏️ Auditar / Modificar Cliente #${cliente.id_cliente}`;
         document.getElementById('btnGuardarCliente').innerText = 'Guardar Cambios';
@@ -595,6 +610,7 @@
         foto_identificacion: document.getElementById('c_foto_id').value.trim(),
         comprobante_domicilio: document.getElementById('c_comp_dom').value.trim(),
         observaciones: document.getElementById('c_observaciones').value.trim(),
+        password_cliente: document.getElementById('c_password').value || null,
         id_asesor: userData ? userData.id_usuario : null
       };
 

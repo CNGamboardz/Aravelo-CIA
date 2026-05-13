@@ -4,11 +4,14 @@ const { encriptarId, desencriptarId } = require('./cryptoHelper');
 // GET
 const obtenerClientes = async (req, res) => {
   const data = await clientesModel.getClientes();
-  // Encriptar id_asesor para que la vista reciba y compare strings de forma homogénea y privada
-  const ofuscados = data.map(c => ({
-    ...c,
-    id_asesor: c.id_asesor ? encriptarId(c.id_asesor) : null
-  }));
+  // Encriptar id_asesor unificado para que el asesor vea tanto a los que agregó como a los que lo asignaron desde el portal
+  const ofuscados = data.map(c => {
+    const idUnificado = c.id_asesor || c.id_asesor_asignado;
+    return {
+      ...c,
+      id_asesor: idUnificado ? encriptarId(idUnificado) : null
+    };
+  });
   res.json(ofuscados);
 };
 

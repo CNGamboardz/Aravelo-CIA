@@ -521,12 +521,56 @@
     return "Entiendo tu consulta. Para darte la mejor orientación inmobiliaria, te sugiero seleccionar una de las píldoras de ayuda inferior o escribirme palabras clave como <b>'disponibles'</b>, <b>'precios'</b>, <b>'ubicaciones'</b> o <b>'contacto'</b>.";
   }
 
+  let notifsPintadas = false;
+  function pintarNotificacionesGuardadas() {
+    if (notifsPintadas) return;
+    try {
+      let asesorLogueado = null;
+      try {
+        const strCrm = localStorage.getItem('arevalo_user');
+        if (strCrm) asesorLogueado = JSON.parse(strCrm);
+      } catch(e) {}
+
+      const guardadas = JSON.parse(localStorage.getItem('kommo_notifications') || '[]');
+      
+      // Aislamiento estricto: El asesor solo ve las alertas dirigidas explícitamente a su ID
+      const isVistaCliente = window.location.pathname.includes('portal-cliente') || window.location.pathname.includes('login-cliente');
+      
+      const notifsFiltradas = guardadas.filter(n => {
+        if (isVistaCliente) return true;
+        if (asesorLogueado && asesorLogueado.id_usuario) {
+          // El agente ve las dirigidas a él, o si es administrativo/dirección ve las alertas generales para no perder el seguimiento
+          const esSuya = n.id_asesor == asesorLogueado.id_usuario;
+          const rLimpio = (asesorLogueado.rol || '').toLowerCase();
+          const esAdmin = rLimpio.includes('administrativo') || rLimpio.includes('direcci') || rLimpio.includes('admin');
+          return esSuya || esAdmin || !n.id_asesor;
+        }
+        return true;
+      });
+
+      notifsFiltradas.forEach(n => {
+        const bubble = document.createElement('div');
+        bubble.className = 'kommo-bubble bot';
+        bubble.style.background = '#ecfdf5';
+        bubble.style.borderLeft = '4px solid #10b981';
+        bubble.style.marginTop = '8px';
+        bubble.innerHTML = `<div style="font-size:10px; color:#10b981; text-align:right; margin-bottom:4px;">${n.fecha || ''}</div>${n.texto}`;
+        msgArea.appendChild(bubble);
+      });
+      if (notifsFiltradas.length > 0) {
+        setTimeout(() => { msgArea.scrollTo({ top: msgArea.scrollHeight, behavior: 'smooth' }); }, 100);
+      }
+      notifsPintadas = true;
+    } catch(e) {}
+  }
+
   // EVENTOS DEL INTERFAZ
   trigger.addEventListener('click', () => {
     const isActive = panel.classList.toggle('active');
     if (isActive) {
       badge.style.display = 'none';
       cargarDatosAutonomos();
+      pintarNotificacionesGuardadas();
       input.focus();
     }
   });
@@ -570,6 +614,63 @@
       const respuesta = procesarRespuestaKommo(txt);
       agregarMensaje(respuesta, 'bot');
     }, 450);
+  });
+
+  // ESCUCHADORES DE ACTUALIZACIONES EN TIEMPO REAL (REACCIÓN EN VIVO)
+  function verificarNuevasNotificaciones() {
+    try {
+      let asesorLogueado = null;
+      try {
+        const strCrm = localStorage.getItem('arevalo_user');
+        if (strCrm) asesorLogueado = JSON.parse(strCrm);
+      } catch(e) {}
+
+      const guardadas = JSON.parse(localStorage.getItem('kommo_notifications') || '[]');
+      if (guardadas.length === 0) return;
+
+      const n = guardadas[guardadas.length - 1]; // La última alerta ingresada
+      
+      const isVistaCliente = window.location.pathname.includes('portal-cliente') || window.location.pathname.includes('login-cliente');
+      
+      let debeMostrar = false;
+      if (isVistaCliente) debeMostrar = true;
+      else if (asesorLogueado && asesorLogueado.id_usuario) {
+        const esSuya = n.id_asesor == asesorLogueado.id_usuario;
+        const rLimpio = (asesorLogueado.rol || '').toLowerCase();
+        const esAdmin = rLimpio.includes('administrativo') || rLimpio.includes('direcci') || rLimpio.includes('admin');
+        if (esSuya || esAdmin || !n.id_asesor) debeMostrar = true;
+      }
+
+      if (debeMostrar) {
+        // Verificar si ya está pintada para no duplicarla
+        const existentes = msgArea.innerHTML;
+        // Comparamos un fragmento limpio
+        const txtLimpio = n.texto.substring(0, 40);
+        if (!existentes.includes(txtLimpio)) {
+          const bubble = document.createElement('div');
+          bubble.className = 'kommo-bubble bot';
+          bubble.style.background = '#ecfdf5';
+          bubble.style.borderLeft = '4px solid #10b981';
+          bubble.style.marginTop = '8px';
+          bubble.innerHTML = `<div style="font-size:10px; color:#10b981; text-align:right; margin-bottom:4px;">${n.fecha || ''}</div>${n.texto}`;
+          msgArea.appendChild(bubble);
+          setTimeout(() => { msgArea.scrollTo({ top: msgArea.scrollHeight, behavior: 'smooth' }); }, 100);
+          
+          if (!panel.classList.contains('active')) {
+            badge.style.display = 'flex';
+          }
+        }
+      }
+    } catch(e) {}
+  }
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'kommo_notifications') {
+      verificarNuevasNotificaciones();
+    }
+  });
+  window.addEventListener('kommo_update', () => {
+    verificarNuevasNotificaciones();
   });
 
 })();
