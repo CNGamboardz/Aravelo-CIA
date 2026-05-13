@@ -1,5 +1,6 @@
 const usuariosModel = require('../Model/usuariosModel');
 const bcrypt = require('bcryptjs');
+const { encriptarId, desencriptarId } = require('./cryptoHelper');
 
 // Registrar un nuevo usuario
 const registrar = async (req, res) => {
@@ -31,7 +32,10 @@ const registrar = async (req, res) => {
 
     res.status(201).json({
       mensaje: 'Usuario registrado exitosamente',
-      usuario: nuevoUsuario
+      usuario: {
+        ...nuevoUsuario,
+        id_usuario: encriptarId(nuevoUsuario.id_usuario)
+      }
     });
   } catch (error) {
     console.error('Error al registrar usuario:', error);
@@ -71,7 +75,7 @@ const login = async (req, res) => {
     res.json({
       mensaje: 'Inicio de sesión exitoso',
       usuario: {
-        id_usuario: usuario.id_usuario,
+        id_usuario: encriptarId(usuario.id_usuario),
         nombre: usuario.nombre,
         correo: usuario.correo,
         rol: usuario.rol
@@ -96,7 +100,11 @@ const validarPin = (req, res) => {
 const listarVendedores = async (req, res) => {
   try {
     const data = await usuariosModel.getVendedores();
-    res.json(data);
+    const encriptados = data.map(u => ({
+      ...u,
+      id_usuario: encriptarId(u.id_usuario)
+    }));
+    res.json(encriptados);
   } catch (error) {
     res.status(500).json({ error: error.message || 'Error al obtener vendedores' });
   }
@@ -104,10 +112,13 @@ const listarVendedores = async (req, res) => {
 
 const obtenerVendedor = async (req, res) => {
   try {
-    const { id } = req.params;
-    const data = await usuariosModel.getVendedorById(id);
+    const idReal = desencriptarId(req.params.id);
+    const data = await usuariosModel.getVendedorById(idReal);
     if (!data) return res.status(404).json({ error: 'Vendedor no encontrado' });
-    res.json(data);
+    res.json({
+      ...data,
+      id_usuario: encriptarId(data.id_usuario)
+    });
   } catch (error) {
     res.status(500).json({ error: error.message || 'Error al obtener vendedor' });
   }
@@ -115,9 +126,12 @@ const obtenerVendedor = async (req, res) => {
 
 const modificarVendedor = async (req, res) => {
   try {
-    const { id } = req.params;
-    const actualizado = await usuariosModel.actualizarVendedorDB(id, req.body);
-    res.json(actualizado);
+    const idReal = desencriptarId(req.params.id);
+    const actualizado = await usuariosModel.actualizarVendedorDB(idReal, req.body);
+    res.json({
+      ...actualizado,
+      id_usuario: encriptarId(actualizado ? actualizado.id_usuario : idReal)
+    });
   } catch (error) {
     res.status(500).json({ error: error.message || 'Error al actualizar vendedor' });
   }
@@ -126,9 +140,9 @@ const modificarVendedor = async (req, res) => {
 // Cerrar sesión y desconectar presencia atómicamente
 const logout = async (req, res) => {
   try {
-    const { id_usuario } = req.body;
-    if (id_usuario) {
-      await usuariosModel.actualizarEstadoSesionDB(id_usuario, false);
+    const idReal = desencriptarId(req.body.id_usuario);
+    if (idReal) {
+      await usuariosModel.actualizarEstadoSesionDB(idReal, false);
     }
     res.json({ success: true, mensaje: 'Presencia desconectada' });
   } catch (error) {

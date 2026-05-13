@@ -419,7 +419,13 @@
     async function cargarClientes() {
       try {
         const res = await fetch('/clientes');
-        listaClientesGlobal = await res.json();
+        let dataGlobal = await res.json();
+        
+        // FILTRADO ESTRICTO DE CARTERA (RBAC MULTI-TENANT)
+        if (userData && (userData.rol === 'vendedor' || userData.rol === 'asesor')) {
+          dataGlobal = dataGlobal.filter(c => c.id_asesor === userData.id_usuario);
+        }
+        listaClientesGlobal = dataGlobal;
         
         const tbody = document.getElementById('tablaClientesBody');
         tbody.innerHTML = '';
