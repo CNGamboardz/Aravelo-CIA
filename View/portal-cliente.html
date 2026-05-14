@@ -1003,8 +1003,23 @@
       
       try {
         clienteLogueado = objCliente;
-        document.getElementById('navUserName').innerText = `${clienteLogueado.nombre || ''} ${clienteLogueado.apellido_paterno || ''}`.trim() || 'Cliente';
+        const nomCompleto = `${clienteLogueado.nombre || ''} ${clienteLogueado.apellido_paterno || ''} ${clienteLogueado.apellido_materno || ''}`.replace(/\s+/g, ' ').trim();
+        document.getElementById('navUserName').innerText = nomCompleto || 'Cliente';
         document.getElementById('navUserId').innerText = `ID Portal: #${clienteLogueado.id_cliente}`;
+        
+        // Consultar de inmediato al backend para asegurar que la caché local no esté desactualizada
+        fetch('/api/portal/cliente/' + clienteLogueado.id_cliente)
+          .then(r => r.json())
+          .then(c => {
+            if (c && c.nombre) {
+              clienteLogueado = { ...clienteLogueado, ...c };
+              const nomActualizado = `${c.nombre || ''} ${c.apellido_paterno || ''} ${c.apellido_materno || ''}`.replace(/\s+/g, ' ').trim();
+              document.getElementById('navUserName').innerText = nomActualizado || 'Cliente';
+              if (localStorage.getItem('portal_cliente')) {
+                localStorage.setItem('portal_cliente', JSON.stringify(clienteLogueado));
+              }
+            }
+          }).catch(e => {});
         
         // Cargar vistas dinámicas
         cargarLotes();
