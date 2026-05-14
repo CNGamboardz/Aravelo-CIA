@@ -1,4 +1,5 @@
 const contratosModel = require('../Model/contratosModel');
+const { encriptarId, desencriptarId } = require('./cryptoHelper');
 
 const listarContratos = async (req, res) => {
   try {
@@ -19,8 +20,8 @@ const guardarContrato = async (req, res) => {
     }
 
     const contrato = await contratosModel.crearContrato({
-      id_cliente: parseInt(id_cliente),
-      id_terreno: parseInt(id_terreno),
+      id_cliente: desencriptarId(id_cliente),
+      id_terreno: desencriptarId(id_terreno),
       tipo_plan: tipo_plan || 'contado',
       precio_total: parseFloat(precio_total),
       enganche: enganche ? parseFloat(enganche) : 0,

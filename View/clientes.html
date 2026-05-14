@@ -456,7 +456,7 @@
           let avatarHtml = '';
           if (c.foto_cliente) {
             if (c.foto_cliente.includes('application/pdf')) {
-              avatarHtml = `<a href="javascript:void(0)" onclick="descargarBlobBase64(listaClientesGlobal.find(i => i.id_cliente == ${c.id_cliente}).foto_cliente, 'Foto_Perfil.pdf')" style="width: 42px; height: 42px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px; flex-shrink: 0; border: 2px solid #fca5a5; text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1);" title="Descargar / Ver PDF">📄 PDF</a>`;
+              avatarHtml = `<a href="javascript:void(0)" onclick="descargarBlobBase64(listaClientesGlobal.find(i => i.id_cliente == '${c.id_cliente}').foto_cliente, 'Foto_Perfil.pdf')" style="width: 42px; height: 42px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px; flex-shrink: 0; border: 2px solid #fca5a5; text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1);" title="Descargar / Ver PDF">📄 PDF</a>`;
             } else {
               avatarHtml = `<img src="${c.foto_cliente}" alt="Avatar" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #c4b5fd; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">`;
             }
@@ -488,8 +488,8 @@
               </td>
               <td><span class="badge ${estatusClase}">${estatusTxt}</span></td>
               <td style="display: flex; gap: 6px; justify-content: center;">
-                <button onclick="editarCliente(${c.id_cliente})" style="padding: 6px 12px; border:none; background:#ede9fe; color:#570fff; border-radius:6px; cursor:pointer; font-size:12px; font-weight:800; transition:0.2s;" onmouseover="this.style.background='#d8b4fe'" onmouseout="this.style.background='#ede9fe'" title="Auditar / Modificar Ficha">✏️ Auditar</button>
-                <button onclick="eliminarClienteLocal(${c.id_cliente})" style="padding: 6px 12px; border:none; background:#fee2e2; color:#dc2626; border-radius:6px; cursor:pointer; font-size:12px; transition:0.2s;" onmouseover="this.style.background='#fca5a5'" onmouseout="this.style.background='#fee2e2'" title="Eliminar / Inactivar">🗑️</button>
+                <button onclick="editarCliente('${c.id_cliente}')" style="padding: 6px 12px; border:none; background:#ede9fe; color:#570fff; border-radius:6px; cursor:pointer; font-size:12px; font-weight:800; transition:0.2s;" onmouseover="this.style.background='#d8b4fe'" onmouseout="this.style.background='#ede9fe'" title="Auditar / Modificar Ficha">✏️ Auditar</button>
+                <button onclick="eliminarClienteLocal('${c.id_cliente}')" style="padding: 6px 12px; border:none; background:#fee2e2; color:#dc2626; border-radius:6px; cursor:pointer; font-size:12px; transition:0.2s;" onmouseover="this.style.background='#fca5a5'" onmouseout="this.style.background='#fee2e2'" title="Eliminar / Inactivar">🗑️</button>
               </td>
             </tr>
           `;

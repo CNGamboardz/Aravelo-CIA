@@ -49,20 +49,17 @@ const crearCliente = async (cliente) => {
     passHash = await bcrypt.hash(password_cliente, salt);
   }
 
-  const resId = await db.query('SELECT COALESCE(MAX(id_cliente), 0) + 1 AS next_id FROM sistema.clientes');
-  const nextId = resId.rows[0].next_id;
-
   const res = await db.query(
     `INSERT INTO sistema.clientes 
-    (id_cliente, nombre, apellido_paterno, apellido_materno, fecha_nacimiento, sexo, curp, rfc, 
+    (nombre, apellido_paterno, apellido_materno, fecha_nacimiento, sexo, curp, rfc, 
      telefono, telefono_secundario, correo, direccion, colonia, municipio, 
      estado, codigo_postal, ocupacion, empresa, ingresos_mensuales, estado_civil, 
      nacionalidad, identificacion_oficial, numero_identificacion, foto_identificacion, 
      comprobante_domicilio, foto_cliente, estatus, observaciones, id_asesor, password_cliente)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29) 
     RETURNING *`,
     [
-      nextId, nombre || '', apellido_paterno || '', apellido_materno || '', c_nac, sexo || '', 
+      nombre || '', apellido_paterno || '', apellido_materno || '', c_nac, sexo || '', 
       curp || '', rfc || '', telefono || '', telefono_secundario || '', c_correo, 
       direccion || '', colonia || '', municipio || '', estado || '', 
       codigo_postal || '', ocupacion || '', empresa || '', c_ingresos, estado_civil || '', 

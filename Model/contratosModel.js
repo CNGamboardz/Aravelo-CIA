@@ -50,9 +50,9 @@ const crearContrato = async (datos) => {
 
           await client.query(
             `INSERT INTO sistema.calendario_pagos 
-             (id_cliente, id_contrato, fecha_programada, monto_esperado, estatus, dias_atraso)
-             VALUES ($1, $2, $3, $4, 'pendiente', 0)`,
-            [id_cliente, id_contrato, mesFormateado, monto_mensual]
+             (id_cliente, id_contrato, numero_pago, fecha_esperada, monto_esperado, estatus)
+             VALUES ($1, $2, $3, $4, $5, 'pendiente')`,
+            [id_cliente, id_contrato, i, mesFormateado, monto_mensual]
           );
         }
       } catch (errCal) {
@@ -64,7 +64,7 @@ const crearContrato = async (datos) => {
     if (documento_ref) {
       try {
         await client.query(
-          `INSERT INTO sistema.documentos (id_contrato, tipo, archivo)
+          `INSERT INTO sistema.documentos (id_contrato, tipo_documento, ruta_archivo)
            VALUES ($1, 'Contrato Base', $2)`,
           [id_contrato, documento_ref]
         );

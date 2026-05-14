@@ -494,15 +494,15 @@
         curp: document.getElementById('r_curp').value.trim().toUpperCase(),
         rfc: document.getElementById('r_rfc').value.trim().toUpperCase(),
         ocupacion: document.getElementById('r_ocup').value.trim(),
-        ingresos_estimados: parseFloat(document.getElementById('r_ingresos').value) || 0,
+        ingresos_mensuales: parseFloat(document.getElementById('r_ingresos').value) || 0,
         sexo: document.getElementById('r_sexo').value,
         fecha_nacimiento: document.getElementById('r_nac').value || null,
         fuente_lead: document.getElementById('r_fuente').value,
-        password: pass
+        password_cliente: pass
       };
 
       try {
-        const res = await fetch('/api/portal/registro', {
+        const res = await fetch('/api/portal/registrar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)

@@ -51,9 +51,11 @@ body {
 
 .sidebar-header h2 {
   font-size: 18px;
-  color: #0f172a;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  color: #111827;
+  font-weight: 700;
+  background: linear-gradient(45deg, #570fff, #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .sidebar-menu {
@@ -72,33 +74,25 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 13px 16px;
-  color: #64748b;
+  padding: 12px 16px;
+  color: #4b5563;
   text-decoration: none;
-  font-weight: 600;
-  font-size: 13px;
-  border-radius: 12px;
-  transition: 0.2s;
-  border-left: 4px solid transparent;
-}
-
-.sidebar-menu a img {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  flex-shrink: 0;
+  font-weight: 500;
+  border-radius: 10px;
+  transition: all 0.3s ease;
 }
 
 .sidebar-menu a:hover {
-  background-color: #f1f5f9;
-  color: #2563eb;
+  background-color: #f3f4f6;
+  color: #111827;
+  transform: translateX(3px);
 }
 
 .sidebar-menu a.active {
-  background-color: #eff6ff;
-  color: #2563eb;
-  font-weight: 700;
-  border-left: 4px solid #2563eb;
+  background: linear-gradient(45deg, rgba(87, 15, 255, 0.1), rgba(249, 115, 22, 0.1));
+  color: #570fff;
+  font-weight: 600;
+  border-left: 4px solid #570fff;
 }
 
 .sidebar-footer {
@@ -112,13 +106,12 @@ body {
 
 .btn-logout {
   width: 100%;
-  padding: 12px;
-  background: #f8fafc;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 13px;
+  padding: 10px;
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
   transition: 0.2s;
   display: flex;
@@ -128,9 +121,8 @@ body {
 }
 
 .btn-logout:hover {
-  background: #fef2f2;
-  color: #dc2626;
-  border-color: #fca5a5;
+  background: #fca5a5;
+  color: #991b1b;
 }
 
 /* ===== CONTENIDO PRINCIPAL ===== */
@@ -176,10 +168,10 @@ body {
 /* FORMULARIO DE GENERACIÓN */
 .form-card {
   background: #ffffff;
-  padding: 32px;
-  border-radius: 24px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 20px 40px rgba(100, 116, 133, 0.08);
+  padding: 30px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
 
 .form-card h2 {
@@ -226,9 +218,9 @@ body {
 
 .form-group select:focus,
 .form-group input:focus {
-  border-color: #2563eb;
+  border-color: #570fff;
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(87, 15, 255, 0.1);
 }
 
 .form-row {
@@ -238,7 +230,7 @@ body {
 }
 
 .btn-contrato {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(45deg, #570fff, #8b5cf6);
   color: #ffffff;
   border: none;
   padding: 16px;
@@ -249,7 +241,7 @@ body {
   cursor: pointer;
   margin-top: 12px;
   transition: 0.3s;
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 8px 20px rgba(87, 15, 255, 0.2);
 }
 
 .btn-contrato:hover {
@@ -260,22 +252,22 @@ body {
 /* LISTADO DE CONTRATOS */
 .list-card {
   background: #ffffff;
-  border-radius: 24px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 20px 40px rgba(100, 116, 133, 0.08);
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
   overflow: hidden;
 }
 
 .list-header {
-  padding: 24px 32px;
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  font-weight: 800;
-  color: #0f172a;
+  padding: 20px 24px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 700;
+  color: #111827;
   font-size: 15px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .table-container {
@@ -289,22 +281,22 @@ body {
 }
 
 .contratos-table th {
-  background: #f8fafc;
-  padding: 16px 24px;
+  background: #f9fafb;
+  padding: 16px 20px;
   font-size: 11px;
   font-weight: 800;
-  color: #64748b;
+  color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e5e7eb;
   white-space: nowrap;
 }
 
 .contratos-table td {
-  padding: 18px 24px;
-  font-size: 13px;
-  color: #334155;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 16px 20px;
+  font-size: 14px;
+  color: #111827;
+  border-bottom: 1px solid #f3f4f6;
   vertical-align: middle;
 }
 
@@ -437,11 +429,11 @@ body.dark-mode .form-group textarea:focus {
 /* BOTÓN TOGGLE DE TEMA FLOTANTE/SIDEBAR */
 .btn-theme-toggle {
   width: 100%;
-  padding: 12px;
-  background: #f8fafc;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  padding: 10px;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   font-weight: 700;
   cursor: pointer;
   transition: 0.2s;
@@ -449,23 +441,22 @@ body.dark-mode .form-group textarea:focus {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  margin-bottom: 10px;
   font-size: 13px;
 }
 
 .btn-theme-toggle:hover {
-  background: #eff6ff;
-  color: #2563eb;
-  border-color: #bfdbfe;
+  background: #e2e8f0;
+  color: #0f172a;
 }
 
 body.dark-mode .btn-theme-toggle {
-  background: #0f172a;
-  color: #94a3b8;
-  border-color: #334155;
+  background: #334155;
+  color: #f8fafc;
+  border-color: #475569;
 }
 
 body.dark-mode .btn-theme-toggle:hover {
-  background: #334155;
-  color: #38bdf8;
-  border-color: #475569;
+  background: #475569;
+  color: #ffffff;
 }

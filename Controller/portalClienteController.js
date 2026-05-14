@@ -122,7 +122,7 @@ const asignarAsesor = async (req, res) => {
     const resultado = await portalModel.asignarAsesor(id_cliente, id_asesor);
     res.json({ mensaje: 'Asesor asignado exitosamente.', resultado });
   } catch (error) {
-    res.status(500).json({ error: 'Error al asignar asesor.' });
+    res.status(500).json({ error: 'Error al asignar asesor: ' + error.message });
   }
 };
 
@@ -137,7 +137,7 @@ const agendarCita = async (req, res) => {
     res.json({ mensaje: 'Cita agendada exitosamente.', cita });
   } catch (error) {
     console.error('Error al agendar cita:', error.message);
-    res.status(500).json({ error: 'Error al registrar la cita.' });
+    res.status(500).json({ error: 'Error al registrar la cita: ' + error.message });
   }
 };
 
@@ -145,10 +145,10 @@ const agendarCita = async (req, res) => {
 const getMisPagos = async (req, res) => {
   try {
     const { id_cliente } = req.params;
-    const pagos = await portalModel.getPagosPorCliente(parseInt(id_cliente));
+    const pagos = await portalModel.getPagosPorCliente(id_cliente);
     res.json(pagos);
   } catch (error) {
-    res.status(500).json({ error: 'Error al cargar el historial de pagos.' });
+    res.status(500).json({ error: 'Error al cargar el historial de pagos: ' + error.message });
   }
 };
 
@@ -156,7 +156,7 @@ const getMisPagos = async (req, res) => {
 const getClientePortal = async (req, res) => {
   try {
     const { id } = req.params;
-    const cliente = await portalModel.getClientePorId(parseInt(id));
+    const cliente = await portalModel.getClientePorId(id);
     if (!cliente) return res.status(404).json({ error: 'Cliente no encontrado.' });
     res.json(cliente);
   } catch (error) {
@@ -205,9 +205,9 @@ const registrarPagoPortal = async (req, res) => {
       return res.status(400).json({ error: 'El monto debe ser mayor a cero.' });
     }
     const pago = await pagosModel.registrarPago({
-      id_cliente: parseInt(id_cliente),
-      id_contrato: id_contrato ? parseInt(id_contrato) : null,
-      id_terreno: id_terreno ? parseInt(id_terreno) : null,
+      id_cliente: id_cliente,
+      id_contrato: id_contrato || null,
+      id_terreno: id_terreno || null,
       concepto: concepto || 'Pago desde portal',
       monto: parseFloat(monto),
       metodo_pago: metodo_pago || 'transferencia',
@@ -226,7 +226,7 @@ const registrarPagoPortal = async (req, res) => {
 const getMisApartados = async (req, res) => {
   try {
     const { id_cliente } = req.params;
-    const lotes = await portalModel.getMisLotesApartados(parseInt(id_cliente));
+    const lotes = await portalModel.getMisLotesApartados(id_cliente);
     res.json(lotes);
   } catch (error) {
     res.status(500).json({ error: 'Error al cargar los lotes apartados.' });
@@ -254,7 +254,7 @@ const liberarLote = async (req, res) => {
 const actualizarPerfilCliente = async (req, res) => {
   try {
     const { id } = req.params;
-    const modificado = await portalModel.actualizarPerfilClienteDB(parseInt(id), req.body);
+    const modificado = await portalModel.actualizarPerfilClienteDB(id, req.body);
     if (!modificado) {
       return res.status(404).json({ error: 'No se pudo actualizar el perfil.' });
     }
@@ -271,7 +271,7 @@ const actualizarPerfilCliente = async (req, res) => {
 const getMisCompras = async (req, res) => {
   try {
     const { id_cliente } = req.params;
-    const lotes = await portalModel.getMisLotesComprados(parseInt(id_cliente));
+    const lotes = await portalModel.getMisLotesComprados(id_cliente);
     res.json(lotes);
   } catch (error) {
     console.error('Error obteniendo mis compras:', error);

@@ -66,7 +66,7 @@ const guardarTerreno = async (req, res) => {
       anticipo: anticipo ? parseFloat(anticipo) : 0,
       servicio_agua, servicio_luz, servicio_drenaje, servicio_internet, calle_pavimentada,
       descripcion, galeria_imagenes, plano_lote, documento_escritura,
-      id_propietario: id_propietario ? parseInt(id_propietario) : null,
+      id_propietario: id_propietario || null,
       observaciones,
       estado
     });
@@ -127,7 +127,7 @@ const actualizarTerreno = async (req, res) => {
       anticipo: anticipo ? parseFloat(anticipo) : 0,
       servicio_agua, servicio_luz, servicio_drenaje, servicio_internet, calle_pavimentada,
       descripcion, galeria_imagenes, plano_lote, documento_escritura,
-      id_propietario: id_propietario ? parseInt(id_propietario) : null,
+      id_propietario: id_propietario || null,
       observaciones,
       estado
     });

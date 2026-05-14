@@ -1081,6 +1081,11 @@
 
     function showToast(txt, isError = false) {
       const b = document.getElementById('portalGlobalMsg');
+      if (!b) {
+        if (isError) console.error("Portal Error:", txt);
+        else console.log("Portal Msg:", txt);
+        return;
+      }
       b.style.background = isError ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)';
       b.style.borderColor = isError ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)';
       b.style.color = isError ? '#fca5a5' : '#34d399';
@@ -1335,7 +1340,7 @@
                 </div>
               </a>
               <div style="padding: 0 16px 16px;">
-                <button class="btn-apartar" style="width:100%; margin:0;" onclick="apartarPredio(${l.id_terreno}, '${l.fraccionamiento || 'Predio'} Lote ${l.lote}')">
+                <button class="btn-apartar" style="width:100%; margin:0;" onclick="apartarPredio('${l.id_terreno}', '${l.fraccionamiento || 'Predio'} Lote ${l.lote}')">
                   Apartar este Lote
                 </button>
               </div>
@@ -1444,10 +1449,10 @@
                 <a href="detalle-lote.html?id=${l.id_terreno}" style="text-align:center; background:rgba(59,130,246,0.1); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); padding:8px; border-radius:12px; font-size:12px; font-weight:700; text-decoration:none; display:block;" onmouseover="this.style.background='rgba(59,130,246,0.2)'" onmouseout="this.style.background='rgba(59,130,246,0.1)'">
                   🗺️ Ubicación en Google Maps
                 </a>
-                <button class="btn-apartar" style="background: linear-gradient(to right, #3b82f6, #1d4ed8); color: white; border: none; width:100%; margin:0;" onclick="agendarCitaDesdeApartado(${l.id_terreno}, '${l.fraccionamiento || ''} Lote ${l.lote}')">
+                <button class="btn-apartar" style="background: linear-gradient(to right, #3b82f6, #1d4ed8); color: white; border: none; width:100%; margin:0;" onclick="agendarCitaDesdeApartado('${l.id_terreno}', '${l.fraccionamiento || ''} Lote ${l.lote}')">
                   📅 Agendar Cita
                 </button>
-                <button class="btn-apartar" style="background: transparent; color: #fca5a5; border: 1px solid #ef4444; width:100%; padding:6px; font-size:12px; margin:0;" onclick="liberarApartadoDirecto(${l.id_terreno}, '${l.fraccionamiento || ''} Lote ${l.lote}')">
+                <button class="btn-apartar" style="background: transparent; color: #fca5a5; border: 1px solid #ef4444; width:100%; padding:6px; font-size:12px; margin:0;" onclick="liberarApartadoDirecto('${l.id_terreno}', '${l.fraccionamiento || ''} Lote ${l.lote}')">
                   ❌ Liberar Apartado
                 </button>
               </div>
@@ -1618,7 +1623,7 @@
                 📞 ${a.telefono || 'Atención en oficina'}<br>
                 ✉️ ${a.correo || 'contacto@arevalo.com'}
               </div>
-              <button class="btn-seleccionar-asesor" onclick="elegirAsesor(${a.id_usuario}, '${a.nombre}')" ${showAsignadoBadge ? 'style="display:none;"' : ''}>
+              <button class="btn-seleccionar-asesor" onclick="elegirAsesor('${a.id_usuario}', '${a.nombre}')" ${showAsignadoBadge ? 'style="display:none;"' : ''}>
                 Elegir como mi Asesor
               </button>
               ${showAsignadoBadge ? `<button class="btn-seleccionar-asesor" style="background:transparent; color:#94a3b8; border:1px dashed #64748b; margin-top:8px; font-size:11px;" onclick="window.forzarListadoAsesores=true; cargarAsesores();">🔄 Cambiar de Asesor</button>` : ''}
@@ -1733,7 +1738,7 @@
                 <td style="text-transform: capitalize;"><span class="badge-metodo">${p.metodo_pago || 'Transferencia'}</span></td>
                 <td><span class="badge-estatus" style="background:#d1fae5; color:#065f46; padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700;">${p.estatus || 'pagado'}</span></td>
                 <td style="text-align:center;">
-                  <button onclick="descargarReciboPDFManual(${p.id_pago})" style="background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:11px; font-weight:700; transition:all 0.2s;" title="Descargar Comprobante PDF">
+                  <button onclick="descargarReciboPDFManual('${p.id_pago}')" style="background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:11px; font-weight:700; transition:all 0.2s;" title="Descargar Comprobante PDF">
                     🖨️ Comprobante
                   </button>
                 </td>
@@ -1748,13 +1753,19 @@
         const tbodyPend = document.getElementById('tablaPendientesBody');
         tbodyPend.innerHTML = '';
 
-        const misPendientes = calTotal.filter(c => c.id_cliente == clienteLogueado.id_cliente && (!c.estatus || c.estatus !== 'pagado'));
+        // Filtrar solo los pagos que pertenecen al id_cliente
+        let misPendientes = [];
+        if (Array.isArray(calTotal)) {
+          misPendientes = calTotal.filter(c => c.id_cliente == clienteLogueado.id_cliente && (!c.estatus || c.estatus !== 'pagado'));
+        } else {
+          console.warn("No se pudo cargar el calendario de pagos:", calTotal);
+        }
 
         if (!misPendientes || misPendientes.length === 0) {
           tbodyPend.innerHTML = '<tr><td colspan="4" style="text-align:center; color: var(--text-muted);">¡Excelente! Al corriente. No tienes cuotas programadas pendientes.</td></tr>';
         } else {
           misPendientes.forEach(c => {
-            const fProg = c.fecha_programada ? c.fecha_programada.split('T')[0] : 'N/D';
+            const fProg = c.fecha_esperada ? c.fecha_esperada.split('T')[0] : 'N/D';
             const montoEsp = parseFloat(c.monto_esperado || 0).toLocaleString('es-MX', {minimumFractionDigits:2});
             const conc = `Cuota Programada #${c.id_calendario} - ${c.fraccionamiento || 'Desarrollo'}`;
             
@@ -1774,7 +1785,7 @@
         }
 
       } catch (e) {
-        document.getElementById('tablaPagosBody').innerHTML = '<tr><td colspan="6" style="text-align:center; color: #fca5a5;">Error cargando pagos.</td></tr>';
+        document.getElementById('tablaPagosBody').innerHTML = `<tr><td colspan="6" style="text-align:center; color: #dc2626;">${e.message}</td></tr>`;
       }
     }
 

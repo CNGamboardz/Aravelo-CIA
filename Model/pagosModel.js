@@ -8,7 +8,7 @@ const getCalendarioCobranza = async () => {
      JOIN sistema.clientes cl ON cp.id_cliente = cl.id_cliente
      JOIN sistema.contratos c ON cp.id_contrato = c.id_contrato
      JOIN sistema.terrenos t ON c.id_terreno = t.id_terreno
-     ORDER BY cp.fecha_programada ASC`
+     ORDER BY cp.fecha_esperada ASC`
   );
   return res.rows;
 };

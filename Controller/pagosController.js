@@ -1,4 +1,5 @@
 const pagosModel = require('../Model/pagosModel');
+const { encriptarId, desencriptarId } = require('./cryptoHelper');
 
 const listarCalendario = async (req, res) => {
   try {
@@ -29,15 +30,15 @@ const aplicarPago = async (req, res) => {
     }
 
     const pago = await pagosModel.registrarPago({
-      id_cliente: id_cliente ? parseInt(id_cliente) : null,
-      id_contrato: id_contrato ? parseInt(id_contrato) : null,
-      id_terreno: id_terreno ? parseInt(id_terreno) : null,
+      id_cliente: desencriptarId(id_cliente) || null,
+      id_contrato: desencriptarId(id_contrato) || null,
+      id_terreno: desencriptarId(id_terreno) || null,
       concepto: concepto || 'mensualidad',
       monto: parseFloat(monto),
       metodo_pago: metodo_pago || 'efectivo',
-      id_usuario: id_usuario ? parseInt(id_usuario) : null,
+      id_usuario: desencriptarId(id_usuario) || null,
       comprobante: comprobante || '',
-      id_calendario: id_calendario ? parseInt(id_calendario) : null
+      id_calendario: desencriptarId(id_calendario) || null
     });
 
     res.status(201).json({
@@ -46,7 +47,7 @@ const aplicarPago = async (req, res) => {
     });
   } catch (error) {
     console.error('Error en controlador de pagos:', error);
-    res.status(500).json({ error: 'No se pudo aplicar el pago en la base de datos' });
+    res.status(500).json({ error: 'No se pudo aplicar el pago: ' + error.message });
   }
 };
 

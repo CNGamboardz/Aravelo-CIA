@@ -102,7 +102,7 @@
           
           <div class="form-group">
             <label for="selCliente">Cliente Comprador</label>
-            <select id="selCliente" required>
+            <select id="selCliente" required onchange="actualizarListaTerrenos()">
               <option value="">Cargando clientes...</option>
             </select>
           </div>
@@ -141,9 +141,9 @@
             </div>
           </div>
 
-          <div class="form-group" style="background: #f1f5f9; padding: 12px; border-radius: 10px; margin-top: 5px;">
-            <label style="color: #0f172a; font-size: 12px;">Monto Mensual Proyectado:</label>
-            <div id="lblMensualidad" style="font-size: 20px; font-weight: 800; color: #2563eb;">$0.00</div>
+          <div class="form-group" style="background: #ede9fe; padding: 16px; border-radius: 12px; margin-top: 10px; border: 1px solid #c4b5fd;">
+            <label style="color: #4c1d95; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Monto Mensual Proyectado:</label>
+            <div id="lblMensualidad" style="font-size: 24px; font-weight: 900; color: #570fff; margin-top: 4px;">$0.00</div>
           </div>
 
           <div class="form-group" style="margin-top: 15px;">
@@ -185,6 +185,7 @@
 
   <script>
     let listadoTerrenos = [];
+    let listadoClientes = [];
 
     function cerrarSesion() {
       localStorage.removeItem('arevalo_user');
@@ -196,47 +197,61 @@
       try {
         // Clientes
         const resCl = await fetch('/clientes');
-        const clientes = await resCl.json();
+        listadoClientes = await resCl.json();
         const selCl = document.getElementById('selCliente');
         selCl.innerHTML = '<option value="">Selecciona un comprador</option>';
-        if (clientes && clientes.length > 0) {
-          clientes.forEach(c => {
-            selCl.innerHTML += `<option value="${c.id_cliente}">${c.nombre} ${c.apellido_paterno || ''}</option>`;
+        if (listadoClientes && listadoClientes.length > 0) {
+          listadoClientes.forEach(c => {
+            const fullNom = `${c.nombre || ''} ${c.apellido_paterno || ''} ${c.apellido_materno || ''}`.trim();
+            selCl.innerHTML += `<option value="${c.id_cliente}">${fullNom}</option>`;
           });
         }
 
-        // Terrenos (Incluir libres/disponibles y también los apartados para cierre de venta)
+        // Terrenos
         const resTe = await fetch('/terrenos');
         const todosLosTerrenos = await resTe.json();
         listadoTerrenos = Array.isArray(todosLosTerrenos) ? todosLosTerrenos : [];
         
-        const selTe = document.getElementById('selTerreno');
-        selTe.innerHTML = '<option value="">Selecciona un lote disponible o reservado</option>';
-        
-        const lotesParaVenta = listadoTerrenos.filter(t => {
-          const e = (t.estado || 'disponible').toLowerCase();
-          return e.includes('libre') || e.includes('disponible') || e.includes('apartado');
-        });
-
-        if (lotesParaVenta.length > 0) {
-          lotesParaVenta.forEach(t => {
-            const p = parseFloat(t.precio_venta) || parseFloat(t.precio_lista) || 0;
-            const e = (t.estado || '').toLowerCase();
-            let etiqueta = `${t.fraccionamiento} - ${t.superficie}m² ($${p.toLocaleString('es-MX')})`;
-            
-            if (e.includes('apartado')) {
-              // Buscar nombre de quien lo apartó
-              const cl = clientes.find(c => c.id_cliente == t.id_propietario);
-              const nombreCl = cl ? `${cl.nombre} ${cl.apellido_paterno || ''}`.trim() : 'Cliente en Portal';
-              etiqueta = `🏷️ [APARTADO: ${nombreCl}] ${t.fraccionamiento} Lote ${t.numero_lote || t.lote || ''}`;
-            }
-
-            selTe.innerHTML += `<option value="${t.id_terreno || t.id}" style="${e.includes('apartado') ? 'color: #2563eb; font-weight:700;' : ''}">${etiqueta}</option>`;
-          });
-        }
+        actualizarListaTerrenos();
 
       } catch (err) {
         console.error('Error al cargar selectores:', err);
+      }
+    }
+
+    function actualizarListaTerrenos() {
+      const id_cliente_sel = document.getElementById('selCliente').value;
+      const selTe = document.getElementById('selTerreno');
+      selTe.innerHTML = '<option value="">Selecciona un lote disponible o reservado</option>';
+
+      // Filtro dinámico:
+      // 1. Mostrar siempre los DISPONIBLES o LIBRES
+      // 2. Mostrar los APARTADOS solo si pertenecen al cliente seleccionado actualmente
+      const lotesParaVenta = listadoTerrenos.filter(t => {
+        const e = (t.estado || 'disponible').toLowerCase();
+        const esLibre = e.includes('libre') || e.includes('disponible');
+        const esApartado = e.includes('apartado');
+        
+        if (esLibre) return true;
+        if (esApartado && id_cliente_sel && t.id_propietario == id_cliente_sel) return true;
+        
+        return false;
+      });
+
+      if (lotesParaVenta.length > 0) {
+        lotesParaVenta.forEach(t => {
+          const p = parseFloat(t.precio_venta) || parseFloat(t.precio_lista) || 0;
+          const e = (t.estado || '').toLowerCase();
+          let etiqueta = `${t.fraccionamiento} - ${t.superficie}m² ($${p.toLocaleString('es-MX')})`;
+          
+          if (e.includes('apartado')) {
+            const cl = listadoClientes.find(c => c.id_cliente == t.id_propietario);
+            const nombreCl = cl ? `${cl.nombre} ${cl.apellido_paterno || ''}`.trim() : 'Cliente en Portal';
+            etiqueta = `🏷️ [APARTADO POR TI] ${t.fraccionamiento} Lote ${t.numero_lote || t.lote || ''}`;
+          }
+
+          selTe.innerHTML += `<option value="${t.id_terreno || t.id}" style="${e.includes('apartado') ? 'color: #2563eb; font-weight:700;' : ''}">${etiqueta}</option>`;
+        });
       }
     }
 

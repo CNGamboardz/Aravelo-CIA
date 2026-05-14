@@ -6,8 +6,8 @@ const listarEventos = async (req, res) => {
     let id_usuario = null;
     if (req.query.id_usuario && req.query.id_usuario !== 'undefined' && req.query.id_usuario !== 'null') {
       const dec = desencriptarId(req.query.id_usuario);
-      const parsed = parseInt(dec || req.query.id_usuario);
-      if (!isNaN(parsed)) id_usuario = parsed;
+      const parsed = (dec || req.query.id_usuario);
+      if (parsed) id_usuario = parsed;
     }
     const eventos = await agendaModel.getAgenda(id_usuario);
     res.json(eventos);
@@ -28,8 +28,8 @@ const guardarEvento = async (req, res) => {
     let idLimpio = null;
     if (id_usuario && id_usuario !== 'undefined' && id_usuario !== 'null') {
       const dec = desencriptarId(id_usuario);
-      const parsed = parseInt(dec || id_usuario);
-      if (!isNaN(parsed)) idLimpio = parsed;
+      const parsed = (dec || id_usuario);
+      if (parsed) idLimpio = parsed;
     }
 
     const nuevo = await agendaModel.crearEvento({

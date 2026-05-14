@@ -579,7 +579,7 @@
               <div style="display: flex; width: 100%; gap: 4px; margin-top: 10px;">
                 <button onclick="document.getElementById('specs-${t.id_terreno}').style.display = document.getElementById('specs-${t.id_terreno}').style.display === 'none' ? 'block' : 'none'" style="flex:1; padding:6px; font-size:10px; background:#e2e8f0; border:none; border-radius:6px; cursor:pointer; font-weight:700; color:#334155; transition:0.2s;" title="Mostrar/Ocultar Ficha Técnica">📑 Datos</button>
                 <button onclick="window.location.href='/modificarlote.html?id=${t.id_terreno}'" style="padding:6px 10px; font-size:10px; background:#eff6ff; color:#2563eb; border:none; border-radius:6px; cursor:pointer; font-weight:700; transition:0.2s;" title="Modificar Lote">✏️</button>
-                <button onclick="eliminarTerrenoLocal(${t.id_terreno})" style="padding:6px 10px; font-size:10px; background:#fee2e2; color:#dc2626; border:none; border-radius:6px; cursor:pointer; transition:0.2s;" title="Eliminar Lote">🗑️</button>
+                <button onclick="eliminarTerrenoLocal('${t.id_terreno}')" style="padding:6px 10px; font-size:10px; background:#fee2e2; color:#dc2626; border:none; border-radius:6px; cursor:pointer; transition:0.2s;" title="Eliminar Lote">🗑️</button>
               </div>
 
             </article>

@@ -137,7 +137,7 @@
             
             <div class="form-group">
               <label for="selPCliente">Cliente</label>
-              <select id="selPCliente" required>
+              <select id="selPCliente" required onchange="actualizarFiltroContratos()">
                 <option value="">Selecciona un cliente</option>
               </select>
             </div>
@@ -220,6 +220,7 @@
     const userData = JSON.parse(localStorage.getItem('arevalo_user'));
     let listaContratosGlobal = [];
     let listaPagosGlobal = [];
+    let listaClientesGlobal = [];
 
     function cerrarSesion() {
       localStorage.removeItem('arevalo_user');
@@ -256,27 +257,41 @@
     async function inicializarSelectores() {
       try {
         const resCl = await fetch('/clientes');
-        const clientes = await resCl.json();
+        listaClientesGlobal = await resCl.json();
         const selCl = document.getElementById('selPCliente');
         selCl.innerHTML = '<option value="">Selecciona un cliente</option>';
-        if (clientes && clientes.length > 0) {
-          clientes.forEach(c => {
-            selCl.innerHTML += `<option value="${c.id_cliente}">${c.nombre}</option>`;
+        if (listaClientesGlobal && listaClientesGlobal.length > 0) {
+          listaClientesGlobal.forEach(c => {
+            const nomFull = `${c.nombre || ''} ${c.apellido_paterno || ''} ${c.apellido_materno || ''}`.trim();
+            selCl.innerHTML += `<option value="${c.id_cliente}">${nomFull}</option>`;
           });
         }
 
         const resCo = await fetch('/contratos');
         listaContratosGlobal = await resCo.json();
-        const selCo = document.getElementById('selPContrato');
-        selCo.innerHTML = '<option value="">Selecciona un contrato</option>';
-        if (listaContratosGlobal && listaContratosGlobal.length > 0) {
-          listaContratosGlobal.forEach(c => {
-            selCo.innerHTML += `<option value="${c.id_contrato}">Contrato #${c.id_contrato} - ${c.fraccionamiento}</option>`;
-          });
-        }
+        
+        actualizarFiltroContratos();
         generarFolioAutorelleno();
       } catch (err) {
         console.error('Error al poblar selectores:', err);
+      }
+    }
+
+    function actualizarFiltroContratos() {
+      const id_cliente = document.getElementById('selPCliente').value;
+      const selCo = document.getElementById('selPContrato');
+      selCo.innerHTML = '<option value="">Selecciona un contrato</option>';
+      
+      const filtrados = id_cliente 
+        ? listaContratosGlobal.filter(c => c.id_cliente == id_cliente)
+        : listaContratosGlobal;
+
+      if (filtrados && filtrados.length > 0) {
+        filtrados.forEach(c => {
+          // Mostrar algo más amigable que el UUID
+          const folio = c.id_contrato.toString().slice(0, 8);
+          selCo.innerHTML += `<option value="${c.id_contrato}">Contrato Folio: ...${folio} - ${c.fraccionamiento}</option>`;
+        });
       }
     }
 
@@ -303,12 +318,12 @@
           const status = item.estatus || 'pendiente';
           const badgeClass = `status-${status}`;
           
-          const fechaStr = item.fecha_programada ? item.fecha_programada.split('T')[0] : 'N/A';
+          const fechaStr = item.fecha_esperada ? item.fecha_esperada.split('T')[0] : 'N/A';
           const monto = parseFloat(item.monto_esperado).toLocaleString('es-MX', { minimumFractionDigits: 2 });
 
           let botonAccion = '-';
           if (status === 'pendiente' || status === 'vencido') {
-            botonAccion = `<button class="btn-cobrar" onclick="prepararCobro(${item.id_calendario}, ${item.id_cliente}, ${item.id_contrato}, ${item.monto_esperado})">Cobrar Cuota</button>`;
+            botonAccion = `<button class="btn-cobrar" onclick="prepararCobro('${item.id_calendario}', '${item.id_cliente}', '${item.id_contrato}', ${item.monto_esperado})">Cobrar Cuota</button>`;
           }
 
           tbody.innerHTML += `
@@ -374,7 +389,7 @@
               <td style="color: #10b981; font-weight: 700;">$${montoF}</td>
               <td style="text-transform: capitalize;">${p.metodo_pago}</td>
               <td style="text-align: center;">
-                <button onclick="imprimirReciboProfesional(${p.id_pago})" class="btn-comprobante" style="padding: 5px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:700; border: 1px solid #cbd5e1; transition: 0.2s;" title="Generar Recibo de Impresión">🖨️ Comprobante</button>
+                <button onclick="imprimirReciboProfesional('${p.id_pago}')" class="btn-comprobante" style="padding: 5px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:700; border: 1px solid #cbd5e1; transition: 0.2s;" title="Generar Recibo de Impresión">🖨️ Comprobante</button>
               </td>
             </tr>
           `;
