@@ -575,14 +575,38 @@
 
         const est = (loteActual.estado || 'disponible').toLowerCase();
         const lblEst = document.getElementById('lblEstatus');
-        if (est.includes('apartado')) {
+        const esMiCompra = (loteActual.id_propietario == clienteLogueado.id_cliente && est === 'vendido') || params.get('adquirido') === 'true';
+
+        if (esMiCompra) {
+          lblEst.innerHTML = '✓ Propiedad Adquirida y Escriturada';
+          lblEst.style.background = '#ecfdf5';
+          lblEst.style.color = '#059669';
+          lblEst.style.borderColor = '#10b981';
+          
+          const actionsContainer = document.querySelector('.actions');
+          if (actionsContainer) {
+            actionsContainer.innerHTML = `
+              <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 22px; border-radius: 16px; text-align: center; box-shadow: 0 10px 25px rgba(16,185,129,0.25);">
+                <div style="font-size: 32px; margin-bottom: 8px;">📜</div>
+                <h3 style="font-weight: 800; font-size: 16px; margin-bottom: 4px;">Título Patrimonial Consolidado</h3>
+                <p style="font-size: 12px; opacity: 0.95; line-height: 1.4;">Este predio te pertenece de forma exclusiva en nuestro registro catastral oficial. Libre de gravamen y consolidado a tu nombre.</p>
+                <button onclick="window.print()" style="margin-top: 14px; background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 10px 16px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; transition: 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.background='rgba(255,255,255,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.25)'">
+                  🖨️ Imprimir Constancia Legal
+                </button>
+              </div>
+            `;
+          }
+        } else if (est.includes('apartado')) {
           lblEst.innerHTML = '🔒 Lote Apartado / Reservado';
           lblEst.style.background = '#fef2f2';
           lblEst.style.color = '#dc2626';
           lblEst.style.borderColor = '#fca5a5';
-          document.querySelector('.btn-main').disabled = true;
-          document.querySelector('.btn-main').style.opacity = '0.5';
-          document.querySelector('.btn-main').innerText = 'Lote no disponible temporalmente';
+          const btnMain = document.querySelector('.btn-main');
+          if (btnMain) {
+            btnMain.disabled = true;
+            btnMain.style.opacity = '0.5';
+            btnMain.innerText = 'Lote no disponible temporalmente';
+          }
         } else {
           lblEst.innerHTML = '✨ Inversión Disponible';
         }
