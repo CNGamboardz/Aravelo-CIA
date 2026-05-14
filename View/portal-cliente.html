@@ -521,12 +521,13 @@
       <img src="/public/LogoApp.png" alt="Logo">
       <span class="brand-title">Arévalo & CIA</span>
     </div>
-    <div class="user-profile">
-      <div class="user-info">
+    <div class="user-profile" style="display: flex; align-items: center; gap: 12px;">
+      <img id="navUserAvatar" src="https://placehold.co/100x100/e2e8f0/475569?text=👤" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #2563eb; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" alt="Avatar">
+      <div class="user-info" style="text-align: right;">
         <div class="user-name" id="navUserName">Cargando...</div>
         <div class="user-id" id="navUserId">Cliente</div>
       </div>
-      <button class="btn-logout" onclick="cerrarSesionPortal()">Cerrar Sesión</button>
+      <button class="btn-logout" onclick="cerrarSesionPortal()" style="margin-left: 8px;">Cerrar Sesión</button>
     </div>
   </header>
 
@@ -1024,6 +1025,11 @@
         document.getElementById('navUserName').innerText = nomCompleto || 'Cliente';
         document.getElementById('navUserId').innerText = `ID Portal: #${clienteLogueado.id_cliente}`;
         
+        const avatarEl = document.getElementById('navUserAvatar');
+        if (avatarEl && clienteLogueado.foto_cliente) {
+          avatarEl.src = clienteLogueado.foto_cliente;
+        }
+        
         // Consultar de inmediato al backend para asegurar que la caché local no esté desactualizada
         fetch('/api/portal/cliente/' + clienteLogueado.id_cliente)
           .then(r => r.json())
@@ -1032,6 +1038,9 @@
               clienteLogueado = { ...clienteLogueado, ...c };
               const nomActualizado = `${c.nombre || ''} ${c.apellido_paterno || ''} ${c.apellido_materno || ''}`.replace(/\s+/g, ' ').trim();
               document.getElementById('navUserName').innerText = nomActualizado || 'Cliente';
+              if (avatarEl && c.foto_cliente) {
+                avatarEl.src = c.foto_cliente;
+              }
               if (localStorage.getItem('portal_cliente')) {
                 localStorage.setItem('portal_cliente', JSON.stringify(clienteLogueado));
               }
@@ -1259,6 +1268,11 @@
           clienteLogueado = { ...clienteLogueado, ...data.cliente };
           const nombreCompleto = `${clienteLogueado.nombre || ''} ${clienteLogueado.apellido_paterno || ''} ${clienteLogueado.apellido_materno || ''}`.replace(/\s+/g, ' ').trim();
           document.getElementById('navUserName').innerText = nombreCompleto || 'Cliente';
+          
+          const avatarEl = document.getElementById('navUserAvatar');
+          if (avatarEl && clienteLogueado.foto_cliente) {
+            avatarEl.src = clienteLogueado.foto_cliente;
+          }
           
           if (localStorage.getItem('portal_cliente')) {
             localStorage.setItem('portal_cliente', JSON.stringify(clienteLogueado));
