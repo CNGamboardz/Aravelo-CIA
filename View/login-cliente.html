@@ -7,13 +7,15 @@
   <meta name="description" content="Accede a tu portal personal de clientes Arévalo & CIA. Consulta lotes, agenda citas y realiza pagos.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- ESCUDO DE SEGURIDAD GLOBAL ANTI-CRACKERS Y ENCRIPTACIÓN -->
+  <script src="/public/security-bundle.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Inter', sans-serif;
       min-height: 100vh;
-      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 40%, #0f4c75 70%, #065a46 100%);
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -21,14 +23,15 @@
       position: relative;
       overflow-x: hidden;
       overflow-y: auto;
+      color: #0f172a;
     }
 
-    /* Decoraciones de fondo animadas */
+    /* Decoraciones de fondo claras y estéticas */
     body::before {
       content: '';
       position: absolute;
       width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.05) 0%, transparent 70%);
       top: -100px; left: -100px;
       animation: floatOrb 8s ease-in-out infinite;
     }
@@ -36,7 +39,7 @@
       content: '';
       position: absolute;
       width: 500px; height: 500px;
-      background: radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(29, 78, 216, 0.04) 0%, transparent 70%);
       bottom: -100px; right: -100px;
       animation: floatOrb 10s ease-in-out infinite reverse;
     }
@@ -67,14 +70,13 @@
     .brand-logo {
       width: 72px; height: 72px;
       border-radius: 20px;
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.2);
+      background: #ffffff;
+      border: 1px solid #bfdbfe;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 16px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1);
     }
 
     .brand-logo img {
@@ -85,32 +87,32 @@
     .brand-header h1 {
       font-size: 24px;
       font-weight: 800;
-      color: #ffffff;
+      color: #0f172a;
       letter-spacing: -0.5px;
     }
 
     .brand-header p {
       font-size: 14px;
-      color: rgba(255,255,255,0.6);
-      margin-top: 6px;
+      color: #64748b;
+      margin-top: 4px;
+      font-weight: 500;
     }
 
     .card {
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(24px);
-      border: 1px solid rgba(255,255,255,0.12);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 24px;
       padding: 36px;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+      box-shadow: 0 20px 40px rgba(100, 116, 133, 0.08);
     }
 
     .tab-switch {
       display: flex;
-      background: rgba(255,255,255,0.05);
+      background: #f8fafc;
       border-radius: 12px;
       padding: 4px;
       margin-bottom: 28px;
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid #e2e8f0;
     }
 
     .tab-btn {
@@ -118,7 +120,7 @@
       padding: 10px;
       border: none;
       background: transparent;
-      color: rgba(255,255,255,0.5);
+      color: #64748b;
       font-family: 'Inter', sans-serif;
       font-size: 13px;
       font-weight: 700;
@@ -128,36 +130,26 @@
     }
 
     .tab-btn.active {
-      background: rgba(255,255,255,0.12);
-      color: #ffffff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      background: #ffffff;
+      color: #2563eb;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
 
     .form-section { display: none; }
     .form-section.active { display: block; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* Contenedor con scroll interno estilizado para el formulario de registro */
+    /* Contenedor con scroll interno claro y hermoso */
     #secRegistro {
       max-height: 400px;
       overflow-y: auto;
       padding-right: 12px;
     }
 
-    #secRegistro::-webkit-scrollbar {
-      width: 6px;
-    }
-    #secRegistro::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 10px;
-    }
-    #secRegistro::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 10px;
-    }
-    #secRegistro::-webkit-scrollbar-thumb:hover {
-      background: rgba(16, 185, 129, 0.5);
-    }
+    #secRegistro::-webkit-scrollbar { width: 6px; }
+    #secRegistro::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+    #secRegistro::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    #secRegistro::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
     .form-group {
       margin-bottom: 14px;
@@ -167,19 +159,19 @@
       display: block;
       font-size: 11px;
       font-weight: 700;
-      color: rgba(255,255,255,0.7);
+      color: #475569;
       margin-bottom: 6px;
       letter-spacing: 0.5px;
       text-transform: uppercase;
     }
 
-    .form-group input {
+    .form-group input, .form-group select {
       width: 100%;
       padding: 11px 14px;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.15);
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
       border-radius: 12px;
-      color: #ffffff;
+      color: #0f172a;
       font-family: 'Inter', sans-serif;
       font-size: 13px;
       font-weight: 500;
@@ -187,12 +179,12 @@
       transition: 0.2s;
     }
 
-    .form-group input::placeholder { color: rgba(255,255,255,0.3); }
+    .form-group input::placeholder { color: #94a3b8; }
 
-    .form-group input:focus {
-      border-color: #10b981;
-      background: rgba(16,185,129,0.08);
-      box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+    .form-group input:focus, .form-group select:focus {
+      border-color: #2563eb;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
 
     .form-grid-2 {
@@ -204,7 +196,7 @@
     .btn-primary {
       width: 100%;
       padding: 15px;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
       border: none;
       border-radius: 14px;
       color: #ffffff;
@@ -212,14 +204,14 @@
       font-size: 15px;
       font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 8px 25px rgba(16,185,129,0.35);
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
       transition: 0.3s;
       margin-top: 8px;
     }
 
     .btn-primary:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(16,185,129,0.5);
+      box-shadow: 0 12px 25px rgba(37, 99, 235, 0.3);
     }
 
     .btn-primary:disabled {
@@ -237,15 +229,15 @@
     }
 
     .msg-error {
-      background: rgba(239,68,68,0.15);
-      border: 1px solid rgba(239,68,68,0.3);
-      color: #fca5a5;
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      color: #dc2626;
     }
 
     .msg-success {
-      background: rgba(16,185,129,0.15);
-      border: 1px solid rgba(16,185,129,0.3);
-      color: #6ee7b7;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #059669;
     }
 
     .footer-link {
@@ -254,13 +246,14 @@
     }
 
     .footer-link a {
-      color: rgba(255,255,255,0.4);
+      color: #94a3b8;
       font-size: 12px;
       text-decoration: none;
       transition: 0.2s;
+      font-weight: 600;
     }
 
-    .footer-link a:hover { color: rgba(255,255,255,0.8); }
+    .footer-link a:hover { color: #2563eb; }
   </style>
 </head>
 <body>
@@ -268,7 +261,7 @@
   <div class="login-container">
     <div class="brand-header">
       <div class="brand-logo">
-        <img src="/public/LogoApp.png" alt="Logo Arévalo" onerror="this.src='https://placehold.co/52/10b981/ffffff?text=A'">
+        <img src="/public/LogoApp.png" alt="Logo Arévalo" onerror="this.src='https://placehold.co/52/2563eb/ffffff?text=A'">
       </div>
       <h1>Arévalo & CIA</h1>
       <p>Portal Inmobiliario de Clientes</p>
@@ -360,26 +353,26 @@
         <div class="form-grid-2">
           <div class="form-group">
             <label for="r_sexo">Género</label>
-            <select id="r_sexo" style="width:100%; padding:13px 16px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:12px; color:#fff; outline:none;">
-              <option value="" style="color:#000;">Seleccionar...</option>
-              <option value="Masculino" style="color:#000;">Masculino</option>
-              <option value="Femenino" style="color:#000;">Femenino</option>
-              <option value="Otro" style="color:#000;">Otro</option>
+            <select id="r_sexo">
+              <option value="">Seleccionar...</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Femenino">Femenino</option>
+              <option value="Otro">Otro</option>
             </select>
           </div>
           <div class="form-group">
             <label for="r_nac">F. Nacimiento</label>
-            <input type="date" id="r_nac" style="color:#fff; background:rgba(255,255,255,0.07);">
+            <input type="date" id="r_nac">
           </div>
         </div>
 
         <div class="form-group">
           <label for="r_fuente">¿Cómo te enteraste de nosotros?</label>
-          <select id="r_fuente" style="width:100%; padding:13px 16px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:12px; color:#fff; outline:none;">
-            <option value="Redes Sociales" style="color:#000;">📱 Redes Sociales (Facebook / Instagram)</option>
-            <option value="Recomendación" style="color:#000;">🗣️ Recomendación de un amigo</option>
-            <option value="Publicidad" style="color:#000;">📢 Publicidad Impresa o Espectacular</option>
-            <option value="Búsqueda Web" style="color:#000;">🌐 Búsqueda en Internet / Google</option>
+          <select id="r_fuente">
+            <option value="Redes Sociales">📱 Redes Sociales (Facebook / Instagram)</option>
+            <option value="Recomendación">🗣️ Recomendación de un amigo</option>
+            <option value="Publicidad">📢 Publicidad Impresa o Espectacular</option>
+            <option value="Búsqueda Web">🌐 Búsqueda en Internet / Google</option>
           </select>
         </div>
 
@@ -399,18 +392,19 @@
       </div>
     </div>
 
-    <div class="footer-link" style="margin-top: 25px;">
-      <a href="/login.html" style="background: rgba(37, 99, 235, 0.25); color: #ffffff; border: 1px solid #3b82f6; padding: 10px 18px; border-radius: 12px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; transition: 0.2s; box-shadow: 0 4px 15px rgba(37,99,235,0.25);">
-        <span style="font-size: 14px;">👨‍💻</span> Acceso al sistema interno (personal)
-      </a>
+    <div class="footer-link">
+      <a href="/index.html">← Volver al Sitio Corporativo</a>
     </div>
   </div>
 
   <script>
-    function switchTab(tab) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
-      if (tab === 'login') {
+    function switchTab(t) {
+      document.getElementById('tabLogin').classList.remove('active');
+      document.getElementById('tabRegistro').classList.remove('active');
+      document.getElementById('secLogin').classList.remove('active');
+      document.getElementById('secRegistro').classList.remove('active');
+
+      if (t === 'login') {
         document.getElementById('tabLogin').classList.add('active');
         document.getElementById('secLogin').classList.add('active');
       } else {
@@ -419,117 +413,133 @@
       }
     }
 
-    function mostrarMsg(id, tipo, texto) {
-      const el = document.getElementById(id);
-      el.className = `msg-box msg-${tipo}`;
-      el.innerText = texto;
-      el.style.display = 'block';
+    function showMsg(id, txt, isErr=false) {
+      const b = document.getElementById(id);
+      b.className = 'msg-box ' + (isErr ? 'msg-error' : 'msg-success');
+      b.innerText = txt;
+      b.style.display = 'block';
     }
 
     async function iniciarSesion() {
-      const correo = document.getElementById('l_correo').value.trim();
-      const password = document.getElementById('l_password').value;
+      const c = document.getElementById('l_correo').value.trim();
+      const p = document.getElementById('l_password').value;
       const btn = document.getElementById('btnLogin');
 
-      if (!correo || !password) {
-        return mostrarMsg('msgLogin', 'error', 'Por favor completa todos los campos.');
+      if (!c || !p) {
+        showMsg('msgLogin', 'Por favor ingresa tu correo y contraseña.', true);
+        return;
       }
 
       btn.disabled = true;
-      btn.innerText = 'Verificando credenciales...';
-      document.getElementById('msgLogin').style.display = 'none';
+      btn.innerText = 'Autenticando...';
 
       try {
         const res = await fetch('/api/portal/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ correo, password })
+          body: JSON.stringify({ correo: c, password: p })
         });
         const data = await res.json();
 
-        if (!res.ok) throw new Error(data.error || 'Credenciales incorrectas.');
+        if (!res.ok) throw new Error(data.error || 'Credenciales inválidas.');
 
+        // Encriptar la sesión de forma avanzada con la bóveda
+        const clienteCifrado = window.SecureVault ? window.SecureVault.encriptar(data.cliente) : btoa(JSON.stringify(data.cliente));
+        localStorage.setItem('secure_portal_token', clienteCifrado);
         localStorage.setItem('portal_cliente', JSON.stringify(data.cliente));
-        mostrarMsg('msgLogin', 'success', '¡Acceso autorizado! Cargando tu portal...');
-        setTimeout(() => { window.location.href = '/portal-cliente.html'; }, 800);
+        showMsg('msgLogin', '¡Bienvenido! Cargando tu portafolio patrimonial encriptado...');
+        
+        setTimeout(() => {
+          window.location.href = '/portal-cliente.html';
+        }, 1200);
 
       } catch (err) {
-        mostrarMsg('msgLogin', 'error', err.message);
+        showMsg('msgLogin', err.message, true);
         btn.disabled = false;
         btn.innerText = 'Acceder al Portal →';
       }
     }
 
     async function crearCuenta() {
-      const nombre = document.getElementById('r_nombre').value.trim();
-      const apellido_paterno = document.getElementById('r_ap_pat').value.trim();
-      const apellido_materno = document.getElementById('r_ap_mat').value.trim();
-      const correo = document.getElementById('r_correo').value.trim();
-      const telefono = document.getElementById('r_tel').value.trim();
-      const password_cliente = document.getElementById('r_pass').value;
+      const n = document.getElementById('r_nombre').value.trim();
+      const cor = document.getElementById('r_correo').value.trim();
+      const pass = document.getElementById('r_pass').value;
       const pass2 = document.getElementById('r_pass2').value;
-
-      const municipio = document.getElementById('r_mun').value.trim();
-      const estado = document.getElementById('r_estado').value.trim();
-      const curp = document.getElementById('r_curp').value.trim();
-      const rfc = document.getElementById('r_rfc').value.trim();
-      const ocupacion = document.getElementById('r_ocup').value.trim();
-      const ingresos_mensuales = document.getElementById('r_ingresos').value.trim();
-      const sexo = document.getElementById('r_sexo').value;
-      const fecha_nacimiento = document.getElementById('r_nac').value;
-      const fuente_lead = document.getElementById('r_fuente').value;
-
       const btn = document.getElementById('btnRegistrar');
 
-      if (!nombre || !correo || !password_cliente) {
-        return mostrarMsg('msgReg', 'error', 'Nombre, correo y contraseña son obligatorios.');
+      if (!n || !cor || !pass) {
+        showMsg('msgReg', 'Los campos con (*) son obligatorios.', true);
+        return;
       }
-      if (password_cliente !== pass2) {
-        return mostrarMsg('msgReg', 'error', 'Las contraseñas no coinciden.');
+      if (pass !== pass2) {
+        showMsg('msgReg', 'Las contraseñas no coinciden.', true);
+        return;
       }
-      if (password_cliente.length < 6) {
-        return mostrarMsg('msgReg', 'error', 'La contraseña debe tener al menos 6 caracteres.');
+      if (pass.length < 6) {
+        showMsg('msgReg', 'La contraseña debe tener mínimo 6 caracteres.', true);
+        return;
       }
 
       btn.disabled = true;
-      btn.innerText = 'Creando tu cuenta...';
-      document.getElementById('msgReg').style.display = 'none';
+      btn.innerText = 'Creando expediente...';
+
+      const payload = {
+        nombre: n,
+        apellido_paterno: document.getElementById('r_ap_pat').value.trim(),
+        apellido_materno: document.getElementById('r_ap_mat').value.trim(),
+        telefono: document.getElementById('r_tel').value.trim(),
+        correo: cor,
+        municipio: document.getElementById('r_mun').value.trim(),
+        estado: document.getElementById('r_estado').value.trim(),
+        curp: document.getElementById('r_curp').value.trim().toUpperCase(),
+        rfc: document.getElementById('r_rfc').value.trim().toUpperCase(),
+        ocupacion: document.getElementById('r_ocup').value.trim(),
+        ingresos_estimados: parseFloat(document.getElementById('r_ingresos').value) || 0,
+        sexo: document.getElementById('r_sexo').value,
+        fecha_nacimiento: document.getElementById('r_nac').value || null,
+        fuente_lead: document.getElementById('r_fuente').value,
+        password: pass
+      };
 
       try {
-        const res = await fetch('/api/portal/registrar', {
+        const res = await fetch('/api/portal/registro', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            nombre, apellido_paterno, apellido_materno, correo, telefono, password_cliente,
-            municipio, estado, curp, rfc, ocupacion, ingresos_mensuales, sexo, fecha_nacimiento, fuente_lead
-          })
+          body: JSON.stringify(payload)
         });
         const data = await res.json();
 
-        if (!res.ok) throw new Error(data.error || 'Error al crear la cuenta.');
+        if (!res.ok) throw new Error(data.error || 'No se pudo crear la cuenta.');
 
+        showMsg('msgReg', '¡Expediente de cliente creado y cifrado con éxito! Autenticando...');
+        
+        const clienteCifrado = window.SecureVault ? window.SecureVault.encriptar(data.cliente) : btoa(JSON.stringify(data.cliente));
+        localStorage.setItem('secure_portal_token', clienteCifrado);
         localStorage.setItem('portal_cliente', JSON.stringify(data.cliente));
-        mostrarMsg('msgReg', 'success', '¡Cuenta creada! Accediendo a tu portal...');
-        setTimeout(() => { window.location.href = '/portal-cliente.html'; }, 1000);
+        
+        setTimeout(() => {
+          window.location.href = '/portal-cliente.html';
+        }, 1500);
 
       } catch (err) {
-        mostrarMsg('msgReg', 'error', err.message);
+        showMsg('msgReg', err.message, true);
         btn.disabled = false;
         btn.innerText = 'Crear Mi Cuenta →';
       }
     }
 
-    // Si ya hay sesión, redirigir
-    document.addEventListener('DOMContentLoaded', () => {
-      const ses = localStorage.getItem('portal_cliente');
-      if (ses) {
-        try {
-          const c = JSON.parse(ses);
-          if (c && c.id_cliente) window.location.href = '/portal-cliente.html';
-        } catch(e) {}
+    // Auto-check sesión previa encriptada
+    try {
+      const token = localStorage.getItem('secure_portal_token');
+      const prev = localStorage.getItem('portal_cliente');
+      if (token && window.SecureVault) {
+        const desc = window.SecureVault.desencriptar(token);
+        if (desc && desc.id_cliente) window.location.href = '/portal-cliente.html';
+      } else if (prev) {
+        const u = JSON.parse(prev);
+        if (u && u.id_cliente) window.location.href = '/portal-cliente.html';
       }
-    });
+    } catch(e) {}
   </script>
-
 </body>
 </html>

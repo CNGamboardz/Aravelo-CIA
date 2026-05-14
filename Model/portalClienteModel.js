@@ -164,18 +164,75 @@ const getPagosPorCliente = async (id_cliente) => {
 };
 
 /**
- * Obtener datos completos de un cliente por ID (para el dashboard)
+ * Obtener datos completos de un cliente por ID (para el dashboard y perfil)
  */
 const getClientePorId = async (id_cliente) => {
   const res = await db.query(
-    `SELECT id_cliente, nombre, apellido_paterno, apellido_materno, correo, telefono,
-            foto_cliente, estatus, id_asesor_asignado, cita_fecha, cita_lote_id, 
-            cita_nota, cita_estatus, fecha_registro
-     FROM sistema.clientes
-     WHERE id_cliente = $1`,
+    `SELECT * FROM sistema.clientes WHERE id_cliente = $1`,
     [id_cliente]
   );
   return res.rows[0];
+};
+
+/**
+ * Actualizar el perfil completo del cliente desde su sesión en el portal
+ */
+const actualizarPerfilClienteDB = async (id_cliente, datos) => {
+  const {
+    nombre, apellido_paterno, apellido_materno, fecha_nacimiento, sexo, curp, rfc,
+    telefono, telefono_secundario, correo, direccion, colonia, municipio,
+    estado, codigo_postal, ocupacion, empresa, ingresos_mensuales, estado_civil,
+    nacionalidad, identificacion_oficial, numero_identificacion, foto_identificacion,
+    comprobante_domicilio, foto_cliente, observaciones, password_cliente
+  } = datos;
+
+  const c_ingresos = ingresos_mensuales ? parseFloat(ingresos_mensuales) : 0;
+  const c_nac = fecha_nacimiento || null;
+
+  // Si se envió contraseña, actualizarla con hash
+  let queryPass = '';
+  let params = [
+    nombre || '', apellido_paterno || '', apellido_materno || '', c_nac, sexo || '',
+    curp || '', rfc || '', telefono || '', telefono_secundario || '', correo || '',
+    direccion || '', colonia || '', municipio || '', estado || '',
+    codigo_postal || '', ocupacion || '', empresa || '', c_ingresos, estado_civil || '',
+    nacionalidad || '', identificacion_oficial || '', numero_identificacion || '',
+    foto_identificacion || '', comprobante_domicilio || '', foto_cliente || '',
+    observaciones || '', id_cliente
+  ];
+
+  if (password_cliente && password_cliente.trim() !== '') {
+    const salt = await bcrypt.genSalt(12);
+    const passHash = await bcrypt.hash(password_cliente, salt);
+    // Hacemos UPDATE de todos y de password_cliente
+    const res = await db.query(
+      `UPDATE sistema.clientes 
+       SET nombre = $1, apellido_paterno = $2, apellido_materno = $3, fecha_nacimiento = $4,
+           sexo = $5, curp = $6, rfc = $7, telefono = $8, telefono_secundario = $9,
+           correo = $10, direccion = $11, colonia = $12, municipio = $13,
+           estado = $14, codigo_postal = $15, ocupacion = $16, empresa = $17,
+           ingresos_mensuales = $18, estado_civil = $19, nacionalidad = $20,
+           identificacion_oficial = $21, numero_identificacion = $22, foto_identificacion = $23,
+           comprobante_domicilio = $24, foto_cliente = $25, observaciones = $26, password_cliente = $28
+       WHERE id_cliente = $27 RETURNING *`,
+      [...params, passHash]
+    );
+    return res.rows[0];
+  } else {
+    const res = await db.query(
+      `UPDATE sistema.clientes 
+       SET nombre = $1, apellido_paterno = $2, apellido_materno = $3, fecha_nacimiento = $4,
+           sexo = $5, curp = $6, rfc = $7, telefono = $8, telefono_secundario = $9,
+           correo = $10, direccion = $11, colonia = $12, municipio = $13,
+           estado = $14, codigo_postal = $15, ocupacion = $16, empresa = $17,
+           ingresos_mensuales = $18, estado_civil = $19, nacionalidad = $20,
+           identificacion_oficial = $21, numero_identificacion = $22, foto_identificacion = $23,
+           comprobante_domicilio = $24, foto_cliente = $25, observaciones = $26
+       WHERE id_cliente = $27 RETURNING *`,
+      params
+    );
+    return res.rows[0];
+  }
 };
 
 /**
@@ -217,6 +274,7 @@ module.exports = {
   agendarCita,
   getPagosPorCliente,
   getClientePorId,
+  actualizarPerfilClienteDB,
   getMisLotesApartados,
   liberarLote
 };

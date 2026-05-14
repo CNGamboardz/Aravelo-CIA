@@ -3,6 +3,28 @@ const path = require('path');
 
 const app = express(); // ✅ PRIMERO se crea
 
+// ====================================================
+// MIDDLEWARES DE SEGURIDAD AVANZADA (ANTI-CRACKERS & SHIELD)
+// ====================================================
+app.disable('x-powered-by'); // Ocultar que usamos Express/Node.js
+
+app.use((req, res, next) => {
+  // Cabecera falsa para engañar escáneres automáticos de crackers
+  res.setHeader('X-Powered-By', 'ASP.NET Enterprise Secure Server');
+  // Evitar que la web se incruste en iframes no autorizados (Clickjacking)
+  res.setHeader('X-Frame-Options', 'DENY');
+  // Evitar el rastreo e inferencia de tipos MIME
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  // Activar protección XSS en navegadores
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  // Control de caché para datos confidenciales en endpoints de API
+  if (req.path.includes('/api/') || req.path.includes('/clientes')) {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+  }
+  next();
+});
+
 // Controllers
 const clientesController = require('./Controller/clientesController');
 const dashboardController = require('./Controller/dashboardController');
@@ -13,7 +35,7 @@ const contratosController = require('./Controller/contratosController');
 const pagosController = require('./Controller/pagosController');
 const portalController = require('./Controller/portalClienteController');
 
-// Middlewares
+// Middlewares estándar
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -83,6 +105,7 @@ app.post('/api/portal/stripe-intent', portalController.crearStripeIntent);
 app.post('/api/portal/pagar', portalController.registrarPagoPortal);
 app.get('/api/portal/mis-apartados/:id_cliente', portalController.getMisApartados);
 app.post('/api/portal/liberar', portalController.liberarLote);
+app.put('/api/portal/cliente/:id', portalController.actualizarPerfilCliente);
 
 // Servidor
 app.listen(3000, () => {

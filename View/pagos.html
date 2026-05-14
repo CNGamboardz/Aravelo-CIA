@@ -281,16 +281,21 @@
     }
 
     // Cargar Calendario de Proyecciones
+    // Cargar Calendario de Proyecciones con Filtro de Privacidad por Asesor
     async function cargarCalendario() {
       try {
         const res = await fetch('/pagos/calendario');
-        const calendario = await res.json();
+        const calendarioTotal = await res.json();
         
         const tbody = document.getElementById('tablaCalendarioBody');
         tbody.innerHTML = '';
 
+        // Filtrar solo los de este asesor si el usuario logueado es vendedor/asesor
+        const isAsesor = userData && (userData.rol === 'vendedor' || userData.rol === 'asesor');
+        const calendario = isAsesor ? calendarioTotal.filter(c => c.id_asesor_asignado == userData.id_usuario) : calendarioTotal;
+
         if (!calendario || calendario.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #6b7280;">No hay cuotas programadas en el calendario financiero.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #6b7280;">No hay cuotas programadas para tus clientes asignados en el calendario financiero.</td></tr>`;
           return;
         }
 
@@ -339,16 +344,21 @@
       msgBox.style.display = 'block';
     }
 
-    // Cargar Historial de Pagos Reales
+    // Cargar Historial de Pagos Reales con Filtro de Privacidad por Asesor
     async function cargarHistorialPagos() {
       try {
         const res = await fetch('/pagos');
-        listaPagosGlobal = await res.json();
+        const pagosTotal = await res.json();
+        
+        // Filtrar solo los de este asesor si el usuario logueado es vendedor/asesor
+        const isAsesor = userData && (userData.rol === 'vendedor' || userData.rol === 'asesor');
+        listaPagosGlobal = isAsesor ? pagosTotal.filter(p => p.id_asesor_asignado == userData.id_usuario) : pagosTotal;
+
         const tbody = document.getElementById('tablaHistorialBody');
         tbody.innerHTML = '';
 
         if (!listaPagosGlobal || listaPagosGlobal.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #6b7280;">No se han emitido recibos de pago.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #6b7280;">No se han emitido recibos de pago para tus clientes.</td></tr>`;
           return;
         }
 

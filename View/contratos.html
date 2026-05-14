@@ -5,6 +5,8 @@
   <title>Acuerdos y Contratos - Arevalo & CIA</title>
   <link rel="stylesheet" href="/style/stylecontratos.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- ESCUDO DE SEGURIDAD GLOBAL ANTI-CRACKERS Y ENCRIPTACIÓN -->
+  <script src="/public/security-bundle.js"></script>
 </head>
 
 <body>
@@ -141,7 +143,7 @@
 
           <div class="form-group" style="background: #f1f5f9; padding: 12px; border-radius: 10px; margin-top: 5px;">
             <label style="color: #0f172a; font-size: 12px;">Monto Mensual Proyectado:</label>
-            <div id="lblMensualidad" style="font-size: 20px; font-weight: 800; color: #570fff;">$0.00</div>
+            <div id="lblMensualidad" style="font-size: 20px; font-weight: 800; color: #2563eb;">$0.00</div>
           </div>
 
           <div class="form-group" style="margin-top: 15px;">
@@ -199,27 +201,37 @@
         selCl.innerHTML = '<option value="">Selecciona un comprador</option>';
         if (clientes && clientes.length > 0) {
           clientes.forEach(c => {
-            selCl.innerHTML += `<option value="${c.id_cliente}">${c.nombre}</option>`;
+            selCl.innerHTML += `<option value="${c.id_cliente}">${c.nombre} ${c.apellido_paterno || ''}</option>`;
           });
         }
 
-        // Terrenos (Filtrar de forma estricta solo los disponibles/libres)
+        // Terrenos (Incluir libres/disponibles y también los apartados para cierre de venta)
         const resTe = await fetch('/terrenos');
         const todosLosTerrenos = await resTe.json();
         listadoTerrenos = Array.isArray(todosLosTerrenos) ? todosLosTerrenos : [];
         
         const selTe = document.getElementById('selTerreno');
-        selTe.innerHTML = '<option value="">Selecciona un lote disponible</option>';
+        selTe.innerHTML = '<option value="">Selecciona un lote disponible o reservado</option>';
         
-        const lotesDisponibles = listadoTerrenos.filter(t => {
+        const lotesParaVenta = listadoTerrenos.filter(t => {
           const e = (t.estado || 'disponible').toLowerCase();
-          return e.includes('libre') || e.includes('disponible');
+          return e.includes('libre') || e.includes('disponible') || e.includes('apartado');
         });
 
-        if (lotesDisponibles.length > 0) {
-          lotesDisponibles.forEach(t => {
+        if (lotesParaVenta.length > 0) {
+          lotesParaVenta.forEach(t => {
             const p = parseFloat(t.precio_venta) || parseFloat(t.precio_lista) || 0;
-            selTe.innerHTML += `<option value="${t.id_terreno || t.id}">${t.fraccionamiento} - ${t.superficie}m² ($${p.toLocaleString('es-MX')})</option>`;
+            const e = (t.estado || '').toLowerCase();
+            let etiqueta = `${t.fraccionamiento} - ${t.superficie}m² ($${p.toLocaleString('es-MX')})`;
+            
+            if (e.includes('apartado')) {
+              // Buscar nombre de quien lo apartó
+              const cl = clientes.find(c => c.id_cliente == t.id_propietario);
+              const nombreCl = cl ? `${cl.nombre} ${cl.apellido_paterno || ''}`.trim() : 'Cliente en Portal';
+              etiqueta = `🏷️ [APARTADO: ${nombreCl}] ${t.fraccionamiento} Lote ${t.numero_lote || t.lote || ''}`;
+            }
+
+            selTe.innerHTML += `<option value="${t.id_terreno || t.id}" style="${e.includes('apartado') ? 'color: #2563eb; font-weight:700;' : ''}">${etiqueta}</option>`;
           });
         }
 
@@ -239,20 +251,38 @@
 
     function calcularCuota() {
       const plan = document.getElementById('c_plan').value;
-      const precio = parseFloat(document.getElementById('c_precio').value) || 0;
-      const enganche = parseFloat(document.getElementById('c_enganche').value) || 0;
-      const plazo = parseInt(document.getElementById('c_plazo').value) || 1;
-
+      const precioInput = document.getElementById('c_precio');
+      const engancheInput = document.getElementById('c_enganche');
+      const plazoInput = document.getElementById('c_plazo');
+      const rowFinanciamiento = document.getElementById('rowFinanciamiento');
       const lbl = document.getElementById('lblMensualidad');
       
+      const precio = parseFloat(precioInput.value) || 0;
+
       if (plan === 'contado') {
+        // Al contado: enganche es igual al precio, plazos se bloquean a 1
+        engancheInput.value = precio;
+        engancheInput.readOnly = true;
+        plazoInput.value = 1;
+        plazoInput.disabled = true;
+        rowFinanciamiento.style.opacity = '0.5';
+        rowFinanciamiento.style.pointerEvents = 'none';
         lbl.innerText = 'Pago Único';
-        lbl.style.color = '#15803d';
+        lbl.style.color = '#059669'; // verde esmeralda premium
       } else {
+        // Financiamiento: habilitar captura libre de enganche y plazos
+        if (engancheInput.readOnly) engancheInput.value = 0; // reset si venía de contado
+        engancheInput.readOnly = false;
+        plazoInput.disabled = false;
+        rowFinanciamiento.style.opacity = '1';
+        rowFinanciamiento.style.pointerEvents = 'auto';
+        
+        const enganche = parseFloat(engancheInput.value) || 0;
+        const plazo = parseInt(plazoInput.value) || 1;
         const saldo = Math.max(0, precio - enganche);
         const mensual = saldo / plazo;
         lbl.innerText = '$' + mensual.toLocaleString('es-MX', { minimumFractionDigits: 2 });
-        lbl.style.color = '#570fff';
+        lbl.style.color = '#2563eb';
       }
     }
 

@@ -250,6 +250,23 @@ const liberarLote = async (req, res) => {
   }
 };
 
+/** PUT /api/portal/cliente/:id — Actualizar perfil completo del cliente */
+const actualizarPerfilCliente = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const modificado = await portalModel.actualizarPerfilClienteDB(parseInt(id), req.body);
+    if (!modificado) {
+      return res.status(404).json({ error: 'No se pudo actualizar el perfil.' });
+    }
+    // Ocultar password de la respuesta
+    delete modificado.password_cliente;
+    res.json({ mensaje: 'Perfil y expediente actualizados exitosamente.', cliente: modificado });
+  } catch (error) {
+    console.error('Error actualizando perfil cliente:', error.message);
+    res.status(500).json({ error: 'Error interno al actualizar la información.' });
+  }
+};
+
 module.exports = {
   registrarPortal,
   loginPortal,
@@ -264,5 +281,6 @@ module.exports = {
   crearStripeIntent,
   registrarPagoPortal,
   getMisApartados,
-  liberarLote
+  liberarLote,
+  actualizarPerfilCliente
 };
