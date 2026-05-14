@@ -267,6 +267,18 @@ const actualizarPerfilCliente = async (req, res) => {
   }
 };
 
+/** GET /api/portal/mis-compras/:id_cliente — Obtener lotes comprados */
+const getMisCompras = async (req, res) => {
+  try {
+    const { id_cliente } = req.params;
+    const lotes = await portalModel.getMisLotesComprados(parseInt(id_cliente));
+    res.json(lotes);
+  } catch (error) {
+    console.error('Error obteniendo mis compras:', error);
+    res.status(500).json({ error: 'Error interno al consultar historial de compras.' });
+  }
+};
+
 module.exports = {
   registrarPortal,
   loginPortal,
@@ -282,5 +294,6 @@ module.exports = {
   registrarPagoPortal,
   getMisApartados,
   liberarLote,
-  actualizarPerfilCliente
+  actualizarPerfilCliente,
+  getMisCompras
 };

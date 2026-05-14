@@ -106,6 +106,7 @@ app.post('/api/portal/pagar', portalController.registrarPagoPortal);
 app.get('/api/portal/mis-apartados/:id_cliente', portalController.getMisApartados);
 app.post('/api/portal/liberar', portalController.liberarLote);
 app.put('/api/portal/cliente/:id', portalController.actualizarPerfilCliente);
+app.get('/api/portal/mis-compras/:id_cliente', portalController.getMisCompras);
 
 // Servidor
 app.listen(3000, () => {

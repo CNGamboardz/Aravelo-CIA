@@ -541,6 +541,9 @@
       <button class="menu-item" onclick="switchSection('apartados', this)">
         <span>🏷️</span> Mis Lotes Apartados
       </button>
+      <button class="menu-item" onclick="switchSection('compras', this)">
+        <span>📜</span> Mis Compras
+      </button>
       <button class="menu-item" onclick="switchSection('asesor', this)">
         <span>👤</span> Mi Asesor
       </button>
@@ -584,6 +587,19 @@
         </div>
         <div class="lotes-grid" id="gridMisApartados">
           <p style="color: var(--text-muted);">Cargando tus reservas activas...</p>
+        </div>
+      </div>
+
+      <!-- SECCIÓN MIS COMPRAS -->
+      <div class="section-view" id="sec-compras">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Mis Terrenos y Propiedades Adquiridas</h2>
+            <p class="section-desc">Portafolio patrimonial consolidado. Predios liquidados o en proceso formal de escrituración.</p>
+          </div>
+        </div>
+        <div class="lotes-grid" id="gridMisCompras">
+          <p style="color: var(--text-muted);">Consultando tu portafolio de propiedades...</p>
         </div>
       </div>
 
@@ -1024,6 +1040,7 @@
         // Cargar vistas dinámicas
         cargarLotes();
         cargarMisApartados();
+        cargarMisCompras();
         cargarAsesores();
         cargarPagos();
         cargarDatosBancarios();
@@ -1047,6 +1064,8 @@
       document.getElementById(`sec-${sec}`).classList.add('active');
       if (sec === 'perfil') {
         cargarPerfilCliente();
+      } else if (sec === 'compras') {
+        cargarMisCompras();
       }
     }
 
@@ -1487,6 +1506,62 @@
 
       } catch (err) {
         showToast(err.message, true);
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // CARGA DE MIS COMPRAS Y PROPIEDADES ADQUIRIDAS
+    // ─────────────────────────────────────────────────────────
+    async function cargarMisCompras() {
+      try {
+        const res = await fetch(`/api/portal/mis-compras/${clienteLogueado.id_cliente}`);
+        const list = await res.json();
+        const grid = document.getElementById('gridMisCompras');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        if (!list || list.length === 0) {
+          grid.innerHTML = '<p style="color: var(--text-muted);">Aún no tienes propiedades consolidadas o liquidadas en tu portafolio.</p>';
+          return;
+        }
+
+        list.forEach(l => {
+          const img = l.imagen_principal || 'https://placehold.co/400x250/f0fdf4/15803d?text=Propiedad+Escriturada';
+          const pVenta = parseFloat(l.precio_venta || l.precio_lista || 0).toLocaleString('es-MX', {minimumFractionDigits:2});
+          
+          grid.innerHTML += `
+            <div class="lote-card" style="border-color: #10b981; background: linear-gradient(to bottom, #ffffff, #f8fafc); display:flex; flex-direction:column; justify-content:space-between;">
+              <a href="detalle-lote.html?id=${l.id_terreno}" style="text-decoration:none; color:inherit; display:block; cursor:pointer;" title="Clic para ver detalles y mapa catastral">
+                <div style="position:relative;">
+                  <img src="${img}" class="lote-img" alt="Propiedad">
+                  <span style="position:absolute; top:12px; right:12px; background:#10b981; color:white; font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px; box-shadow:0 2px 6px rgba(0,0,0,0.15);">
+                    ✓ Título Adquirido
+                  </span>
+                </div>
+                <div class="lote-info" style="padding-bottom:8px;">
+                  <span class="lote-fraccionamiento" style="color: #10b981; font-weight:800;">${l.fraccionamiento || 'Desarrollo'}</span>
+                  <h4 class="lote-codigo" style="color:#0f172a;">Lote ${l.lote || 'S/N'} ${l.manzana ? `— Mz ${l.manzana}` : ''}</h4>
+                  <div class="lote-specs">
+                    <span>Superficie: <b>${l.superficie || 'N/D'} m²</b></span>
+                    <span>Mun: <b>${l.municipio || 'Chiapas'}</b></span>
+                  </div>
+                  <div class="lote-precio" style="color:#047857; font-size:14px;">Inversión: $${pVenta} MXN</div>
+                </div>
+              </a>
+              <div style="padding: 0 16px 16px; display:flex; flex-direction:column; gap:8px;">
+                <a href="detalle-lote.html?id=${l.id_terreno}" style="text-align:center; background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; padding:8px; border-radius:12px; font-size:12px; font-weight:700; text-decoration:none; display:block;" onmouseover="this.style.background='#d1fae5'" onmouseout="this.style.background='#ecfdf5'">
+                  📜 Ver Expediente Catastral
+                </a>
+                <a href="detalle-lote.html?id=${l.id_terreno}" style="text-align:center; background:rgba(15,23,42,0.03); color:#475569; padding:8px; border-radius:12px; font-size:12px; font-weight:700; text-decoration:none; display:block;" onmouseover="this.style.background='rgba(15,23,42,0.06)'" onmouseout="this.style.background='rgba(15,23,42,0.03)'">
+                  🗺️ Trazado en Google Maps
+                </a>
+              </div>
+            </div>
+          `;
+        });
+      } catch(e) {
+        const grid = document.getElementById('gridMisCompras');
+        if (grid) grid.innerHTML = '<p style="color: #fca5a5;">Error cargando tu portafolio de compras.</p>';
       }
     }
 

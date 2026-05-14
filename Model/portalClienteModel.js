@@ -264,6 +264,21 @@ const liberarLote = async (id_lote, id_cliente) => {
   return res.rows[0];
 };
 
+/**
+ * Obtener los lotes comprados (vendidos) por un cliente específico
+ */
+const getMisLotesComprados = async (id_cliente) => {
+  const res = await db.query(
+    `SELECT id_terreno, fraccionamiento, numero_lote AS lote, manzana, superficie, precio_lista, 
+            precio_venta, estado, municipio, imagen AS imagen_principal
+     FROM sistema.terrenos
+     WHERE id_propietario = $1 AND LOWER(estado) = 'vendido'
+     ORDER BY id_terreno DESC`,
+    [id_cliente]
+  );
+  return res.rows;
+};
+
 module.exports = {
   registrarClientePortal,
   loginCliente,
@@ -276,5 +291,6 @@ module.exports = {
   getClientePorId,
   actualizarPerfilClienteDB,
   getMisLotesApartados,
-  liberarLote
+  liberarLote,
+  getMisLotesComprados
 };
