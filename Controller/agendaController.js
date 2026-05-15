@@ -19,10 +19,10 @@ const listarEventos = async (req, res) => {
 
 const guardarEvento = async (req, res) => {
   try {
-    let { id_usuario, titulo, descripcion, fecha_evento } = req.body;
+    let { id_usuario, titulo, descripcion, fecha_inicio, fecha_fin, tipo, id_cliente } = req.body;
 
-    if (!titulo || !fecha_evento) {
-      return res.status(400).json({ error: 'El título y la fecha son obligatorios' });
+    if (!titulo || !fecha_inicio) {
+      return res.status(400).json({ error: 'El título y la fecha de inicio son obligatorios' });
     }
 
     let idLimpio = null;
@@ -36,7 +36,10 @@ const guardarEvento = async (req, res) => {
       id_usuario: idLimpio,
       titulo,
       descripcion: descripcion || '',
-      fecha_evento
+      fecha_inicio,
+      fecha_fin: fecha_fin || null,
+      tipo: tipo || 'cita',
+      id_cliente: id_cliente ? desencriptarId(id_cliente) : null
     });
 
     res.status(201).json(nuevo);

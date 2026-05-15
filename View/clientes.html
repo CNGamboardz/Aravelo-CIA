@@ -436,7 +436,14 @@
         if (userData && userData.rol) {
           const rCrm = userData.rol.toLowerCase();
           if (rCrm === 'vendedor' || rCrm === 'asesor') {
-            dataGlobal = dataGlobal.filter(c => c.id_asesor === userData.id_usuario);
+            dataGlobal = dataGlobal.filter(c => {
+              // Si el cliente ya eligió un asesor en el portal, ese tiene prioridad absoluta de visibilidad
+              if (c.id_asesor_asignado) {
+                return c.id_asesor_asignado === userData.id_usuario;
+              }
+              // Si no ha elegido, lo ve quien lo registró (su id_asesor original)
+              return c.id_asesor === userData.id_usuario;
+            });
           }
         }
         listaClientesGlobal = dataGlobal;

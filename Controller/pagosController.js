@@ -3,8 +3,13 @@ const { encriptarId, desencriptarId } = require('./cryptoHelper');
 
 const listarCalendario = async (req, res) => {
   try {
-    const calendario = await pagosModel.getCalendarioCobranza();
-    res.json(calendario);
+    const data = await pagosModel.getCalendarioCobranza();
+    const ofuscados = data.map(item => ({
+      ...item,
+      id_asesor: item.id_asesor ? encriptarId(item.id_asesor) : null,
+      id_asesor_asignado: item.id_asesor_asignado ? encriptarId(item.id_asesor_asignado) : null
+    }));
+    res.json(ofuscados);
   } catch (error) {
     console.error('Error al listar calendario de pagos:', error);
     res.status(500).json({ error: 'Error al consultar las proyecciones de cobro' });
@@ -13,8 +18,13 @@ const listarCalendario = async (req, res) => {
 
 const listarPagos = async (req, res) => {
   try {
-    const pagos = await pagosModel.getPagosReales();
-    res.json(pagos);
+    const data = await pagosModel.getPagosReales();
+    const ofuscados = data.map(item => ({
+      ...item,
+      id_asesor: item.id_asesor ? encriptarId(item.id_asesor) : null,
+      id_asesor_asignado: item.id_asesor_asignado ? encriptarId(item.id_asesor_asignado) : null
+    }));
+    res.json(ofuscados);
   } catch (error) {
     console.error('Error al listar pagos reales:', error);
     res.status(500).json({ error: 'Error al consultar historial de ingresos' });

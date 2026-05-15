@@ -6,13 +6,12 @@ const getAgenda = async (id_usuario) => {
     const res = await db.query(
       `SELECT * FROM sistema.agenda 
        WHERE id_usuario = $1 OR id_usuario IS NULL 
-       ORDER BY fecha_evento ASC`,
+       ORDER BY fecha_inicio ASC`,
       [id_usuario]
     );
     return res.rows;
   } catch (err) {
-    // Si la columna se llama diferente en la tabla creada por el usuario, intentamos una consulta fallback general
-    console.warn('Advertencia en consulta de agenda, intentando fallback sin filtro de usuario:', err.message);
+    console.warn('Advertencia en consulta de agenda, intentando fallback general:', err.message);
     const fallback = await db.query(`SELECT * FROM sistema.agenda ORDER BY id_agenda DESC LIMIT 50`);
     return fallback.rows;
   }
@@ -20,16 +19,15 @@ const getAgenda = async (id_usuario) => {
 
 // Crear evento en la agenda
 const crearEvento = async (evento) => {
-  const { id_usuario, titulo, descripcion, fecha_evento } = evento;
+  const { id_usuario, titulo, descripcion, fecha_inicio, fecha_fin, tipo, id_cliente } = evento;
   try {
     const res = await db.query(
-      `INSERT INTO sistema.agenda (id_usuario, titulo, descripcion, fecha_evento)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [id_usuario, titulo, descripcion, fecha_evento]
+      `INSERT INTO sistema.agenda (id_usuario, titulo, descripcion, fecha_inicio, fecha_fin, tipo, id_cliente)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [id_usuario, titulo, descripcion, fecha_inicio, fecha_fin || fecha_inicio, tipo || 'cita', id_cliente || null]
     );
     return res.rows[0];
   } catch (err) {
-    // Si la tabla de agenda del usuario tiene otras columnas, intentamos insertar solo titulo y descripcion o lanzar error claro
     console.error('Error al insertar en agenda de PostgreSQL:', err);
     throw err;
   }

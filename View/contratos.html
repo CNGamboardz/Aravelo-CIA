@@ -197,7 +197,21 @@
       try {
         // Clientes
         const resCl = await fetch('/clientes');
-        listadoClientes = await resCl.json();
+        let dataClientes = await resCl.json();
+        const userData = JSON.parse(localStorage.getItem('arevalo_user'));
+        
+        // FILTRADO DE SEGURIDAD POR ASESOR
+        if (userData && userData.rol) {
+          const rCrm = userData.rol.toLowerCase();
+          if (rCrm === 'vendedor' || rCrm === 'asesor') {
+            dataClientes = dataClientes.filter(c => {
+              if (c.id_asesor_asignado) return c.id_asesor_asignado === userData.id_usuario;
+              return c.id_asesor === userData.id_usuario;
+            });
+          }
+        }
+        listadoClientes = dataClientes;
+
         const selCl = document.getElementById('selCliente');
         selCl.innerHTML = '<option value="">Selecciona un comprador</option>';
         if (listadoClientes && listadoClientes.length > 0) {

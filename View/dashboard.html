@@ -342,6 +342,19 @@
         if (!Array.isArray(inventarioLotesGlobal)) inventarioLotesGlobal = [];
         if (!Array.isArray(listaClientesGlobal)) listaClientesGlobal = [];
 
+        // APLICAR FILTRADO DE SEGURIDAD PARA VENDEDORES
+        if (userData && userData.rol) {
+          const rCrm = userData.rol.toLowerCase();
+          if (rCrm === 'vendedor' || rCrm === 'asesor') {
+            listaClientesGlobal = listaClientesGlobal.filter(c => {
+              if (c.id_asesor_asignado) return c.id_asesor_asignado === userData.id_usuario;
+              return c.id_asesor === userData.id_usuario;
+            });
+          }
+        }
+
+        const misIdsClientes = listaClientesGlobal.map(c => String(c.id_cliente));
+
         // Clasificar lotes por estatus
         const disponibles = inventarioLotesGlobal.filter(t => {
           const e = (t.estado || 'disponible').toLowerCase();
@@ -350,12 +363,26 @@
 
         const apartados = inventarioLotesGlobal.filter(t => {
           const e = (t.estado || '').toLowerCase();
-          return e.includes('apartado') || e.includes('reservado');
+          const esApartado = e.includes('apartado') || e.includes('reservado');
+          if (!esApartado) return false;
+          
+          // Si es vendedor, solo ve sus propios apartados
+          if (userData && (userData.rol.toLowerCase() === 'vendedor' || userData.rol.toLowerCase() === 'asesor')) {
+            return misIdsClientes.includes(String(t.id_cliente)) || misIdsClientes.includes(String(t.id_propietario));
+          }
+          return true;
         });
 
         const vendidos = inventarioLotesGlobal.filter(t => {
           const e = (t.estado || '').toLowerCase();
-          return e.includes('vendido') || e.includes('ocupado') || e.includes('cerrado');
+          const esVendido = e.includes('vendido') || e.includes('ocupado') || e.includes('cerrado');
+          if (!esVendido) return false;
+
+          // Si es vendedor, solo ve sus propias ventas
+          if (userData && (userData.rol.toLowerCase() === 'vendedor' || userData.rol.toLowerCase() === 'asesor')) {
+            return misIdsClientes.includes(String(t.id_cliente)) || misIdsClientes.includes(String(t.id_propietario));
+          }
+          return true;
         });
 
         // Calcular dinero generado por la empresa
@@ -542,9 +569,10 @@
         }
 
         eventos.forEach(e => {
-          // Extraer fecha limpia
-          const f = new Date(e.fecha_evento + 'T00:00:00');
-          const fStr = isNaN(f) ? e.fecha_evento : `${f.getDate()} ${meses[f.getMonth()]}`;
+          // Extraer fecha limpia (usando fecha_inicio como prioridad)
+          const rawFecha = e.fecha_inicio || e.fecha_evento;
+          const f = new Date(rawFecha + 'T00:00:00');
+          const fStr = isNaN(f) ? rawFecha : `${f.getDate()} ${meses[f.getMonth()]}`;
           
           lista.innerHTML += `
             <li class="agenda-item">
@@ -567,14 +595,14 @@
       e.preventDefault();
       
       const titulo = document.getElementById('a_titulo').value.trim();
-      const fecha_evento = document.getElementById('a_fecha').value;
+      const fecha_inicio = document.getElementById('a_fecha').value;
       const id_usuario = userData ? userData.id_usuario : null;
 
       try {
         const res = await fetch('/api/agenda', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id_usuario, titulo, fecha_evento })
+          body: JSON.stringify({ id_usuario, titulo, fecha_inicio })
         });
 
         if (!res.ok) throw new Error('Error al programar tarea');

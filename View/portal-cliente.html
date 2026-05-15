@@ -511,9 +511,97 @@
       padding: 12px 16px; border-radius: 12px; font-size: 13px; font-weight: 700;
       margin-bottom: 20px; display: none;
     }
+
+    /* MODAL DE ALERTA PREMIUM (RESTRICCIÓN DE CAMBIO) */
+    .premium-alert-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 2000;
+      display: none;
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .premium-alert-overlay.active { display: flex; }
+    
+    .premium-alert-modal {
+      background: #ffffff;
+      max-width: 450px;
+      width: 100%;
+      border-radius: 24px;
+      padding: 40px;
+      text-align: center;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+      animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    @keyframes modalPop {
+      from { transform: scale(0.8) translateY(20px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    
+    .premium-alert-icon {
+      width: 80px; height: 80px;
+      background: #fff1f2;
+      color: #e11d48;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 24px;
+      box-shadow: 0 10px 20px rgba(225, 29, 72, 0.15);
+    }
+    
+    .premium-alert-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: #0f172a;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+    
+    .premium-alert-text {
+      font-size: 15px;
+      color: #64748b;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+    
+    .btn-premium-close {
+      background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.3s;
+      width: 100%;
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
+    }
+    .btn-premium-close:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(15, 23, 42, 0.3);
+    }
   </style>
 </head>
 <body>
+
+  <!-- MODAL DE RESTRICCIÓN DE CAMBIO DE ASESOR (PREMIUM) -->
+  <div class="premium-alert-overlay" id="premiumAlertDeuda">
+    <div class="premium-alert-modal">
+      <div class="premium-alert-icon">🔒</div>
+      <h3 class="premium-alert-title">Acceso Restringido</h3>
+      <p class="premium-alert-text">
+        Actualmente cuentas con un <b>plan de financiamiento activo</b> con cuotas pendientes. 
+        <br><br>
+        Por políticas de seguimiento corporativo, no es posible cambiar de asesor hasta que tu portafolio se encuentre totalmente liquidado.
+      </p>
+      <button class="btn-premium-close" onclick="cerrarAlertaPremium()">Entendido, continuar</button>
+    </div>
+  </div>
 
   <!-- HEADER -->
   <header class="portal-navbar">
@@ -1643,7 +1731,14 @@
           body: JSON.stringify({ id_cliente: clienteLogueado.id_cliente, id_asesor: idAsesor })
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Error al asignar asesor.');
+        
+        if (!res.ok) {
+          if (data.error === 'bloqueado_por_deuda') {
+            mostrarAlertaPremiumDeuda();
+            return;
+          }
+          throw new Error(data.error || 'Error al asignar asesor.');
+        }
 
         clienteLogueado.id_asesor_asignado = idAsesor;
         localStorage.setItem('portal_cliente', JSON.stringify(clienteLogueado));
@@ -1654,6 +1749,13 @@
       } catch (err) {
         showToast(err.message, true);
       }
+    }
+
+    function mostrarAlertaPremiumDeuda() {
+      document.getElementById('premiumAlertDeuda').classList.add('active');
+    }
+    function cerrarAlertaPremium() {
+      document.getElementById('premiumAlertDeuda').classList.remove('active');
     }
 
     // ─────────────────────────────────────────────────────────

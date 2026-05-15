@@ -276,6 +276,19 @@ const getMisLotesComprados = async (id_cliente) => {
   return res.rows;
 };
 
+/**
+ * Verificar si el cliente tiene cuotas pendientes en el calendario
+ */
+const tienePagosPendientes = async (id_cliente) => {
+  const res = await db.query(
+    `SELECT COUNT(*) as total 
+     FROM sistema.calendario_pagos 
+     WHERE id_cliente = $1 AND estatus != 'pagado'`,
+    [id_cliente]
+  );
+  return parseInt(res.rows[0].total) > 0;
+};
+
 module.exports = {
   registrarClientePortal,
   loginCliente,
@@ -289,5 +302,6 @@ module.exports = {
   actualizarPerfilClienteDB,
   getMisLotesApartados,
   liberarLote,
-  getMisLotesComprados
+  getMisLotesComprados,
+  tienePagosPendientes
 };

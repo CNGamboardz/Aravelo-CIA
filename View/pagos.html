@@ -257,7 +257,20 @@
     async function inicializarSelectores() {
       try {
         const resCl = await fetch('/clientes');
-        listaClientesGlobal = await resCl.json();
+        let dataClientes = await resCl.json();
+        
+        // FILTRADO DE SEGURIDAD POR ASESOR
+        if (userData && userData.rol) {
+          const rCrm = userData.rol.toLowerCase();
+          if (rCrm === 'vendedor' || rCrm === 'asesor') {
+            dataClientes = dataClientes.filter(c => {
+              if (c.id_asesor_asignado) return c.id_asesor_asignado === userData.id_usuario;
+              return c.id_asesor === userData.id_usuario;
+            });
+          }
+        }
+        listaClientesGlobal = dataClientes;
+
         const selCl = document.getElementById('selPCliente');
         selCl.innerHTML = '<option value="">Selecciona un cliente</option>';
         if (listaClientesGlobal && listaClientesGlobal.length > 0) {
@@ -307,7 +320,10 @@
 
         // Filtrar solo los de este asesor si el usuario logueado es vendedor/asesor
         const isAsesor = userData && (userData.rol === 'vendedor' || userData.rol === 'asesor');
-        const calendario = isAsesor ? calendarioTotal.filter(c => c.id_asesor_asignado == userData.id_usuario) : calendarioTotal;
+        const calendario = isAsesor ? calendarioTotal.filter(c => {
+          if (c.id_asesor_asignado) return c.id_asesor_asignado === userData.id_usuario;
+          return c.id_asesor === userData.id_usuario;
+        }) : calendarioTotal;
 
         if (!calendario || calendario.length === 0) {
           tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #6b7280;">No hay cuotas programadas para tus clientes asignados en el calendario financiero.</td></tr>`;
@@ -367,7 +383,10 @@
         
         // Filtrar solo los de este asesor si el usuario logueado es vendedor/asesor
         const isAsesor = userData && (userData.rol === 'vendedor' || userData.rol === 'asesor');
-        listaPagosGlobal = isAsesor ? pagosTotal.filter(p => p.id_asesor_asignado == userData.id_usuario) : pagosTotal;
+        listaPagosGlobal = isAsesor ? pagosTotal.filter(p => {
+          if (p.id_asesor_asignado) return p.id_asesor_asignado === userData.id_usuario;
+          return p.id_asesor === userData.id_usuario;
+        }) : pagosTotal;
 
         const tbody = document.getElementById('tablaHistorialBody');
         tbody.innerHTML = '';

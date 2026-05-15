@@ -6,10 +6,10 @@ const obtenerClientes = async (req, res) => {
   const data = await clientesModel.getClientes();
   // Encriptar id_asesor unificado para que el asesor vea tanto a los que agregó como a los que lo asignaron desde el portal
   const ofuscados = data.map(c => {
-    const idUnificado = c.id_asesor || c.id_asesor_asignado;
     return {
       ...c,
-      id_asesor: idUnificado ? encriptarId(idUnificado) : null
+      id_asesor: c.id_asesor ? encriptarId(c.id_asesor) : null,
+      id_asesor_asignado: c.id_asesor_asignado ? encriptarId(c.id_asesor_asignado) : null
     };
   });
   res.json(ofuscados);

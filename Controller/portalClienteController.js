@@ -119,6 +119,16 @@ const asignarAsesor = async (req, res) => {
     if (!id_cliente || !id_asesor) {
       return res.status(400).json({ error: 'Se requiere id_cliente e id_asesor.' });
     }
+
+    // BLOQUEO DE SEGURIDAD: SI TIENE PAGOS PENDIENTES NO PUEDE CAMBIAR DE ASESOR
+    const tieneDeuda = await portalModel.tienePagosPendientes(id_cliente);
+    if (tieneDeuda) {
+      return res.status(403).json({ 
+        error: 'bloqueado_por_deuda',
+        mensaje: 'No puedes realizar el cambio de asesor debido a que cuentas con cuotas pendientes en tu plan de financiamiento. Por favor liquida tus pagos para habilitar esta opción.' 
+      });
+    }
+
     const resultado = await portalModel.asignarAsesor(id_cliente, id_asesor);
     res.json({ mensaje: 'Asesor asignado exitosamente.', resultado });
   } catch (error) {
