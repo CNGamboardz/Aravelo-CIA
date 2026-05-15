@@ -36,7 +36,7 @@ const crearCliente = async (cliente) => {
     telefono, telefono_secundario, correo, email, direccion, colonia, municipio, 
     estado, codigo_postal, ocupacion, empresa, ingresos_mensuales, estado_civil, 
     nacionalidad, identificacion_oficial, numero_identificacion, foto_identificacion, 
-    comprobante_domicilio, foto_cliente, estatus, observaciones, id_asesor, password_cliente 
+    comprobante_domicilio, foto_cliente, estatus, observaciones, id_asesor, id_asesor_asignado, password_cliente 
   } = cliente;
 
   const c_correo = correo || email || '';
@@ -55,8 +55,8 @@ const crearCliente = async (cliente) => {
      telefono, telefono_secundario, correo, direccion, colonia, municipio, 
      estado, codigo_postal, ocupacion, empresa, ingresos_mensuales, estado_civil, 
      nacionalidad, identificacion_oficial, numero_identificacion, foto_identificacion, 
-     comprobante_domicilio, foto_cliente, estatus, observaciones, id_asesor, password_cliente, etapa)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30) 
+     comprobante_domicilio, foto_cliente, estatus, observaciones, id_asesor, id_asesor_asignado, password_cliente, etapa)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32) 
     RETURNING *`,
     [
       nombre || '', apellido_paterno || '', apellido_materno || '', c_nac, sexo || '', 
@@ -65,7 +65,8 @@ const crearCliente = async (cliente) => {
       codigo_postal || '', ocupacion || '', empresa || '', c_ingresos, estado_civil || '', 
       nacionalidad || '', identificacion_oficial || '', numero_identificacion || '', 
       foto_identificacion || '', comprobante_domicilio || '', foto_cliente || '', 
-      estatus || 'activo', observaciones || '', id_asesor || null, passHash, cliente.etapa || 'Prospecto nuevo'
+      estatus || 'activo', observaciones || '', id_asesor || null, id_asesor_asignado || null, passHash, 
+      cliente.etapa || 'Prospecto nuevo', cliente.etapa || 'Prospecto nuevo'
     ]
   );
 
@@ -79,7 +80,7 @@ const actualizarClienteDB = async (id, cliente) => {
     telefono, telefono_secundario, correo, email, direccion, colonia, municipio, 
     estado, codigo_postal, ocupacion, empresa, ingresos_mensuales, estado_civil, 
     nacionalidad, identificacion_oficial, numero_identificacion, foto_identificacion, 
-    comprobante_domicilio, foto_cliente, estatus, observaciones 
+    comprobante_domicilio, foto_cliente, estatus, observaciones, etapa, id_asesor_asignado 
   } = cliente;
 
   const c_correo = correo || email || '';
@@ -94,8 +95,9 @@ const actualizarClienteDB = async (id, cliente) => {
          estado = $14, codigo_postal = $15, ocupacion = $16, empresa = $17, 
          ingresos_mensuales = $18, estado_civil = $19, nacionalidad = $20, 
          identificacion_oficial = $21, numero_identificacion = $22, foto_identificacion = $23, 
-         comprobante_domicilio = $24, foto_cliente = $25, estatus = $26, observaciones = $27
-     WHERE id_cliente = $28 RETURNING *`,
+         comprobante_domicilio = $24, foto_cliente = $25, estatus = $26, observaciones = $27,
+         etapa = $28, id_asesor_asignado = $29
+     WHERE id_cliente = $30 RETURNING *`,
     [
       nombre || '', apellido_paterno || '', apellido_materno || '', c_nac, sexo || '', 
       curp || '', rfc || '', telefono || '', telefono_secundario || '', c_correo, 
@@ -103,7 +105,7 @@ const actualizarClienteDB = async (id, cliente) => {
       codigo_postal || '', ocupacion || '', empresa || '', c_ingresos, estado_civil || '', 
       nacionalidad || '', identificacion_oficial || '', numero_identificacion || '', 
       foto_identificacion || '', comprobante_domicilio || '', foto_cliente || '', 
-      estatus || 'activo', observaciones || '', id
+      estatus || 'activo', observaciones || '', etapa || 'Prospecto nuevo', id_asesor_asignado || null, id
     ]
   );
   return res.rows[0];

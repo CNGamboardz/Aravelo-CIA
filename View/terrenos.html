@@ -9,6 +9,8 @@
   <!-- LEAFLET JS PARA MAPAS PRECISOS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- SWEETALERT2 PARA ALERTAS PREMIUM -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -128,13 +130,12 @@
     </header>
 
     <!-- BARRA DE BUSQUEDA Y FILTROS CATASTRALES -->
-    <div
-      style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; margin-bottom: 30px; background: #fff; padding: 12px 20px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+    <div class="lote-search-bar">
       <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 260px;">
         <span style="font-size: 16px;">🔍</span>
         <input type="text" id="inputBuscarLote"
           placeholder="Buscar por Desarrollo, Nomenclatura (ej. Lote 12, M1) o Clave..."
-          style="width: 100%; border: none; outline: none; font-size: 13px; color: #334155; background: transparent;"
+          style="width: 100%; border: none; outline: none; font-size: 13px; color: inherit; background: transparent;"
           onkeyup="renderizarLotesFiltrados()">
       </div>
       <div style="display: flex; gap: 6px; overflow-x: auto;">
@@ -149,6 +150,9 @@
         <button class="btn-filtro-lote" onclick="aplicarFiltroEstado(this, 'vendido')"
           style="padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; background: #fff; color: #334155;">🔴
           Vendidos</button>
+        <button class="btn-filtro-lote" onclick="aplicarFiltroEstado(this, 'cancelado')"
+          style="padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; background: #fff; color: #334155;">⚪
+          Cancelados</button>
       </div>
     </div>
 
@@ -209,11 +213,22 @@
                 <option value="disponible">🟢 Libre / Disponible</option>
                 <option value="apartado">🟡 Apartado / Reservado</option>
                 <option value="vendido">🔴 Vendido / Ocupado</option>
+                <option value="cancelado">⚪ Cancelado / Inactivo</option>
               </select>
             </div>
             <div class="form-group">
+              <label for="t_id_asesor">Asesor Responsable *</label>
+              <select id="t_id_asesor" required disabled>
+                <option value="">Seleccionar Asesor...</option>
+              </select>
+            </div>
+            <div class="form-group" style="display: none;">
               <label for="t_id_propietario">ID Propietario</label>
               <input type="number" id="t_id_propietario" placeholder="Ej. 1">
+            </div>
+            <div class="form-group">
+              <label for="t_fecha_venta">Fecha Tentativa de Venta</label>
+              <input type="date" id="t_fecha_venta">
             </div>
           </div>
         </div>
@@ -400,6 +415,26 @@
   </main>
 
   <script>
+    let asesoresCargados = false;
+    async function cargarAsesores() {
+      if (asesoresCargados) return;
+      try {
+        const res = await fetch('/api/vendedores');
+        const data = await res.json();
+        const sel = document.getElementById('t_id_asesor');
+        if (sel) {
+          const filtrados = data.filter(u => ['asesor', 'dirección', 'direccion'].includes((u.rol || '').toLowerCase()));
+          filtrados.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.id_usuario;
+            opt.innerText = `${a.nombre} (${a.rol})`;
+            sel.appendChild(opt);
+          });
+          asesoresCargados = true;
+        }
+      } catch (err) { console.error(err); }
+    }
+
     let listaTerrenosGlobal = [];
     let mapaLeaflet = null;
     let markerLeaflet = null;
@@ -467,6 +502,15 @@
     }
 
     function toggleModal(show) {
+      if (show) {
+        cargarAsesores().then(() => {
+          const u = JSON.parse(localStorage.getItem('arevalo_user'));
+          if (u && u.id_usuario) {
+            const sel = document.getElementById('t_id_asesor');
+            if (sel) sel.value = u.id_usuario;
+          }
+        });
+      }
       const modal = document.getElementById('modalLote');
       modal.style.display = show ? 'block' : 'none';
       if (!show) {
@@ -532,6 +576,7 @@
         if (filtroEstadoGlobal === 'disponible' && !estLimp.includes('libre') && !estLimp.includes('disponible')) return false;
         if (filtroEstadoGlobal === 'apartado' && !estLimp.includes('apartado') && !estLimp.includes('reservado')) return false;
         if (filtroEstadoGlobal === 'vendido' && !estLimp.includes('vendido') && !estLimp.includes('ocupado') && !estLimp.includes('cerrado')) return false;
+        if (filtroEstadoGlobal === 'cancelado' && !estLimp.includes('cancelado')) return false;
 
         // Filtro por búsqueda de texto
         if (!q) return true;
@@ -571,6 +616,9 @@
           } else if (estLimpio.includes('libre') || estLimpio.includes('disponible')) {
             textoEstado = 'Libre';
             colorPunto = '#22c55e';
+          } else if (estLimpio.includes('cancelado')) {
+            textoEstado = 'Cancelado';
+            colorPunto = '#64748b';
           } else {
             textoEstado = t.estado ? (t.estado.charAt(0).toUpperCase() + t.estado.slice(1)) : 'Libre';
             colorPunto = '#3b82f6';
@@ -605,21 +653,20 @@
                 LOTE NUMERO ${numLotePuro}
               </div>
 
-              <div class="lote-specs-custom" style="width: 100%; margin-top: 10px; border-top: 1px solid #e2e8f0; padding-top: 10px; text-align: left; font-size: 10px; color: #64748b; display: none; animation: fadeIn 0.2s ease;" id="specs-${t.id_terreno}">
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 6px; background: #fff; padding: 6px; border-radius: 6px; border: 1px solid #f1f5f9;">
-                  <div><b>Área:</b> <span style="color:#0f172a;">${superficieFormateada} m²</span></div>
-                  <div><b>Uso:</b> <span style="color:#0f172a; text-transform:capitalize;">${t.tipo_uso || 'Hab.'}</span></div>
-                  <div style="grid-column:1/-1;"><b>Clave:</b> <span style="color:#0f172a;">${t.clave_catastral || 'N/A'}</span></div>
+              <div class="lote-specs-custom" style="width: 100%; margin-top: 10px; border-top: 1px solid #e2e8f0; padding-top: 10px; text-align: left; font-size: 10px; color: inherit; display: none; animation: fadeIn 0.2s ease;" id="specs-${t.id_terreno}">
+                <div class="lote-specs-box">
+                  <div><b>Área:</b> <span style="color:inherit;">${superficieFormateada} m²</span></div>
+                  <div><b>Uso:</b> <span style="color:inherit; text-transform:capitalize;">${t.tipo_uso || 'Hab.'}</span></div>
+                  <div style="grid-column:1/-1;"><b>Clave:</b> <span style="color:inherit;">${t.clave_catastral || 'N/A'}</span></div>
                   <div><b>Frente:</b> ${t.frente || '-'}m</div>
                   <div><b>Fondo:</b> ${t.fondo || '-'}m</div>
                 </div>
-                <div style="color:#0f172a; font-weight:700; margin-bottom:2px; font-size:9px;">COLINDANCIAS:</div>
-                <div style="font-size:9px; line-height:1.2; background: #f1f5f9; padding: 4px; border-radius: 4px; margin-bottom: 6px; color:#334155;">
+                <div class="lote-colindancias-box">
                   <b>N:</b> ${t.colindancia_norte || '-'} | <b>S:</b> ${t.colindancia_sur || '-'}<br>
                   <b>E:</b> ${t.colindancia_este || '-'} | <b>O:</b> ${t.colindancia_oeste || '-'}
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:3px 6px; border-radius:4px; border:1px solid #f1f5f9;">
-                  <span style="font-weight:600; color:#0f172a;">Servicios:</span>
+                <div class="lote-servicios-box">
+                  <span style="font-weight:600; color:inherit;">Servicios:</span>
                   <span style="font-size:11px;">${t.servicio_agua ? '💧' : ''}${t.servicio_luz ? '⚡' : ''}${t.servicio_drenaje ? '🚰' : ''}${t.servicio_internet ? '🌐' : ''}${t.calle_pavimentada ? '🛣️' : ''}</span>
                 </div>
                 ${t.imagen ? `<div style="margin-top:6px; text-align:center;"><button onclick="abrirLightbox('${t.imagen}')" style="background:none; border:none; color:#2563eb; font-size:10px; font-weight:700; cursor:pointer;">🔍 Ampliar Render</button></div>` : ''}
@@ -688,7 +735,36 @@
           document.getElementById('t_estado_inm').value = 'disponible';
         }
 
-        document.getElementById('t_id_propietario').value = lote.id_propietario || '';
+        // document.getElementById('t_id_propietario').value = lote.id_propietario || '';
+        
+        // Cargar sesión para el asesor
+        const userSession = JSON.parse(localStorage.getItem('arevalo_user'));
+        const selAsesor = document.getElementById('t_id_asesor');
+        if (selAsesor) {
+          // Llenar con la lista de asesores primero
+          fetch('/api/vendedores').then(r => r.json()).then(data => {
+            selAsesor.innerHTML = '<option value="">Seleccionar Asesor...</option>';
+            const filtrados = data.filter(u => ['asesor', 'dirección', 'direccion'].includes((u.rol || '').toLowerCase()));
+            filtrados.forEach(a => {
+              const opt = document.createElement('option');
+              opt.value = a.id_usuario;
+              opt.innerText = `${a.nombre} (${a.rol})`;
+              selAsesor.appendChild(opt);
+            });
+            // Si el lote ya tenía asesor, lo ponemos, pero el usuario dice "conforme a su inicio de sesion"
+            // Para modificación, tal vez debería conservarse el original si no se quiere cambiar, 
+            // pero la instrucción dice "ya directamente lo ponga conforme a su inicio de sesion y no se pueda modificar"
+            // Así que forzamos al de la sesión.
+            if (userSession && userSession.id_usuario) {
+               selAsesor.value = userSession.id_usuario;
+            } else if (lote.id_asesor) {
+               selAsesor.value = lote.id_asesor;
+            }
+          });
+        }
+        document.getElementById('t_id_asesor').value = lote.id_asesor || '';
+        if (lote.fecha_venta) document.getElementById('t_fecha_venta').value = lote.fecha_venta.split('T')[0];
+        else document.getElementById('t_fecha_venta').value = '';
 
         document.getElementById('t_superficie').value = lote.superficie || '';
         document.getElementById('t_frente').value = lote.frente || '';
@@ -741,17 +817,62 @@
 
     // Eliminar Terreno Local
     async function eliminarTerrenoLocal(id) {
-      if (!confirm(`¿Estás seguro de que deseas archivar o eliminar el lote #${id}?`)) return;
-      try {
-        const res = await fetch(`/terrenos/${id}`, { method: 'DELETE' });
-        if (!res.ok) {
-          const errData = await res.json();
-          throw new Error(errData.error || 'No se pudo eliminar el lote');
-        }
-        cargarTerrenos();
-      } catch (err) {
-        alert(err.message);
+      // 1. Verificar si el lote está vendido
+      const lote = listaTerrenosGlobal.find(t => t.id_terreno == id);
+      if (lote && (lote.estado || '').toLowerCase().includes('vendido')) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Acción Restringida',
+          text: 'No es posible eliminar un lote que ya ha sido marcado como VENDIDO para preservar el historial de ventas.',
+          confirmButtonColor: '#dc2626',
+          background: document.body.classList.contains('dark-mode') ? '#1e293b' : '#fff',
+          color: document.body.classList.contains('dark-mode') ? '#f8fafc' : '#0f172a'
+        });
+        return;
       }
+
+      // 2. Confirmación con SweetAlert2
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: `Estás a punto de eliminar o archivar el lote #${id}. Esta acción no se puede deshacer fácilmente.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        background: document.body.classList.contains('dark-mode') ? '#1e293b' : '#fff',
+        color: document.body.classList.contains('dark-mode') ? '#f8fafc' : '#0f172a'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            const res = await fetch(`/terrenos/${id}`, { method: 'DELETE' });
+            if (!res.ok) {
+              const errData = await res.json();
+              throw new Error(errData.error || 'No se pudo eliminar el lote');
+            }
+            
+            Swal.fire({
+              title: 'Eliminado',
+              text: 'El lote ha sido removido del inventario correctamente.',
+              icon: 'success',
+              confirmButtonColor: '#22c55e',
+              background: document.body.classList.contains('dark-mode') ? '#1e293b' : '#fff',
+              color: document.body.classList.contains('dark-mode') ? '#f8fafc' : '#0f172a'
+            });
+            
+            cargarTerrenos();
+          } catch (err) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: err.message,
+              background: document.body.classList.contains('dark-mode') ? '#1e293b' : '#fff',
+              color: document.body.classList.contains('dark-mode') ? '#f8fafc' : '#0f172a'
+            });
+          }
+        }
+      });
     }
 
     // Enviar formulario integral al servidor
@@ -776,7 +897,9 @@
         clave_catastral: document.getElementById('t_clave_catastral').value.trim(),
         tipo_uso: document.getElementById('t_tipo_uso').value,
         estado: document.getElementById('t_estado_inm').value,
-        id_propietario: document.getElementById('t_id_propietario').value,
+        id_asesor: document.getElementById('t_id_asesor').value,
+        // id_propietario: document.getElementById('t_id_propietario').value,
+        fecha_venta: document.getElementById('t_fecha_venta').value || null,
 
         superficie: document.getElementById('t_superficie').value,
         frente: document.getElementById('t_frente').value,

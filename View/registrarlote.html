@@ -25,7 +25,7 @@
 
     /* CONTENEDOR GENERAL CENTRAL */
     .wrapper {
-      max-width: 850px;
+      max-width: 1100px;
       margin: 0 auto;
       position: relative;
     }
@@ -229,6 +229,18 @@
       box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15);
     }
 
+    .form-group select:disabled {
+      background: #f1f5f9;
+      color: #64748b;
+      cursor: not-allowed;
+      opacity: 1;
+    }
+
+    body.dark-mode .form-group select:disabled {
+      background: #334155;
+      color: #94a3b8;
+    }
+
     /* BOTONES DE PIE DE PÁGINA */
     .footer-actions {
       display: flex;
@@ -349,7 +361,16 @@
       const btn = document.getElementById('btnTema');
       if (btn) btn.innerHTML = isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro';
     }
-    document.addEventListener('DOMContentLoaded', actualizarBtnTema);
+    document.addEventListener('DOMContentLoaded', () => {
+      actualizarBtnTema();
+      cargarAsesores().then(() => {
+        const u = JSON.parse(localStorage.getItem('arevalo_user'));
+        if (u && u.id_usuario) {
+          const sel = document.getElementById('t_id_asesor');
+          if (sel) sel.value = u.id_usuario;
+        }
+      });
+    });
   </script>
 
   <div class="wrapper">
@@ -415,9 +436,16 @@
                 <option value="disponible">🟢 Libre / Disponible</option>
                 <option value="apartado">🟡 Apartado / Reservado</option>
                 <option value="vendido">🔴 Vendido / Ocupado</option>
+                <option value="cancelado">⚪ Cancelado / Inactivo</option>
               </select>
             </div>
             <div class="form-group">
+              <label for="t_id_asesor">Asesor Responsable *</label>
+              <select id="t_id_asesor" required disabled>
+                <option value="">Seleccionar Asesor...</option>
+              </select>
+            </div>
+            <div class="form-group" style="display: none;">
               <label for="t_id_propietario">ID Propietario</label>
               <input type="number" id="t_id_propietario" placeholder="Ej. 1">
             </div>
@@ -588,12 +616,39 @@
   </div>
 
   <script>
+    let asesoresCargados = false;
+    async function cargarAsesores() {
+      if (asesoresCargados) return;
+      try {
+        const res = await fetch('/api/vendedores');
+        if (!res.ok) throw new Error('Error al cargar asesores');
+        const data = await res.json();
+        const sel = document.getElementById('t_id_asesor');
+        if (sel) {
+          // Filtrar por rol Asesor o Dirección
+          const filtrados = data.filter(u => ['asesor', 'dirección', 'direccion'].includes((u.rol || '').toLowerCase()));
+          filtrados.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.id_usuario;
+            opt.innerText = `${a.nombre} (${a.rol})`;
+            sel.appendChild(opt);
+          });
+          asesoresCargados = true;
+        }
+      } catch (err) {
+        console.error('Error:', err);
+      }
+    }
+
     let mapaLeaflet = null;
     let markerLeaflet = null;
 
     function switchSection(index) {
       document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i + 1 === index));
       document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i + 1 === index));
+
+      // Cargar asesores si es la primera vez que se entra
+      if (index === 1) cargarAsesores();
 
       // Invalidar mapa para dibujar los tiles de OpenStreetMap
       if (index === 3) {
@@ -702,7 +757,8 @@
         clave_catastral: document.getElementById('t_clave_catastral').value.trim(),
         tipo_uso: document.getElementById('t_tipo_uso').value,
         estado: document.getElementById('t_estado_inm').value,
-        id_propietario: document.getElementById('t_id_propietario').value,
+        id_asesor: document.getElementById('t_id_asesor').value,
+        // id_propietario: document.getElementById('t_id_propietario').value,
         
         superficie: document.getElementById('t_superficie').value,
         frente: document.getElementById('t_frente').value,

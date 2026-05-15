@@ -136,6 +136,18 @@
         btnLoginSubmit.innerText = 'Iniciar sesión';
       }
     });
+
+    // Efecto Parallax suave para la visual
+    const visual = document.querySelector('.visual');
+    const bgDiagonal = document.querySelector('.bg-diagonal');
+    
+    if (visual && bgDiagonal) {
+      visual.addEventListener('mousemove', (e) => {
+        const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
+        const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
+        bgDiagonal.style.transform = `rotate(-20deg) translate(${moveX}px, ${moveY}px)`;
+      });
+    }
   </script>
 
 </body>

@@ -229,6 +229,18 @@
       box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
     }
 
+    .form-group select:disabled {
+      background: #f1f5f9;
+      color: #64748b;
+      cursor: not-allowed;
+      opacity: 1;
+    }
+
+    body.dark-mode .form-group select:disabled {
+      background: #334155;
+      color: #94a3b8;
+    }
+
     /* BOTONES DE PIE DE PÁGINA */
     .footer-actions {
       display: flex;
@@ -418,9 +430,15 @@
                 <option value="vendido">🔴 Vendido / Ocupado</option>
               </select>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="display: none;">
               <label for="t_id_propietario">ID Propietario</label>
               <input type="number" id="t_id_propietario" placeholder="Ej. 1">
+            </div>
+            <div class="form-group">
+              <label for="t_id_asesor">Asesor Responsable *</label>
+              <select id="t_id_asesor" required disabled>
+                <option value="">Cargando sesión...</option>
+              </select>
             </div>
           </div>
         </section>
@@ -727,7 +745,24 @@
           else if (eLimp.includes('apartado') || eLimp.includes('reservado')) document.getElementById('t_estado_inm').value = 'apartado';
           else document.getElementById('t_estado_inm').value = 'disponible';
         }
-        document.getElementById('t_id_propietario').value = lote.id_propietario || '';
+        // document.getElementById('t_id_propietario').value = lote.id_propietario || '';
+        
+        // Lock to current session advisor
+        const userSess = JSON.parse(localStorage.getItem('arevalo_user'));
+        const selA = document.getElementById('t_id_asesor');
+        if (selA) {
+          fetch('/api/vendedores').then(r => r.json()).then(data => {
+            selA.innerHTML = '<option value="">Seleccionar...</option>';
+            data.filter(u => ['asesor', 'dirección', 'direccion'].includes((u.rol || '').toLowerCase())).forEach(a => {
+              const opt = document.createElement('option');
+              opt.value = a.id_usuario;
+              opt.innerText = `${a.nombre} (${a.rol})`;
+              selA.appendChild(opt);
+            });
+            if (userSess && userSess.id_usuario) selA.value = userSess.id_usuario;
+            else if (lote.id_asesor) selA.value = lote.id_asesor;
+          });
+        }
 
         // Rellenar Pestaña 2
         document.getElementById('t_superficie').value = lote.superficie || '';
@@ -800,8 +835,8 @@
         manzana: document.getElementById('t_manzana').value.trim(),
         clave_catastral: document.getElementById('t_clave_catastral').value.trim(),
         tipo_uso: document.getElementById('t_tipo_uso').value,
-        estado: document.getElementById('t_estado_inm').value,
-        id_propietario: document.getElementById('t_id_propietario').value,
+        id_asesor: document.getElementById('t_id_asesor').value,
+        // id_propietario: document.getElementById('t_id_propietario').value,
         
         superficie: document.getElementById('t_superficie').value,
         frente: document.getElementById('t_frente').value,

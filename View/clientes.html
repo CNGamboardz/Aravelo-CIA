@@ -209,6 +209,12 @@
             <input type="text" id="c_rfc" placeholder="Alfanumérico" maxlength="13"
               oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
           </div>
+          <div class="form-group">
+            <label for="c_id_asesor">Asesor Responsable *</label>
+            <select id="c_id_asesor" required>
+              <option value="">Seleccionar Asesor...</option>
+            </select>
+          </div>
         </div>
 
         <!-- SECCIÓN 2: LOCALIZACIÓN Y CONTACTO -->
@@ -381,6 +387,27 @@
   <script>
     const userData = JSON.parse(localStorage.getItem('arevalo_user'));
     let listaClientesGlobal = [];
+    let asesoresCargados = false;
+
+    async function cargarAsesoresCRM() {
+      if (asesoresCargados) return;
+      try {
+        const res = await fetch('/api/vendedores');
+        if (!res.ok) throw new Error('No se pudo cargar el directorio de asesores');
+        const data = await res.json();
+        const sel = document.getElementById('c_id_asesor');
+        if (sel) {
+          const filtrados = data.filter(u => ['asesor', 'dirección', 'direccion'].includes((u.rol || '').toLowerCase()));
+          filtrados.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.id_usuario;
+            opt.innerText = `${a.nombre} (${a.rol})`;
+            sel.appendChild(opt);
+          });
+          asesoresCargados = true;
+        }
+      } catch (err) { console.error(err); }
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
       const u = JSON.parse(localStorage.getItem('arevalo_user'));
@@ -470,6 +497,7 @@
     }
 
     function toggleModal(show) {
+      if (show) cargarAsesoresCRM();
       const modal = document.getElementById('modalCliente');
       modal.style.display = show ? 'block' : 'none';
       if (!show) {
@@ -657,6 +685,7 @@
         document.getElementById('c_id_oficial').value = cliente.identificacion_oficial || 'INE';
         document.getElementById('c_num_id').value = cliente.numero_identificacion || '';
         document.getElementById('c_estatus').value = cliente.etapa || cliente.estatus || 'Prospecto nuevo';
+        document.getElementById('c_id_asesor').value = cliente.id_asesor_asignado || cliente.id_asesor || '';
 
         document.getElementById('c_foto_cli').value = cliente.foto_cliente || '';
         document.getElementById('prev_c_foto_cli').innerHTML = cliente.foto_cliente ? `<a href="javascript:void(0)" onclick="descargarBlobBase64(document.getElementById('c_foto_cli').value, 'Foto_Cliente.pdf')" style="color: #570fff; text-decoration: underline; font-weight: 700;">👁️ Ver / Descargar Archivo Guardado</a>` : 'Sin archivo previo';
@@ -734,7 +763,8 @@
         comprobante_domicilio: document.getElementById('c_comp_dom').value.trim(),
         observaciones: document.getElementById('c_observaciones').value.trim(),
         password_cliente: document.getElementById('c_password').value || null,
-        id_asesor: userData ? userData.id_usuario : null
+        id_asesor: userData ? userData.id_usuario : null,
+        id_asesor_asignado: document.getElementById('c_id_asesor').value || null
       };
 
       const url = idEditar ? `/clientes/${idEditar}` : '/clientes';

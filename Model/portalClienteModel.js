@@ -82,7 +82,7 @@ const loginCliente = async (correo, password) => {
 const getLotesDisponibles = async () => {
   const res = await db.query(
     `SELECT id_terreno, fraccionamiento, numero_lote AS lote, manzana, superficie, precio_lista, 
-            precio_venta, estado, municipio, imagen AS imagen_principal
+            precio_venta, estado, municipio, imagen AS imagen_principal, id_asesor
      FROM sistema.terrenos
      WHERE LOWER(COALESCE(estado, '')) IN ('disponible', 'libre', 'available')
      ORDER BY id_terreno DESC`
@@ -110,7 +110,7 @@ const apartarLote = async (id_lote, id_cliente) => {
     `UPDATE sistema.terrenos 
      SET estado = 'apartado', id_propietario = $2
      WHERE id_terreno = $1
-     RETURNING id_terreno, fraccionamiento, numero_lote AS lote, estado`,
+     RETURNING id_terreno, fraccionamiento, numero_lote AS lote, estado, id_asesor`,
     [id_lote, id_cliente]
   );
   return res.rows[0];

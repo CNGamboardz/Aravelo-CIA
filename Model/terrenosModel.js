@@ -12,7 +12,7 @@ const asegurarColumnasCatastrales = async () => {
     "servicio_drenaje BOOLEAN DEFAULT FALSE", "servicio_internet BOOLEAN DEFAULT FALSE", "calle_pavimentada BOOLEAN DEFAULT FALSE",
     "descripcion TEXT", "galeria_imagenes TEXT", "plano_lote TEXT", "documento_escritura TEXT",
     "fecha_registro DATE DEFAULT CURRENT_DATE", "fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-    "id_propietario INT", "observaciones TEXT"
+    "id_propietario INT", "id_asesor INT", "fecha_venta DATE", "observaciones TEXT"
   ];
 
   for (const col of columnas) {
@@ -43,7 +43,7 @@ const getTerrenos = async () => {
 const crearTerreno = async (t) => {
   await asegurarColumnasCatastrales();
 
-  const estadoInsert = ['disponible', 'apartado', 'vendido'].includes(t.estado) ? t.estado : 'disponible';
+  const estadoInsert = ['disponible', 'apartado', 'vendido', 'cancelado'].includes(t.estado) ? t.estado : 'disponible';
 
   const queryInsert = `
     INSERT INTO sistema.terrenos (
@@ -53,7 +53,7 @@ const crearTerreno = async (t) => {
       direccion, colonia, municipio, estado_rep, codigo_postal, latitud, longitud,
       tipo_uso, anticipo, servicio_agua, servicio_luz, servicio_drenaje, servicio_internet,
       calle_pavimentada, descripcion, galeria_imagenes, plano_lote, documento_escritura,
-      id_propietario, observaciones
+      id_propietario, id_asesor, fecha_venta, observaciones
     ) VALUES (
       $1, $2, $3, $4, '${estadoInsert}', $5, $6,
       $7, $8, $9, $10, $11, $12, $13,
@@ -61,7 +61,7 @@ const crearTerreno = async (t) => {
       $18, $19, $20, $21, $22, $23, $24,
       $25, $26, $27, $28, $29, $30,
       $31, $32, $33, $34, $35,
-      $36, $37
+      $36, $37, $38, $39
     ) RETURNING *;
   `;
 
@@ -102,6 +102,8 @@ const crearTerreno = async (t) => {
     t.plano_lote || '', 
     t.documento_escritura || '',
     t.id_propietario || null, 
+    t.id_asesor || null,
+    t.fecha_venta || null,
     t.observaciones || ''
   ];
 
@@ -117,7 +119,7 @@ const crearTerreno = async (t) => {
 const actualizarTerrenoDB = async (id, t) => {
   await asegurarColumnasCatastrales();
 
-  const estadoSanitizado = ['disponible', 'apartado', 'vendido'].includes(t.estado) ? t.estado : 'disponible';
+  const estadoSanitizado = ['disponible', 'apartado', 'vendido', 'cancelado'].includes(t.estado) ? t.estado : 'disponible';
 
   const queryUpdate = `
     UPDATE sistema.terrenos SET
@@ -127,8 +129,8 @@ const actualizarTerrenoDB = async (id, t) => {
       direccion = $18, colonia = $19, municipio = $20, estado_rep = $21, codigo_postal = $22, latitud = $23, longitud = $24,
       tipo_uso = $25, anticipo = $26, servicio_agua = $27, servicio_luz = $28, servicio_drenaje = $29, servicio_internet = $30,
       calle_pavimentada = $31, descripcion = $32, galeria_imagenes = $33, plano_lote = $34, documento_escritura = $35,
-      id_propietario = $36, observaciones = $37, fecha_actualizacion = CURRENT_TIMESTAMP
-    WHERE id_terreno = $38 RETURNING *;
+      id_propietario = $36, id_asesor = $37, fecha_venta = $38, observaciones = $39, fecha_actualizacion = CURRENT_TIMESTAMP
+    WHERE id_terreno = $40 RETURNING *;
   `;
 
   const values = [
@@ -138,7 +140,7 @@ const actualizarTerrenoDB = async (id, t) => {
     t.direccion || '', t.colonia || '', t.municipio || '', t.estado_rep || '', t.codigo_postal || '', t.latitud || null, t.longitud || null,
     t.tipo_uso || 'habitacional', t.anticipo || 0, !!t.servicio_agua, !!t.servicio_luz, !!t.servicio_drenaje, !!t.servicio_internet,
     !!t.calle_pavimentada, t.descripcion || '', t.galeria_imagenes || '', t.plano_lote || '', t.documento_escritura || '',
-    t.id_propietario || null, t.observaciones || '', id
+    t.id_propietario || null, t.id_asesor || null, t.fecha_venta || null, t.observaciones || '', id
   ];
 
   try {

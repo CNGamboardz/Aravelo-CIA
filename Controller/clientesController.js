@@ -20,6 +20,9 @@ const guardarCliente = async (req, res) => {
   if (req.body.id_asesor) {
     req.body.id_asesor = desencriptarId(req.body.id_asesor);
   }
+  if (req.body.id_asesor_asignado) {
+    req.body.id_asesor_asignado = desencriptarId(req.body.id_asesor_asignado);
+  }
   const nuevo = await clientesModel.crearCliente(req.body);
   res.json({
     ...nuevo,
@@ -32,6 +35,9 @@ const actualizarCliente = async (req, res) => {
     const { id } = req.params;
     if (req.body.id_asesor) {
       req.body.id_asesor = desencriptarId(req.body.id_asesor);
+    }
+    if (req.body.id_asesor_asignado) {
+      req.body.id_asesor_asignado = desencriptarId(req.body.id_asesor_asignado);
     }
     const modificado = await clientesModel.actualizarClienteDB(id, req.body);
     res.json({

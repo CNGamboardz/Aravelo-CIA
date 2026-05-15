@@ -110,6 +110,11 @@ const apartarLote = async (req, res) => {
     // Actualizar etapa a 'Apartó'
     await clientesModel.actualizarEtapaCliente(id_cliente, 'Apartó');
 
+    // ASIGNACIÓN AUTOMÁTICA DE ASESOR DEL LOTE AL CLIENTE
+    if (lote.id_asesor) {
+      await portalModel.asignarAsesor(id_cliente, lote.id_asesor);
+    }
+
     res.json({ mensaje: `Lote ${lote.lote} en ${lote.fraccionamiento} apartado exitosamente.`, lote });
   } catch (error) {
     console.error('Error al apartar lote:', error.message);
@@ -149,6 +154,15 @@ const agendarCita = async (req, res) => {
       return res.status(400).json({ error: 'Se requieren id_cliente y fecha.' });
     }
     const cita = await portalModel.agendarCita(id_cliente, fecha, id_lote, nota);
+    
+    // ASIGNACIÓN AUTOMÁTICA SI SE ELIGIÓ UN LOTE EN LA CITA
+    if (id_lote) {
+      // Obtener el lote para saber quién es el asesor responsable
+      const queryLote = await require('../Model/db').query('SELECT id_asesor FROM sistema.terrenos WHERE id_terreno = $1', [id_lote]);
+      if (queryLote.rows.length > 0 && queryLote.rows[0].id_asesor) {
+        await portalModel.asignarAsesor(id_cliente, queryLote.rows[0].id_asesor);
+      }
+    }
     
     // Actualizar etapa a 'Contactado' si es prospecto nuevo
     const cliente = await clientesModel.getClientes().then(list => list.find(c => c.id_cliente == id_cliente));
@@ -267,11 +281,22 @@ const liberarLote = async (req, res) => {
       return res.status(404).json({ error: 'No se pudo liberar el lote. Verifica tu propiedad.' });
     }
 
-    // Actualizar etapa a 'Cancelado'
-    await clientesModel.actualizarEtapaCliente(id_cliente, 'Cancelado');
+    // --- LÓGICA DE ACTUALIZACIÓN DE ETAPA REAL ---
+    // 1. Verificar si tiene más apartados o compras
+    const otrosApartados = await portalModel.getMisLotesApartados(id_cliente);
+    const comprasRealizadas = await portalModel.getMisLotesComprados(id_cliente);
 
-    res.json({ mensaje: `El lote en ${liberado.fraccionamiento} ha sido liberado exitosamente.`, liberado });
+    let nuevaEtapa = 'Cancelado';
+    if (comprasRealizadas.length > 0 || otrosApartados.length > 0) {
+      nuevaEtapa = 'En riesgo'; // Aún tiene interés pero canceló algo, poner en alerta
+    }
+
+    // 2. Ejecutar cambio de etapa
+    await clientesModel.actualizarEtapaCliente(id_cliente, nuevaEtapa);
+
+    res.json({ mensaje: `El lote en ${liberado.fraccionamiento} ha sido liberado exitosamente. Tu estatus ha sido actualizado a: ${nuevaEtapa}.`, liberado, nuevaEtapa });
   } catch (error) {
+    console.error('Error al liberar lote:', error);
     res.status(500).json({ error: 'Error interno al liberar la reserva.' });
   }
 };

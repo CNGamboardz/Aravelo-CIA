@@ -12,6 +12,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- ESCUDO DE SEGURIDAD GLOBAL ANTI-CRACKERS Y ENCRIPTACIÓN -->
   <script src="/public/security-bundle.js"></script>
+  <!-- SWEETALERT2 PARA ALERTAS PREMIUM -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     :root {
       --primary: #2563eb;
@@ -1118,23 +1120,40 @@
           avatarEl.src = clienteLogueado.foto_cliente;
         }
         
-        // Consultar de inmediato al backend para asegurar que la caché local no esté desactualizada
-        fetch('/api/portal/cliente/' + clienteLogueado.id_cliente)
-          .then(r => r.json())
-          .then(c => {
-            if (c && c.nombre) {
+        // Consultar de inmediato al backend para asegurar que la caché local no esté desactualizada (Sincronización Real)
+        try {
+          const rSync = await fetch('/api/portal/cliente/' + clienteLogueado.id_cliente);
+          if (rSync.ok) {
+            const c = await rSync.json();
+            if (c && c.id_cliente) {
               clienteLogueado = { ...clienteLogueado, ...c };
               const nomActualizado = `${c.nombre || ''} ${c.apellido_paterno || ''} ${c.apellido_materno || ''}`.replace(/\s+/g, ' ').trim();
               document.getElementById('navUserName').innerText = nomActualizado || 'Cliente';
-              if (avatarEl && c.foto_cliente) {
-                avatarEl.src = c.foto_cliente;
-              }
-              if (localStorage.getItem('portal_cliente')) {
-                localStorage.setItem('portal_cliente', JSON.stringify(clienteLogueado));
-              }
+              if (avatarEl && c.foto_cliente) avatarEl.src = c.foto_cliente;
+              localStorage.setItem('portal_cliente', JSON.stringify(clienteLogueado));
             }
-          }).catch(e => {});
+          }
+        } catch (eSync) {
+          console.warn('Error en sincronización de perfil:', eSync);
+        }
         
+        // --- CHEQUEO DE ESTATUS DE BAJA PRIORIDAD (BASADO EN DATOS FRESCOS) ---
+        const etapaLimpia = (clienteLogueado.etapa || '').toLowerCase().trim();
+        if (etapaLimpia === 'cancelado' || etapaLimpia === 'en riesgo') {
+          Swal.fire({
+            title: 'Aviso de Seguimiento',
+            html: `<div style="text-align: left; font-size: 14px; color: #475569; line-height: 1.6;">` +
+                  `<p>Estimado/a <b>${clienteLogueado.nombre}</b>, detectamos que has liberado predios voluntariamente en el pasado.</p><br>` +
+                  `<p>Debido a esto, tu perfil ha sido marcado con <b>baja prioridad</b> en la asignación automática. Un asesor patrimonial se pondrá en contacto contigo en breve para brindarte una atención más personalizada.</p>` +
+                  `</div>`,
+            icon: 'info',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#2563eb',
+            background: '#ffffff',
+            color: '#0f172a'
+          });
+        }
+
         // Cargar vistas dinámicas
         cargarLotes();
         cargarMisApartados();
@@ -1441,23 +1460,62 @@
     }
 
     async function apartarPredio(idLote, descLote) {
-      if (!confirm(`¿Estás seguro de apartar el predio ${descLote}? Un asesor se pondrá en contacto contigo de inmediato para coordinar la formalización.`)) return;
-      
-      try {
-        const res = await fetch('/api/portal/apartar', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            id_lote: idLote, 
-            id_cliente: clienteLogueado.id_cliente,
-            nombre_cliente: `${clienteLogueado.nombre} ${clienteLogueado.apellido_paterno || ''}`.trim()
-          })
+      // --- CHEQUEO DE BAJA PRIORIDAD ANTES DE PERMITIR APARTADO ---
+      const etapaLimpia = (clienteLogueado.etapa || '').toLowerCase().trim();
+      if (etapaLimpia === 'cancelado' || etapaLimpia === 'en riesgo') {
+        const resultBaja = await Swal.fire({
+          title: 'Aviso de Baja Prioridad',
+          html: `<div style="text-align: left; font-size: 14px; color: #475569; line-height: 1.6;">` +
+                `<p>Estimado/a <b>${clienteLogueado.nombre}</b>, debido a que has liberado predios voluntariamente en el pasado, tu cuenta tiene actualmente <b>baja prioridad</b>.</p><br>` +
+                `<p>Podemos registrar tu interés en <b>${descLote}</b>, pero un asesor deberá validar manualmente tu solicitud antes de formalizar.</p>` +
+                `<p style="margin-top: 10px; font-weight: 700;">¿Deseas proceder con la solicitud de todas formas?</p>` +
+                `</div>`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, solicitar de todas formas',
+          cancelButtonText: 'No, mejor no',
+          confirmButtonColor: '#2563eb',
+          cancelButtonColor: '#64748b',
+          background: '#ffffff',
+          color: '#0f172a'
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'No se pudo procesar el apartado.');
+        if (!resultBaja.isConfirmed) return;
+      }
 
-        showToast(`¡Felicidades! Has apartado exitosamente el predio ${descLote}. Notificando a tu asesor vía KOMMO...`);
-        cargarLotes(); // Recargar para quitarlo de disponibles
+      Swal.fire({
+        title: '¿Confirmar Apartado?',
+        text: `¿Estás seguro de apartar el predio ${descLote}? Un asesor se pondrá en contacto contigo de inmediato para coordinar la formalización.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Sí, apartar ahora',
+        cancelButtonText: 'Cancelar',
+        background: '#ffffff',
+        color: '#0f172a'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            const res = await fetch('/api/portal/apartar', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                id_lote: idLote, 
+                id_cliente: clienteLogueado.id_cliente,
+                nombre_cliente: `${clienteLogueado.nombre} ${clienteLogueado.apellido_paterno || ''}`.trim()
+              })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'No se pudo procesar el apartado.');
+
+            Swal.fire({
+              title: '¡Lote Reservado!',
+              text: `Has apartado exitosamente el predio ${descLote}. Tu asesor ha sido notificado.`,
+              icon: 'success',
+              confirmButtonColor: '#10b981'
+            });
+
+            cargarLotes(); // Recargar para quitarlo de disponibles
 
         // INYECTAR EVENTO DE NOTIFICACIÓN EN EL WIDGET DE CHAT (KOMMO) DEL CLIENTE PARA IMPACTO VISUAL
         setTimeout(() => {
@@ -1490,10 +1548,11 @@
         } catch(e) {}
 
         cargarMisApartados();
-
-      } catch (err) {
-        showToast(err.message, true);
-      }
+          } catch (err) {
+            Swal.fire({ icon: 'error', title: 'Error', text: err.message });
+          }
+        }
+      });
     }
 
     // ─────────────────────────────────────────────────────────
@@ -1588,33 +1647,60 @@
     }
 
     async function liberarApartadoDirecto(idLote, descLote) {
-      if (!confirm(`¿Estás seguro de cancelar tu reserva del predio ${descLote}? Volverá a estar disponible libremente en el inventario general.`)) return;
-      try {
-        const res = await fetch('/api/portal/liberar', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id_lote: idLote, id_cliente: clienteLogueado.id_cliente })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Error al liberar el lote.');
+      Swal.fire({
+        title: '¿Estás seguro?',
+        html: `Estás a punto de <b>cancelar tu reserva</b> del predio <b>${descLote}</b>.<br><br>` +
+              `<p style="font-size: 14px; color: #ef4444;">⚠️ <b>Advertencia:</b> Esta acción se notificará de inmediato a tu asesor responsable y puede afectar tu estatus de prioridad como cliente.</p>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Sí, liberar apartado',
+        cancelButtonText: 'Mantener reserva',
+        background: '#ffffff',
+        color: '#0f172a'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            const res = await fetch('/api/portal/liberar', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id_lote: idLote, id_cliente: clienteLogueado.id_cliente })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Error al liberar el lote.');
 
-        showToast(`Reserva cancelada exitosamente. El predio ${descLote} ha sido liberado.`);
-        cargarMisApartados();
-        cargarLotes();
+            Swal.fire({
+              title: 'Apartado Liberado',
+              text: `La reserva de ${descLote} ha sido cancelada. El predio vuelve a estar disponible en el catálogo.`,
+              icon: 'success',
+              confirmButtonColor: '#2563eb'
+            });
 
-        try {
-          const guardadas = JSON.parse(localStorage.getItem('kommo_notifications') || '[]');
-          guardadas.push({
-            id_asesor: clienteLogueado.id_asesor_asignado,
-            texto: `⚠️ <b>Cancelación de Apartado:</b><br>El cliente ha liberado de forma voluntaria el resguardo temporal del predio <b>${descLote}</b>. Disponible en catálogo.`,
-            fecha: new Date().toLocaleString()
-          });
-          localStorage.setItem('kommo_notifications', JSON.stringify(guardadas));
-        } catch(e) {}
+            cargarMisApartados();
+            cargarLotes();
 
-      } catch (err) {
-        showToast(err.message, true);
-      }
+            try {
+              const guardadas = JSON.parse(localStorage.getItem('kommo_notifications') || '[]');
+              guardadas.push({
+                id_asesor: clienteLogueado.id_asesor_asignado,
+                texto: `⚠️ <b>Cancelación de Apartado:</b><br>El cliente ha liberado de forma voluntaria el resguardo temporal del predio <b>${descLote}</b>. Disponible en catálogo.`,
+                fecha: new Date().toLocaleString()
+              });
+              localStorage.setItem('kommo_notifications', JSON.stringify(guardadas));
+              window.dispatchEvent(new Event('kommo_update'));
+            } catch(e) {}
+
+          } catch (err) {
+            Swal.fire({
+              title: 'Error',
+              text: err.message,
+              icon: 'error',
+              confirmButtonColor: '#2563eb'
+            });
+          }
+        }
+      });
     }
 
     // ─────────────────────────────────────────────────────────

@@ -28,7 +28,7 @@ const guardarTerreno = async (req, res) => {
       direccion, colonia, municipio, estado_rep, codigo_postal, latitud, longitud,
       tipo_uso, anticipo, servicio_agua, servicio_luz, servicio_drenaje, servicio_internet,
       calle_pavimentada, descripcion, galeria_imagenes, plano_lote, documento_escritura,
-      id_propietario, observaciones, estado
+      id_propietario, observaciones, estado, id_asesor, fecha_venta
     } = req.body;
 
     if (!fraccionamiento || !precio_venta) {
@@ -75,7 +75,9 @@ const guardarTerreno = async (req, res) => {
       descripcion, galeria_imagenes, plano_lote, documento_escritura,
       id_propietario: id_propietario || null,
       observaciones,
-      estado
+      estado,
+      id_asesor: id_asesor || null,
+      fecha_venta: fecha_venta || null
     });
 
     res.status(201).json(nuevo);
@@ -95,7 +97,7 @@ const actualizarTerreno = async (req, res) => {
       direccion, colonia, municipio, estado_rep, codigo_postal, latitud, longitud,
       tipo_uso, anticipo, servicio_agua, servicio_luz, servicio_drenaje, servicio_internet,
       calle_pavimentada, descripcion, galeria_imagenes, plano_lote, documento_escritura,
-      id_propietario, observaciones, estado
+      id_propietario, observaciones, estado, id_asesor, fecha_venta
     } = req.body;
 
     let rutaGuardada = imagen || '';
@@ -136,7 +138,9 @@ const actualizarTerreno = async (req, res) => {
       descripcion, galeria_imagenes, plano_lote, documento_escritura,
       id_propietario: id_propietario || null,
       observaciones,
-      estado
+      estado,
+      id_asesor: id_asesor || null,
+      fecha_venta: fecha_venta || null
     });
     res.json(actualizado);
   } catch (error) {
