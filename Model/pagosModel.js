@@ -3,7 +3,9 @@ const db = require('./db');
 // Listar el calendario de cobranza general de los clientes
 const getCalendarioCobranza = async () => {
   const res = await db.query(
-    `SELECT cp.*, cl.nombre AS cliente_nombre, cl.id_asesor, cl.id_asesor_asignado, t.fraccionamiento 
+    `SELECT cp.*, 
+            TRIM(CONCAT(cl.nombre, ' ', cl.apellido_paterno, ' ', cl.apellido_materno)) AS cliente_nombre, 
+            cl.id_asesor, cl.id_asesor_asignado, t.fraccionamiento 
      FROM sistema.calendario_pagos cp
      JOIN sistema.clientes cl ON cp.id_cliente = cl.id_cliente
      JOIN sistema.contratos c ON cp.id_contrato = c.id_contrato
@@ -16,7 +18,9 @@ const getCalendarioCobranza = async () => {
 // Obtener historial de pagos reales
 const getPagosReales = async () => {
   const res = await db.query(
-    `SELECT p.*, cl.nombre AS cliente_nombre, cl.id_asesor, cl.id_asesor_asignado 
+    `SELECT p.*, 
+            TRIM(CONCAT(cl.nombre, ' ', cl.apellido_paterno, ' ', cl.apellido_materno)) AS cliente_nombre, 
+            cl.id_asesor, cl.id_asesor_asignado 
      FROM sistema.pagos p
      LEFT JOIN sistema.clientes cl ON p.id_cliente = cl.id_cliente
      ORDER BY p.id_pago DESC`
