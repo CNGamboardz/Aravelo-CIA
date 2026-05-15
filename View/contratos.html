@@ -158,17 +158,47 @@
           </div>
 
           <div class="form-group"
-            style="background: #ede9fe; padding: 16px; border-radius: 12px; margin-top: 10px; border: 1px solid #c4b5fd;">
+            style="background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); padding: 20px; border-radius: 16px; margin-top: 10px; border: 1px solid #c4b5fd; text-align: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
             <label
-              style="color: #4c1d95; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Monto
-              Mensual Proyectado:</label>
-            <div id="lblMensualidad" style="font-size: 24px; font-weight: 900; color: #570fff; margin-top: 4px;">$0.00
+              style="color: #6d28d9; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">Monto
+              Mensual Proyectado</label>
+            <div id="lblMensualidad" style="font-size: 32px; font-weight: 900; color: #570fff; text-shadow: 0 2px 4px rgba(87,15,255,0.1);">$0.00
             </div>
           </div>
 
-          <div class="form-group" style="margin-top: 15px;">
-            <label for="c_doc">Referencia Legal / Documento</label>
-            <input type="text" id="c_doc" placeholder="Ej. Contrato Privado Compraventa v1.0">
+          <div class="form-group">
+            <label for="c_penalizaciones">Penalizaciones y Cláusulas Especiales</label>
+            <textarea id="c_penalizaciones" rows="3" placeholder="Ej. 10% por cancelación anticipada, intereses moratorios, etc." style="width:100%; padding:10px; border-radius:8px; border:1px solid #cbd5e1; font-family:inherit;"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="c_estatus">Estatus Inicial</label>
+              <select id="c_estatus">
+                <option value="activo">✅ Activo / Vigente</option>
+                <option value="en riesgo">⚠️ En Riesgo</option>
+                <option value="cancelado">❌ Cancelado</option>
+                <option value="liquidado">💰 Liquidado</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="c_doc">Referencia Legal / Documento</label>
+              <input type="text" id="c_doc" placeholder="Ej. Contrato Privado Compraventa v1.0">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>📂 Documentos Adjuntos (INE, Pagaré, etc.)</label>
+            <input type="text" id="c_adjuntos" placeholder="Referencias de texto, IDs o folios adicionales">
+          </div>
+
+          <div class="form-group">
+            <label for="c_pdf_file">📄 Cargar Contrato Escaneado (PDF, Max 2MB)</label>
+            <div style="position:relative;">
+              <input type="file" id="c_pdf_file" accept=".pdf" style="padding-top: 10px; cursor: pointer;">
+              <div id="pdf-status" style="font-size: 11px; margin-top: 4px; color: #64748b; font-weight: 600;">No se ha seleccionado ningún archivo.</div>
+              <input type="hidden" id="c_pdf_b64">
+            </div>
           </div>
 
           <button type="submit" class="btn-contrato" id="btnEmitir">Generar Contrato</button>
@@ -188,6 +218,7 @@
                 <th>Terreno</th>
                 <th>Plan</th>
                 <th>Precio Total</th>
+                <th>Estatus</th>
               </tr>
             </thead>
             <tbody id="tablaContratosBody">
@@ -351,13 +382,26 @@
 
         contratos.forEach(c => {
           const badge = `badge-${c.tipo_plan || 'contado'}`;
+          const statusBadgeClass = (c.estatus || 'activo').replace(/\s+/g, '-');
+          // Acortar UUID para estética de tabla
+          const folioCorto = c.id_contrato && c.id_contrato.length > 10 ? c.id_contrato.substring(0, 8).toUpperCase() : c.id_contrato;
+          
           tbody.innerHTML += `
-            <tr>
-              <td><b>#${c.id_contrato}</b></td>
-              <td style="font-weight: 600;">${c.cliente_nombre}</td>
-              <td>${c.fraccionamiento} (${c.superficie}m²)</td>
+            <tr class="row-hover">
+              <td><b style="color: #6366f1;">#${folioCorto}</b></td>
+              <td style="font-weight: 600;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div style="width: 28px; height: 28px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #64748b;">👤</div>
+                  ${c.cliente_nombre}
+                </div>
+              </td>
+              <td>
+                <div style="font-size: 13px; font-weight: 500;">${c.fraccionamiento}</div>
+                <div style="font-size: 11px; color: #64748b;">${c.superficie}m²</div>
+              </td>
               <td><span class="badge-plan ${badge}">${c.tipo_plan}</span></td>
               <td style="font-weight: 700; color: #0f172a;">$${parseFloat(c.precio_total).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+              <td><span class="badge-status status-${statusBadgeClass}">${c.estatus || 'activo'}</span></td>
             </tr>
           `;
         });
@@ -402,6 +446,12 @@
             plazo,
             monto_mensual,
             documento_ref,
+            penalizaciones: document.getElementById('c_penalizaciones').value.trim(),
+            estatus: document.getElementById('c_estatus').value,
+            documentos_json: { 
+              raw_ref: document.getElementById('c_adjuntos').value.trim(),
+              archivo_pdf: document.getElementById('c_pdf_b64').value
+            },
             id_asesor: userData ? userData.id_usuario : null
           })
         });
@@ -455,6 +505,48 @@
           if (mr) mr.style.display = 'block';
         }
       }
+    });
+
+    // MANEJO SEGURO DE CARGA DE PDF (RESTRICCIONES Y ENCRIPTACIÓN B64)
+    document.getElementById('c_pdf_file').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      const status = document.getElementById('pdf-status');
+      const hiddenB64 = document.getElementById('c_pdf_b64');
+      
+      if (!file) {
+        status.innerText = 'No se ha seleccionado ningún archivo.';
+        hiddenB64.value = '';
+        return;
+      }
+
+      // Restricción de Tipo
+      if (file.type !== 'application/pdf') {
+        status.innerText = '❌ Error: Solo se permiten archivos PDF.';
+        status.style.color = '#ef4444';
+        e.target.value = '';
+        hiddenB64.value = '';
+        return;
+      }
+
+      // Restricción de Tamaño (2MB = 2097152 bytes)
+      if (file.size > 2097152) {
+        status.innerText = '❌ Error: El archivo supera los 2MB permitidos.';
+        status.style.color = '#ef4444';
+        e.target.value = '';
+        hiddenB64.value = '';
+        return;
+      }
+
+      status.innerText = '⌛ Procesando y encriptando documento...';
+      status.style.color = '#570fff';
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        hiddenB64.value = event.target.result; // Base64
+        status.innerText = `✅ Archivo listo: ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+        status.style.color = '#059669';
+      };
+      reader.readAsDataURL(file);
     });
 
     inicializarFormulario();

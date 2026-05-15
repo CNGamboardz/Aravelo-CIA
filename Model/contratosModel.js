@@ -24,9 +24,20 @@ const crearContrato = async (datos) => {
     // 1. Insertar contrato principal
     const resContrato = await client.query(
       `INSERT INTO sistema.contratos 
-       (id_cliente, id_terreno, id_asesor, fecha_firma, tipo_plan, precio_total, enganche, plazo, monto_mensual, estatus)
-       VALUES ($1, $2, $3, CURRENT_DATE, $4, $5, $6, $7, $8, 'activo') RETURNING *`,
-      [id_cliente, id_terreno, datos.id_asesor || null, tipo_plan, precio_total, enganche || 0, plazo || 0, monto_mensual || 0]
+       (id_cliente, id_terreno, id_asesor, fecha_firma, tipo_plan, precio_total, enganche, plazo, monto_mensual, estatus, penalizaciones, documentos_json)
+       VALUES ($1, $2, $3, CURRENT_DATE, $4, $5, $6, $7, $8, 'activo', $9, $10) RETURNING *`,
+      [
+        id_cliente, 
+        id_terreno, 
+        datos.id_asesor || null, 
+        tipo_plan, 
+        precio_total, 
+        enganche || 0, 
+        plazo || 0, 
+        monto_mensual || 0,
+        datos.penalizaciones || '',
+        datos.documentos_json || '{}'
+      ]
     );
     const nuevoContrato = resContrato.rows[0];
     const id_contrato = nuevoContrato.id_contrato;

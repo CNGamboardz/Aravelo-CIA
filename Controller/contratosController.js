@@ -28,6 +28,8 @@ const guardarContrato = async (req, res) => {
       enganche: enganche ? parseFloat(enganche) : 0,
       plazo: plazo ? parseInt(plazo) : 0,
       monto_mensual: monto_mensual ? parseFloat(monto_mensual) : 0,
+      penalizaciones: req.body.penalizaciones || '',
+      documentos_json: req.body.documentos_json || {},
       documento_ref: documento_ref || ''
     });
 

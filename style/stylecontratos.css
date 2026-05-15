@@ -154,7 +154,7 @@ body {
 /* ===== GRID DE CONTENIDO SIMÉTRICO ===== */
 .contratos-grid {
   display: grid;
-  grid-template-columns: 420px 1fr;
+  grid-template-columns: 500px 1fr;
   gap: 32px;
   align-items: start;
 }
@@ -304,6 +304,19 @@ body {
   border-bottom: none;
 }
 
+.row-hover {
+  transition: background-color 0.2s ease;
+}
+
+.row-hover:hover {
+  background-color: #f1f5f9;
+  cursor: default;
+}
+
+body.dark-mode .row-hover:hover {
+  background-color: #334155 !important;
+}
+
 .badge-plan {
   display: inline-flex;
   align-items: center;
@@ -325,6 +338,41 @@ body {
   background: #ecfdf5;
   color: #059669;
   border: 1px solid #a7f3d0;
+}
+
+/* BADGES DE ESTATUS CORPORATIVO */
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.status-activo {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.status-en-riesgo {
+  background: #fef9c3;
+  color: #a16207;
+  border: 1px solid #fef08a;
+}
+
+.status-cancelado {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.status-liquidado {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
 }
 
 /* ==========================================================================
