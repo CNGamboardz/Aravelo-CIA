@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Clientes CRM - Arevalo & CIA</title>
@@ -40,22 +41,26 @@
       </li>
       <li>
         <a href="/clientes.html" class="active">
-          <img src="/public/clientes.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Clientes (CRM)
+          <img src="/public/clientes.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Clientes
+          (CRM)
         </a>
       </li>
       <li>
         <a href="/terrenos.html">
-          <img src="/public/terrenos.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Lotes Inmobiliarios
+          <img src="/public/terrenos.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Lotes
+          Inmobiliarios
         </a>
       </li>
       <li>
         <a href="/contratos.html">
-          <img src="/public/contrato.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Acuerdos / Contratos
+          <img src="/public/contrato.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Acuerdos /
+          Contratos
         </a>
       </li>
       <li>
         <a href="/pagos.html">
-          <img src="/public/cobranza.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Cobranza y Pagos
+          <img src="/public/cobranza.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Cobranza y
+          Pagos
         </a>
       </li>
       <li id="menu-vendedores">
@@ -65,7 +70,15 @@
       </li>
       <li id="menu-configuracion">
         <a href="/configuracion.html">
-          <img src="/public/configuracion.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Configuración
+          <img src="/public/configuracion.png" style="width:20px; height:20px; object-fit:contain;" alt="icon">
+          Configuración
+        </a>
+      </li>
+      <li id="menu-nuevo-registro" style="display: none;">
+        <a href="/registrar.html">
+          <span
+            style="font-size: 16px; margin-right: 12px; display: inline-block; width: 20px; text-align: center;">➕</span>
+          Alta de Usuarios
         </a>
       </li>
     </ul>
@@ -75,21 +88,24 @@
         <span id="iconoTema">🌙</span> <span id="textoTema">Modo Oscuro</span>
       </button>
       <button class="btn-logout" onclick="cerrarSesion()">
-        <img src="/public/cerrar_sesión.png" style="width:18px; height:18px; object-fit:contain;" alt="logout"> Cerrar sesión
+        <img src="/public/cerrar_sesión.png" style="width:18px; height:18px; object-fit:contain;" alt="logout"> Cerrar
+        sesión
       </button>
     </div>
   </aside>
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="main-content">
-    
+
     <header class="crm-header">
       <div class="crm-title">
         <h1>Directorio de Clientes</h1>
         <p>Gestión de prospectos, compradores y estatus del CRM</p>
       </div>
       <div>
-        <a href="/registrar_cliente.html" style="background: linear-gradient(135deg, #570fff 0%, #7c3aed 100%); color: white; padding: 12px 25px; border-radius: 12px; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 10px 20px rgba(87, 15, 255, 0.25);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <a href="/registrar_cliente.html"
+          style="background: linear-gradient(135deg, #570fff 0%, #7c3aed 100%); color: white; padding: 12px 25px; border-radius: 12px; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 10px 20px rgba(87, 15, 255, 0.25);"
+          onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
           <span>⚡</span> Portal de Alta Dedicada
         </a>
       </div>
@@ -102,13 +118,17 @@
         <button class="btn-close" onclick="toggleModal(false)">✖</button>
       </div>
 
-      <div id="mensaje-cliente" style="display: none; padding: 10px; margin-bottom: 15px; border-radius: 8px; font-size: 13px; text-align: center;"></div>
+      <div id="mensaje-cliente"
+        style="display: none; padding: 10px; margin-bottom: 15px; border-radius: 8px; font-size: 13px; text-align: center;">
+      </div>
 
       <form id="formCliente">
         <input type="hidden" id="c_id_editar">
-        
+
         <!-- SECCIÓN 1: IDENTIDAD -->
-        <h4 style="color: #570fff; font-size: 14px; margin-bottom: 12px; border-bottom: 2px solid #ede9fe; padding-bottom: 4px;">👤 Identidad Personal y Oficial</h4>
+        <h4
+          style="color: #570fff; font-size: 14px; margin-bottom: 12px; border-bottom: 2px solid #ede9fe; padding-bottom: 4px;">
+          👤 Identidad Personal y Oficial</h4>
         <div class="form-grid">
           <div class="form-group">
             <label for="c_nombre">Nombre(s) *</label>
@@ -152,24 +172,30 @@
           </div>
           <div class="form-group">
             <label for="c_curp">CURP (18 Caracteres)</label>
-            <input type="text" id="c_curp" placeholder="Alfanumérico" maxlength="18" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
+            <input type="text" id="c_curp" placeholder="Alfanumérico" maxlength="18"
+              oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
           </div>
           <div class="form-group">
             <label for="c_rfc">RFC (13 Caracteres)</label>
-            <input type="text" id="c_rfc" placeholder="Alfanumérico" maxlength="13" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
+            <input type="text" id="c_rfc" placeholder="Alfanumérico" maxlength="13"
+              oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
           </div>
         </div>
 
         <!-- SECCIÓN 2: LOCALIZACIÓN Y CONTACTO -->
-        <h4 style="color: #570fff; font-size: 14px; margin: 20px 0 12px; border-bottom: 2px solid #ede9fe; padding-bottom: 4px;">📞 Contacto y Localización Geográfica</h4>
+        <h4
+          style="color: #570fff; font-size: 14px; margin: 20px 0 12px; border-bottom: 2px solid #ede9fe; padding-bottom: 4px;">
+          📞 Contacto y Localización Geográfica</h4>
         <div class="form-grid">
           <div class="form-group">
             <label for="c_telefono">Teléfono Principal *</label>
-            <input type="text" id="c_telefono" placeholder="10 dígitos numéricos" maxlength="10" minlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+            <input type="text" id="c_telefono" placeholder="10 dígitos numéricos" maxlength="10" minlength="10"
+              oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
           </div>
           <div class="form-group">
             <label for="c_tel_sec">Teléfono Secundario</label>
-            <input type="text" id="c_tel_sec" placeholder="10 dígitos numéricos" maxlength="10" minlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            <input type="text" id="c_tel_sec" placeholder="10 dígitos numéricos" maxlength="10" minlength="10"
+              oninput="this.value = this.value.replace(/[^0-9]/g, '')">
           </div>
           <div class="form-group">
             <label for="c_correo">Correo Electrónico</label>
@@ -177,7 +203,8 @@
           </div>
           <div class="form-group">
             <label for="c_cp">Código Postal *</label>
-            <input type="text" id="c_cp" placeholder="5 dígitos" maxlength="5" minlength="5" oninput="this.value = this.value.replace(/[^0-9]/g, ''); consultarCPClientes();" required>
+            <input type="text" id="c_cp" placeholder="5 dígitos" maxlength="5" minlength="5"
+              oninput="this.value = this.value.replace(/[^0-9]/g, ''); consultarCPClientes();" required>
           </div>
           <div class="form-group">
             <label for="c_estado">Estado (Autocompletado)</label>
@@ -189,7 +216,8 @@
           </div>
           <div class="form-group" style="grid-column: span 2;">
             <label for="c_colonia">Colonia / Asentamiento (Seleccionable Estricto)</label>
-            <select id="c_colonia" style="background: #ede9fe; font-weight: 700; color: #4c1d95; border-color: #c4b5fd;">
+            <select id="c_colonia"
+              style="background: #ede9fe; font-weight: 700; color: #4c1d95; border-color: #c4b5fd;">
               <option value="">Ingresa CP para cargar colonias...</option>
             </select>
           </div>
@@ -200,7 +228,9 @@
         </div>
 
         <!-- SECCIÓN 3: PERFIL SOCIOECONÓMICO -->
-        <h4 style="color: #570fff; font-size: 14px; margin: 20px 0 12px; border-bottom: 2px solid #ede9fe; padding-bottom: 4px;">💼 Perfil Socioeconómico y Laboral</h4>
+        <h4
+          style="color: #570fff; font-size: 14px; margin: 20px 0 12px; border-bottom: 2px solid #ede9fe; padding-bottom: 4px;">
+          💼 Perfil Socioeconómico y Laboral</h4>
         <div class="form-grid">
           <div class="form-group">
             <label for="c_ocupacion">Ocupación / Profesión</label>
@@ -217,7 +247,9 @@
         </div>
 
         <!-- SECCIÓN 4: EXPEDIENTE DIGITAL -->
-        <h4 style="color: #570fff; font-size: 14px; margin: 20px 0 12px; border-bottom: 2px solid #ede9fe; padding-bottom: 4px;">📁 Expediente Digital y Documentación Oficial</h4>
+        <h4
+          style="color: #570fff; font-size: 14px; margin: 20px 0 12px; border-bottom: 2px solid #ede9fe; padding-bottom: 4px;">
+          📁 Expediente Digital y Documentación Oficial</h4>
         <div class="form-grid">
           <div class="form-group">
             <label for="c_id_oficial">Tipo de Identificación Oficial</label>
@@ -265,21 +297,28 @@
         </div>
 
         <!-- SECCIÓN 5: ACCESO AL PORTAL WEB -->
-        <h4 style="color: #570fff; font-size: 14px; margin: 20px 0 12px; border-bottom: 2px solid #ede9fe; padding-bottom: 4px;">🌐 Acceso al Portal Inmobiliario Web</h4>
+        <h4
+          style="color: #570fff; font-size: 14px; margin: 20px 0 12px; border-bottom: 2px solid #ede9fe; padding-bottom: 4px;">
+          🌐 Acceso al Portal Inmobiliario Web</h4>
         <div class="form-grid" style="grid-template-columns: 1fr;">
           <div class="form-group">
-            <label for="c_password">Contraseña de Acceso Web (Opcional - Llena para otorgar/actualizar clave al cliente)</label>
-            <input type="text" id="c_password" placeholder="Definir contraseña temporal (ej. Teléfono o clave alfanumérica)">
+            <label for="c_password">Contraseña de Acceso Web (Opcional - Llena para otorgar/actualizar clave al
+              cliente)</label>
+            <input type="text" id="c_password"
+              placeholder="Definir contraseña temporal (ej. Teléfono o clave alfanumérica)">
           </div>
         </div>
 
         <div class="form-group" style="margin-bottom: 20px;">
           <label for="c_observaciones">Observaciones y Comentarios Adicionales</label>
-          <textarea id="c_observaciones" placeholder="Detalles sobre el seguimiento, preferencias del lote, horarios de llamada..."></textarea>
+          <textarea id="c_observaciones"
+            placeholder="Detalles sobre el seguimiento, preferencias del lote, horarios de llamada..."></textarea>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
-          <button type="button" onclick="toggleModal(false)" style="padding: 12px 20px; border-radius: 10px; border: 1px solid #cbd5e1; background: #f8fafc; font-weight: 700; cursor: pointer; color: #475569;">Cancelar</button>
+        <div
+          style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
+          <button type="button" onclick="toggleModal(false)"
+            style="padding: 12px 20px; border-radius: 10px; border: 1px solid #cbd5e1; background: #f8fafc; font-weight: 700; cursor: pointer; color: #475569;">Cancelar</button>
           <button type="submit" class="btn-submit-client" id="btnGuardarCliente">Guardar Expediente</button>
         </div>
       </form>
@@ -312,11 +351,24 @@
     let listaClientesGlobal = [];
 
     document.addEventListener('DOMContentLoaded', () => {
-      if (userData && (userData.rol === 'vendedor' || userData.rol === 'asesor')) {
+      const u = JSON.parse(localStorage.getItem('arevalo_user'));
+      if (u) {
+        const rol = (u.rol || '').toLowerCase();
+
+        // Reglas de visualización por rol
         const mv = document.getElementById('menu-vendedores');
         const mc = document.getElementById('menu-configuracion');
-        if (mv) mv.style.display = 'none';
-        if (mc) mc.style.display = 'none';
+        const mr = document.getElementById('menu-nuevo-registro');
+
+        if (rol === 'asesor') {
+          if (mv) mv.style.display = 'none';
+          if (mc) mc.style.display = 'none';
+          if (mr) mr.style.display = 'none';
+        }
+
+        if (rol === 'direccion') {
+          if (mr) mr.style.display = 'block';
+        }
       }
     });
 
@@ -339,7 +391,7 @@
         }
         const blob = new Blob([u8arr], { type: mime });
         const url = URL.createObjectURL(blob);
-        
+
         const a = document.createElement('a');
         a.href = url;
         a.download = nombreArchivo || 'documento.pdf';
@@ -363,7 +415,7 @@
         document.getElementById(targetId).value = '';
         return;
       }
-      
+
       // Tope de 2MB (2 * 1024 * 1024 bytes)
       if (file.size > 2 * 1024 * 1024) {
         alert('⚠️ El archivo seleccionado excede el tamaño máximo permitido de 2MB. Por favor, comprímelo o elige uno más ligero.');
@@ -375,11 +427,11 @@
 
       prevDiv.innerHTML = '<span style="color: #f59e0b; font-weight: 700;">⏳ Asimilando archivo digital...</span>';
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         document.getElementById(targetId).value = e.target.result;
         prevDiv.innerHTML = '<span style="color: #10b981; font-weight: 700;">✅ Archivo asimilado nativamente en BD</span>';
       };
-      reader.onerror = function() {
+      reader.onerror = function () {
         prevDiv.innerHTML = '<span style="color: #dc2626; font-weight: 700;">❌ Error de lectura</span>';
       };
       reader.readAsDataURL(file);
@@ -412,7 +464,7 @@
             const data = await res.json();
             document.getElementById('c_estado').value = data.places[0]['state'] || '';
             document.getElementById('c_municipio').value = data.places[0]['place name'] || '';
-            
+
             selColonia.innerHTML = '';
             data.places.forEach(p => {
               selColonia.innerHTML += `<option value="${p['place name']}">${p['place name']}</option>`;
@@ -431,7 +483,7 @@
       try {
         const res = await fetch('/clientes');
         let dataGlobal = await res.json();
-        
+
         // FILTRADO ESTRICTO DE CARTERA (RBAC MULTI-TENANT)
         if (userData && userData.rol) {
           const rCrm = userData.rol.toLowerCase();
@@ -448,7 +500,7 @@
           }
         }
         listaClientesGlobal = dataGlobal;
-        
+
         const tbody = document.getElementById('tablaClientesBody');
         tbody.innerHTML = '';
 
@@ -460,7 +512,7 @@
         listaClientesGlobal.forEach(c => {
           const nomCompl = `${c.nombre || ''} ${c.apellido_paterno || ''} ${c.apellido_materno || ''}`.trim() || c.nombre || 'Sin Nombre';
           const inicial = nomCompl.charAt(0).toUpperCase();
-          
+
           let avatarHtml = '';
           if (c.foto_cliente) {
             if (c.foto_cliente.includes('application/pdf')) {
@@ -474,7 +526,7 @@
 
           const estatusClase = `badge-${(c.estatus || c.etapa || 'activo').toLowerCase()}`;
           const estatusTxt = c.estatus || c.etapa || 'Activo';
-          
+
           tbody.innerHTML += `
             <tr>
               <td>
@@ -532,10 +584,10 @@
         document.getElementById('c_cp').value = cliente.codigo_postal || '';
         document.getElementById('c_estado').value = cliente.estado || '';
         document.getElementById('c_municipio').value = cliente.municipio || '';
-        
+
         const selCol = document.getElementById('c_colonia');
         selCol.innerHTML = `<option value="${cliente.colonia || ''}">${cliente.colonia || 'Seleccionar...'}</option>`;
-        
+
         document.getElementById('c_direccion').value = cliente.direccion || '';
         document.getElementById('c_ocupacion').value = cliente.ocupacion || '';
         document.getElementById('c_empresa').value = cliente.empresa || '';
@@ -543,7 +595,7 @@
         document.getElementById('c_id_oficial').value = cliente.identificacion_oficial || 'INE';
         document.getElementById('c_num_id').value = cliente.numero_identificacion || '';
         document.getElementById('c_estatus').value = cliente.estatus || cliente.etapa || 'activo';
-        
+
         document.getElementById('c_foto_cli').value = cliente.foto_cliente || '';
         document.getElementById('prev_c_foto_cli').innerHTML = cliente.foto_cliente ? `<a href="javascript:void(0)" onclick="descargarBlobBase64(document.getElementById('c_foto_cli').value, 'Foto_Cliente.pdf')" style="color: #570fff; text-decoration: underline; font-weight: 700;">👁️ Ver / Descargar Archivo Guardado</a>` : 'Sin archivo previo';
 
@@ -583,7 +635,7 @@
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
       msgBox.style.display = 'none';
       btnGuardar.disabled = true;
       const idEditar = document.getElementById('c_id_editar').value;
@@ -637,7 +689,7 @@
           try {
             const errData = await res.json();
             if (errData.error) errorReal = errData.error;
-          } catch (eNoJson) {}
+          } catch (eNoJson) { }
           throw new Error(errorReal);
         }
 
@@ -672,4 +724,5 @@
   <script src="/public/traductorGlobal.js"></script>
 
 </body>
+
 </html>

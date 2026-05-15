@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Dashboard - Arevalo & CIA</title>
@@ -12,22 +13,28 @@
       background: #ffffff;
       border-radius: 24px;
       padding: 30px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
       border: 1px solid #f1f5f9;
       position: relative;
       overflow: hidden;
     }
+
     .agenda-card::before {
       content: '';
       position: absolute;
-      top: 0; left: 0; width: 100%; height: 8px;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
       background: linear-gradient(90deg, #570fff, #7c3aed);
     }
+
     .agenda-list {
       list-style: none;
       padding: 0;
       margin-top: 20px;
     }
+
     .agenda-item {
       background: #f8fafc;
       margin-bottom: 12px;
@@ -39,18 +46,21 @@
       transition: 0.3s;
       border: 1px solid transparent;
     }
+
     .agenda-item:hover {
       transform: translateX(5px);
       background: #fff;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
       border-color: #e2e8f0;
     }
+
     .agenda-item-title {
       font-weight: 800;
       color: #1e293b;
       font-size: 14px;
       margin-bottom: 2px;
     }
+
     .agenda-item-date {
       font-size: 11px;
       color: #94a3b8;
@@ -58,6 +68,7 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
+
     .diary-section {
       margin-top: 40px;
       background: #f1f5f9;
@@ -66,30 +77,63 @@
       border: 2px dashed #cbd5e1;
       opacity: 0.85;
     }
+
     .diary-item {
       display: flex;
       align-items: center;
       gap: 15px;
       padding: 15px;
-      background: rgba(255,255,255,0.5);
+      background: rgba(255, 255, 255, 0.5);
       margin-bottom: 10px;
       border-radius: 14px;
       transition: 0.3s;
     }
+
     .diary-item:hover {
       opacity: 1;
       background: #fff;
     }
-    .badge-today {
-      background: #ef4444;
-      color: white;
-      padding: 3px 8px;
-      border-radius: 6px;
+
+    /* TABS PARA AGENDA */
+    .agenda-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 10px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #64748b;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+
+    .tab-btn.active {
+      background: #ede9fe;
+      color: #570fff;
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: #f1f5f9;
+    }
+
+    .badge-cancelado {
+      background: #fee2e2;
+      color: #ef4444;
+      padding: 2px 6px;
+      border-radius: 4px;
       font-size: 9px;
       font-weight: 900;
-      margin-left: 8px;
-      vertical-align: middle;
+      margin-left: 5px;
     }
+
     .tr-audit:hover {
       background: #f1f5f9 !important;
     }
@@ -129,27 +173,33 @@
       </li>
       <li>
         <a href="/clientes.html">
-          <img src="/public/clientes.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Clientes (CRM)
+          <img src="/public/clientes.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Clientes
+          (CRM)
         </a>
       </li>
       <li>
         <a href="/terrenos.html">
-          <img src="/public/terrenos.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Lotes Inmobiliarios
+          <img src="/public/terrenos.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Lotes
+          Inmobiliarios
         </a>
       </li>
       <li>
         <a href="/contratos.html">
-          <img src="/public/contrato.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Acuerdos / Contratos
+          <img src="/public/contrato.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Acuerdos /
+          Contratos
         </a>
       </li>
       <li>
         <a href="/pagos.html">
-          <img src="/public/cobranza.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Cobranza y Pagos
+          <img src="/public/cobranza.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Cobranza y
+          Pagos
         </a>
       </li>
       <li>
         <a href="/miperfil.html">
-          <span style="font-size: 16px; margin-right: 12px; display: inline-block; width: 20px; text-align: center;">👤</span> Mi Perfil
+          <span
+            style="font-size: 16px; margin-right: 12px; display: inline-block; width: 20px; text-align: center;">👤</span>
+          Mi Perfil
         </a>
       </li>
       <li id="menu-vendedores">
@@ -159,7 +209,15 @@
       </li>
       <li id="menu-configuracion">
         <a href="/configuracion.html">
-          <img src="/public/configuracion.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Configuración
+          <img src="/public/configuracion.png" style="width:20px; height:20px; object-fit:contain;" alt="icon">
+          Configuración
+        </a>
+      </li>
+      <li id="menu-nuevo-registro" style="display: none;">
+        <a href="/registrar.html">
+          <span
+            style="font-size: 16px; margin-right: 12px; display: inline-block; width: 20px; text-align: center;">➕</span>
+          Alta de Usuarios
         </a>
       </li>
     </ul>
@@ -169,14 +227,15 @@
         <span id="iconoTema">🌙</span> <span id="textoTema">Modo Oscuro</span>
       </button>
       <button class="btn-logout" onclick="cerrarSesion()">
-        <img src="/public/cerrar_sesión.png" style="width:18px; height:18px; object-fit:contain;" alt="logout"> Cerrar sesión
+        <img src="/public/cerrar_sesión.png" style="width:18px; height:18px; object-fit:contain;" alt="logout"> Cerrar
+        sesión
       </button>
     </div>
   </aside>
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="main-content">
-    
+
     <!-- TOPBAR -->
     <header class="topbar">
       <div class="welcome-text">
@@ -184,10 +243,13 @@
         <p>Resumen general de operaciones y cobranza</p>
       </div>
 
-      <div class="user-profile" onclick="window.location.href='/miperfil.html'" style="cursor: pointer; transition: transform 0.2s ease;" title="Hacer clic para ver y completar mi perfil personal">
+      <div class="user-profile" onclick="window.location.href='/miperfil.html'"
+        style="cursor: pointer; transition: transform 0.2s ease;"
+        title="Hacer clic para ver y completar mi perfil personal">
         <div class="avatar" id="userAvatar">A</div>
         <div class="user-info">
-          <h4 id="userName" style="display: flex; align-items: center; gap: 4px;">Asesor <span style="font-size: 10px; color: #2563eb;">✏️</span></h4>
+          <h4 id="userName" style="display: flex; align-items: center; gap: 4px;">Asesor <span
+              style="font-size: 10px; color: #2563eb;">✏️</span></h4>
           <span id="userRol">Rol</span>
         </div>
       </div>
@@ -195,61 +257,78 @@
 
     <!-- METRICAS (4 TARJETAS PREMIUM CONTABLES) -->
     <section class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
-      
+
       <!-- DINERO GENERADO -->
-      <div class="metric-card card-sales" onclick="abrirPestañaDetalle('vendidos')" style="cursor: pointer; border-left: 5px solid #3b07ff; background: #ffffff;">
+      <div class="metric-card card-sales" onclick="abrirPestañaDetalle('vendidos')"
+        style="cursor: pointer; border-left: 5px solid #3b07ff; background: #ffffff;">
         <div class="metric-header">
-          <span style="color: #3b07ff; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
-            <img src="/public/dinero_generado.png" style="width:16px; height:16px; object-fit:contain;" alt="icon"> DINERO GENERADO
+          <span
+            style="color: #3b07ff; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+            <img src="/public/dinero_generado.png" style="width:16px; height:16px; object-fit:contain;" alt="icon">
+            DINERO GENERADO
           </span>
-          <span style="background: #ede9fe; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #570fff; font-weight: 800;">Ventas</span>
+          <span
+            style="background: #ede9fe; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #570fff; font-weight: 800;">Ventas</span>
         </div>
         <div class="metric-value" id="valIngresosGenerados" style="font-size: 28px; color: #0f172a;">$0.00</div>
         <div style="font-size: 11px; color: #64748b; margin-top: 8px;">Clic para ver quién compró y qué lote →</div>
       </div>
 
       <!-- LOTES VENDIDOS -->
-      <div class="metric-card card-debt" onclick="abrirPestañaDetalle('vendidos')" style="cursor: pointer; border-left: 5px solid #dc2626; background: #ffffff;">
+      <div class="metric-card card-debt" onclick="abrirPestañaDetalle('vendidos')"
+        style="cursor: pointer; border-left: 5px solid #dc2626; background: #ffffff;">
         <div class="metric-header">
           <span style="color: #dc2626; font-weight: 700; font-size: 13px;">🔴 LOTES VENDIDOS</span>
-          <span style="background: #fee2e2; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #dc2626; font-weight: 800;">Cerrados</span>
+          <span
+            style="background: #fee2e2; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #dc2626; font-weight: 800;">Cerrados</span>
         </div>
         <div class="metric-value" id="valLotesVendidos" style="font-size: 28px; color: #0f172a;">0</div>
         <div style="font-size: 11px; color: #64748b; margin-top: 8px;">Clic para auditar expedientes →</div>
       </div>
 
       <!-- LOTES DISPONIBLES -->
-      <div class="metric-card card-lotes" onclick="abrirPestañaDetalle('disponibles')" style="cursor: pointer; border-left: 5px solid #10b981; background: #ffffff;">
+      <div class="metric-card card-lotes" onclick="abrirPestañaDetalle('disponibles')"
+        style="cursor: pointer; border-left: 5px solid #10b981; background: #ffffff;">
         <div class="metric-header">
           <span style="color: #10b981; font-weight: 700; font-size: 13px;">🟢 DISPONIBLES</span>
-          <span style="background: #d1fae5; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #059669; font-weight: 800;">Catálogo</span>
+          <span
+            style="background: #d1fae5; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #059669; font-weight: 800;">Catálogo</span>
         </div>
         <div class="metric-value" id="valLotesDisponibles" style="font-size: 28px; color: #0f172a;">0</div>
         <div style="font-size: 11px; color: #64748b; margin-top: 8px;">Clic para listar inventario libre →</div>
       </div>
 
       <!-- LOTES APARTADOS -->
-      <div class="metric-card" onclick="abrirPestañaDetalle('apartados')" style="cursor: pointer; border-left: 5px solid #f59e0b; background: #ffffff;">
-        <div class="metric-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+      <div class="metric-card" onclick="abrirPestañaDetalle('apartados')"
+        style="cursor: pointer; border-left: 5px solid #f59e0b; background: #ffffff;">
+        <div class="metric-header"
+          style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
           <span style="color: #f59e0b; font-weight: 700; font-size: 13px;">🟡 APARTADOS</span>
-          <span style="background: #fef3c7; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #d97706; font-weight: 800;">Reservas</span>
+          <span
+            style="background: #fef3c7; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #d97706; font-weight: 800;">Reservas</span>
         </div>
-        <div class="metric-value" id="valLotesApartados" style="font-size: 28px; font-weight: 800; color: #0f172a;">0</div>
+        <div class="metric-value" id="valLotesApartados" style="font-size: 28px; font-weight: 800; color: #0f172a;">0
+        </div>
         <div style="font-size: 11px; color: #64748b; margin-top: 8px;">Clic para ver depósitos / enganches →</div>
       </div>
 
     </section>
 
     <!-- ESTADÍSTICA GRÁFICA CONTABLE PREMIUM -->
-    <section style="background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; margin-bottom: 40px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+    <section
+      style="background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; margin-bottom: 40px;">
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
         <div>
           <h3 style="font-size: 18px; color: #0f172a; font-weight: 800; display: flex; align-items: center; gap: 8px;">
-            <img src="/public/estadistica.png" style="width:22px; height:22px; object-fit:contain;" alt="icon"> Estadística de Desempeño del Inventario
+            <img src="/public/estadistica.png" style="width:22px; height:22px; object-fit:contain;" alt="icon">
+            Estadística de Desempeño del Inventario
           </h3>
-          <p style="color: #64748b; font-size: 13px;">Distribución porcentual de predios y captación financiera global</p>
+          <p style="color: #64748b; font-size: 13px;">Distribución porcentual de predios y captación financiera global
+          </p>
         </div>
-        <div style="font-size: 12px; font-weight: 700; color: #3b07ff; background: #f1f5f9; padding: 6px 12px; border-radius: 8px;">
+        <div
+          style="font-size: 12px; font-weight: 700; color: #3b07ff; background: #f1f5f9; padding: 6px 12px; border-radius: 8px;">
           Catálogo Sincronizado en Tiempo Real
         </div>
       </div>
@@ -257,46 +336,61 @@
       <!-- BARRAS PROPORCIONALES -->
       <div style="display: flex; flex-direction: column; gap: 15px;">
         <div>
-          <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #334155;">
+          <div
+            style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #334155;">
             <span>Lotes Vendidos / Dinero Captado</span>
             <span id="lblPorcentajeVendidos" style="color: #dc2626;">0%</span>
           </div>
           <div style="width: 100%; height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden;">
-            <div id="barraVendidos" style="height: 100%; width: 0%; background: linear-gradient(90deg, #dc2626, #f97316); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px;"></div>
+            <div id="barraVendidos"
+              style="height: 100%; width: 0%; background: linear-gradient(90deg, #dc2626, #f97316); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px;">
+            </div>
           </div>
         </div>
 
         <div>
-          <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #334155;">
+          <div
+            style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #334155;">
             <span>Lotes Disponibles (Inventario Líquido)</span>
             <span id="lblPorcentajeDisponibles" style="color: #10b981;">0%</span>
           </div>
           <div style="width: 100%; height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden;">
-            <div id="barraDisponibles" style="height: 100%; width: 0%; background: linear-gradient(90deg, #10b981, #059669); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px;"></div>
+            <div id="barraDisponibles"
+              style="height: 100%; width: 0%; background: linear-gradient(90deg, #10b981, #059669); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px;">
+            </div>
           </div>
         </div>
 
         <div>
-          <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #334155;">
+          <div
+            style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #334155;">
             <span>Lotes Apartados / En Trámite</span>
             <span id="lblPorcentajeApartados" style="color: #f59e0b;">0%</span>
           </div>
           <div style="width: 100%; height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden;">
-            <div id="barraApartados" style="height: 100%; width: 0%; background: linear-gradient(90deg, #f59e0b, #fbbf24); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px;"></div>
+            <div id="barraApartados"
+              style="height: 100%; width: 0%; background: linear-gradient(90deg, #f59e0b, #fbbf24); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px;">
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- PESTAÑA / VISTA DE DETALLE CONTABLE FLOTANTE -->
-    <section id="pestañaDetalleContable" style="display: none; background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.08); border: 2px solid #3b07ff; margin-bottom: 40px; animation: fadeInSlide 0.4s ease;">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+    <section id="pestañaDetalleContable"
+      style="display: none; background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.08); border: 2px solid #3b07ff; margin-bottom: 40px; animation: fadeInSlide 0.4s ease;">
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
         <div>
-          <span id="badgeDetalleTipo" style="background: #dc2626; color: white; font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;">VENDIDOS</span>
-          <h2 id="tituloDetalleContable" style="font-size: 22px; color: #0f172a; font-weight: 800; margin-top: 5px;">Auditoría de Lotes Vendidos</h2>
-          <p id="subtituloDetalleContable" style="color: #64748b; font-size: 13px;">Cruce relacional de compradores, precios liquidados e identificadores de lote</p>
+          <span id="badgeDetalleTipo"
+            style="background: #dc2626; color: white; font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;">VENDIDOS</span>
+          <h2 id="tituloDetalleContable" style="font-size: 22px; color: #0f172a; font-weight: 800; margin-top: 5px;">
+            Auditoría de Lotes Vendidos</h2>
+          <p id="subtituloDetalleContable" style="color: #64748b; font-size: 13px;">Cruce relacional de compradores,
+            precios liquidados e identificadores de lote</p>
         </div>
-        <button onclick="cerrarPestañaDetalle()" style="background: #f1f5f9; border: none; color: #64748b; font-weight: 800; font-size: 14px; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; transition: 0.2s;">✖</button>
+        <button onclick="cerrarPestañaDetalle()"
+          style="background: #f1f5f9; border: none; color: #64748b; font-weight: 800; font-size: 14px; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; transition: 0.2s;">✖</button>
       </div>
 
       <!-- TABLA DE DESGLOSE PREMIUM -->
@@ -322,47 +416,69 @@
     <section class="dashboard-banner">
       <div class="banner-content">
         <h2>Gestión Comercial Activa</h2>
-        <p>Administra prospectos, realiza seguimientos de llamadas y cierra apartados de lotes de forma centralizada.</p>
+        <p>Administra prospectos, realiza seguimientos de llamadas y cierra apartados de lotes de forma centralizada.
+        </p>
       </div>
       <a href="/clientes.html" class="btn-banner">Ir al CRM →</a>
     </section>
 
     <!-- SECCIÓN DE AGENDA / CALENDARIO PERSONAL -->
     <section class="agenda-section">
-      
+
       <!-- GESTIÓN DE TAREAS Y RECORDATORIOS -->
       <article class="agenda-card">
-        <h3 style="display: flex; align-items: center; gap: 8px;">
-          <img src="/public/calendario.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Agenda Personal & Recordatorios
-        </h3>
-        <p style="color: #6b7280; font-size: 13px; margin-bottom: 16px;">Programa tareas o citas con clientes para que no se te olviden:</p>
-        
-        <form class="agenda-form" id="formAgenda">
-          <input type="text" id="a_titulo" placeholder="Ej. Llamar a prospecto Lote 5" required>
-          <input type="date" id="a_fecha" required>
-          <button type="submit" class="btn-agenda">Agendar</button>
-        </form>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+          <h3 style="display: flex; align-items: center; gap: 8px; margin: 0;">
+            <img src="/public/calendario.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Mi Agenda
+            Comercial
+          </h3>
+        </div>
 
-        <ul class="agenda-list" id="listaAgenda">
-          <li style="color: #9ca3af; font-size: 13px;">Cargando tus tareas programadas...</li>
-        </ul>
+        <div class="agenda-tabs">
+          <button class="tab-btn active" onclick="switchAgendaTab('citas')">🤝 Citas y Recorridos</button>
+          <button class="tab-btn" onclick="switchAgendaTab('recordatorios')">📝 Recordatorios Personales</button>
+        </div>
+
+        <div id="panelCitas">
+          <p style="color: #6b7280; font-size: 12px; margin-bottom: 12px;">Citas agendadas automáticamente por clientes
+            desde el Portal/Chatbot:</p>
+          <ul class="agenda-list" id="listaCitas">
+            <li style="color: #9ca3af; font-size: 13px;">No hay citas agendadas por clientes.</li>
+          </ul>
+        </div>
+
+        <div id="panelRecordatorios" style="display: none;">
+          <p style="color: #6b7280; font-size: 12px; margin-bottom: 12px;">Tareas y notas personales que agendaste
+            manualmente:</p>
+          <form class="agenda-form" id="formAgenda">
+            <input type="text" id="a_titulo" placeholder="Ej. Llamar a prospecto Lote 5" required>
+            <input type="date" id="a_fecha" required>
+            <button type="submit" class="btn-agenda">Agendar</button>
+          </form>
+          <ul class="agenda-list" id="listaAgenda">
+            <li style="color: #9ca3af; font-size: 13px;">No tienes recordatorios personales pendientes.</li>
+          </ul>
+        </div>
       </article>
 
       <!-- MINI CALENDARIO VISUAL DEL DÍA -->
       <aside class="mini-calendar">
         <div class="mini-calendar-header">HOY ES</div>
-        <div class="mini-calendar-date" id="calDia">12</div>
+        <div class="mini-calendar-date" id="calDia">15</div>
         <div class="mini-calendar-month" id="calMesAnio">MAYO 2026</div>
       </aside>
 
     </section>
 
+
     <!-- DIARIO DE TAREAS / HISTORIAL DE RECORDATORIOS -->
     <section class="diary-section" id="seccionDiario" style="display: none;">
       <h3 style="display: flex; align-items: center; gap: 8px; font-size: 16px; color: #475569;">
-        <img src="/public/historial.png" style="width:18px; height:18px; object-fit:contain; filter: grayscale(1);" alt="icon"> Diario de Tareas Pasadas
+        <img src="/public/historial.png" style="width:18px; height:18px; object-fit:contain; filter: grayscale(1);"
+          alt="icon"> Diario de Tareas Pasadas
       </h3>
-      <p style="color: #94a3b8; font-size: 12px; margin-bottom: 15px;">Registro automático de compromisos que ya han expirado.</p>
+      <p style="color: #94a3b8; font-size: 12px; margin-bottom: 15px;">Registro automático de compromisos que ya han
+        expirado.</p>
       <div id="listaDiario">
         <!-- RENDER DINÁMICO DE HISTORIAL -->
       </div>
@@ -380,7 +496,7 @@
         document.getElementById('userName').innerText = u.nombre || 'Usuario';
         document.getElementById('userRol').innerText = u.rol || 'Rol';
         document.getElementById('tituloBienvenida').innerText = `¡Hola, ${(u.nombre || '').split(' ')[0]}!`;
-        
+
         const av = document.getElementById('userAvatar');
         if (u.foto) {
           av.innerHTML = `<img src="${u.foto}" style="width:100%; height:100%; object-fit:cover; border-radius:50%; display:block;">`;
@@ -445,13 +561,13 @@
 
               // 2. REGLA DE ORO: Si yo hice el contrato del lote, es mío para mis métricas
               if (t.id_asesor_contrato === userData.id_usuario) return true;
-              
+
               // 3. Si el cliente del lote me pertenece actualmente (prioridad portal)
               if (t.id_asesor_asignado_cliente) return t.id_asesor_asignado_cliente === userData.id_usuario;
-              
+
               // 4. Si el cliente fue registrado por mí originalmente (y no tiene asignado otro)
               if (t.id_asesor_cliente) return t.id_asesor_cliente === userData.id_usuario;
-              
+
               return false;
             });
           }
@@ -469,7 +585,7 @@
           const e = (t.estado || '').toLowerCase();
           const esApartado = e.includes('apartado') || e.includes('reservado');
           if (!esApartado) return false;
-          
+
           return true;
         });
 
@@ -533,7 +649,7 @@
         titulo.innerText = 'Desglose de Lotes Vendidos / Dinero Generado';
         subtitulo.innerText = 'Cruce de clientes compradores, identificadores de predio y monto de captación.';
         colHeaderCliente.innerText = 'Quién Compró (Cliente)';
-        
+
         listaFiltrada = inventarioLotesGlobal.filter(t => {
           const e = (t.estado || '').toLowerCase();
           return e.includes('vendido') || e.includes('ocupado') || e.includes('cerrado');
@@ -578,7 +694,7 @@
           let infoCliente = 'Sin Asignar';
           if (tipo === 'vendidos') {
             const rawId = t.id_cliente || t.id_propietario;
-            
+
             if (t.propietario_nombre && t.propietario_nombre.trim() !== '') {
               infoCliente = `
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
@@ -599,7 +715,7 @@
               } else {
                 infoCliente = `
                   <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                    <span>👤 Comprador ID #${String(rawId).substring(0,8)}</span>
+                    <span>👤 Comprador ID #${String(rawId).substring(0, 8)}</span>
                     <button onclick="verInfoClienteDirecto('${rawId}')" style="background: #ede9fe; color: #570fff; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer;">ℹ️ Ver Info</button>
                   </div>
                 `;
@@ -666,15 +782,18 @@
         const res = await fetch(`/api/agenda${idParam}`);
         const eventos = await res.json();
 
-        const lista = document.getElementById('listaAgenda');
+        const listaRecordatorios = document.getElementById('listaAgenda');
+        const listaCitas = document.getElementById('listaCitas');
         const listaDiario = document.getElementById('listaDiario');
         const seccionDiario = document.getElementById('seccionDiario');
-        
-        lista.innerHTML = '';
+
+        listaRecordatorios.innerHTML = '';
+        listaCitas.innerHTML = '';
         listaDiario.innerHTML = '';
 
         if (!eventos || eventos.length === 0) {
-          lista.innerHTML = `<li style="color: #6b7280; font-size: 13px;">No tienes tareas o recordatorios pendientes.</li>`;
+          listaRecordatorios.innerHTML = `<li style="color: #6b7280; font-size: 13px;">No hay tareas pendientes.</li>`;
+          listaCitas.innerHTML = `<li style="color: #6b7280; font-size: 13px;">No hay citas pendientes.</li>`;
           seccionDiario.style.display = 'none';
           return;
         }
@@ -684,40 +803,36 @@
 
         let tareasHoy = [];
         let hayPasadas = false;
+        let countCitas = 0;
+        let countRec = 0;
 
         eventos.forEach(e => {
           let rawFecha = e.fecha_inicio || e.fecha_evento || '';
-          // Limpiar si viene con hora ISO para evitar conflictos de zona horaria al comparar días
           let cleanFecha = rawFecha.includes('T') ? rawFecha.split('T')[0] : rawFecha;
-          
           const f = new Date(cleanFecha + 'T00:00:00');
           f.setHours(0, 0, 0, 0);
-          
           const fStr = isNaN(f.getTime()) ? rawFecha : `${f.getDate()} ${meses[f.getMonth()]}`;
 
-          if (f < hoy) {
-            // TAREA PASADA -> AL DIARIO
+          if (f < hoy || e.estatus === 'cancelado') {
             hayPasadas = true;
+            const esCan = e.estatus === 'cancelado';
             listaDiario.innerHTML += `
               <div class="diary-item">
-                <div style="background: #e2e8f0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;">✅</div>
+                <div style="background: ${esCan ? '#fee2e2' : '#e2e8f0'}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;">${esCan ? '❌' : '✅'}</div>
                 <div style="flex:1;">
-                  <div style="font-weight: 700; color: #475569; font-size: 13px; text-decoration: line-through; opacity: 0.6;">${e.titulo}</div>
-                  <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">COMPLETADA EL ${fStr}</div>
+                  <div style="font-weight: 700; color: ${esCan ? '#ef4444' : '#475569'}; font-size: 13px; text-decoration: ${esCan ? 'none' : 'line-through'}; opacity: ${esCan ? '1' : '0.6'};">${e.titulo} ${esCan ? '<span class="badge-cancelado">CANCELADO</span>' : ''}</div>
+                  <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">${esCan ? 'EL CLIENTE CANCELÓ ESTA CITA' : 'COMPLETADA EL ' + fStr}</div>
                 </div>
               </div>
             `;
           } else {
-            // TAREA PRESENTE O FUTURA
             const esHoy = !isNaN(f.getTime()) && f.getTime() === hoy.getTime();
-            if (esHoy) {
-              tareasHoy.push(e);
-            }
+            if (esHoy) tareasHoy.push(e);
 
-            lista.innerHTML += `
+            const itemHTML = `
               <li class="agenda-item" style="${esHoy ? 'background: #fff; border: 2px solid #fee2e2; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.08);' : ''}">
-                <div style="background: ${esHoy ? '#ef4444' : '#570fff'}; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; box-shadow: 0 8px 15px ${esHoy ? 'rgba(239, 68, 68, 0.2)' : 'rgba(87, 15, 255, 0.2)'};">
-                  ${esHoy ? '🔥' : '📅'}
+                <div style="background: ${esHoy ? '#ef4444' : (e.tipo === 'cita' ? '#10b981' : '#570fff')}; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; box-shadow: 0 8px 15px ${esHoy ? 'rgba(239, 68, 68, 0.2)' : 'rgba(87, 15, 255, 0.1)'};">
+                  ${esHoy ? '🔥' : (e.tipo === 'cita' ? '🤝' : '📅')}
                 </div>
                 <div style="flex:1;">
                   <div class="agenda-item-title">
@@ -728,51 +843,80 @@
                 </div>
               </li>
             `;
+
+            if (e.tipo === 'cita') {
+              listaCitas.innerHTML += itemHTML;
+              countCitas++;
+            } else {
+              listaRecordatorios.innerHTML += itemHTML;
+              countRec++;
+            }
           }
         });
 
+        if (countCitas === 0) listaCitas.innerHTML = `<li style="color: #94a3b8; font-size: 13px; padding: 10px;">No hay citas o recorridos pendientes.</li>`;
+        if (countRec === 0) listaRecordatorios.innerHTML = `<li style="color: #94a3b8; font-size: 13px; padding: 10px;">No tienes recordatorios manuales.</li>`;
+
         seccionDiario.style.display = hayPasadas ? 'block' : 'none';
 
-        // Lanzar Notificación si hay algo para HOY y no se ha notificado en este ciclo
         if (tareasHoy.length > 0 && !notificoHoy) {
           mostrarNotificacionPremium(tareasHoy);
           notificoHoy = true;
         }
-
       } catch (err) {
         console.error('Error al cargar agenda:', err);
-        document.getElementById('listaAgenda').innerHTML = `<li style="color: #ef4444; font-size: 13px;">Error al conectar con la agenda.</li>`;
+      }
+    }
+
+    function switchAgendaTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('panelCitas').style.display = 'none';
+      document.getElementById('panelRecordatorios').style.display = 'none';
+
+      if (tab === 'citas') {
+        document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+        document.getElementById('panelCitas').style.display = 'block';
+      } else {
+        document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+        document.getElementById('panelRecordatorios').style.display = 'block';
       }
     }
 
     function mostrarNotificacionPremium(tareas) {
+      const citasNuevas = tareas.filter(t => t.tipo === 'cita');
+      const recNuevos = tareas.filter(t => t.tipo === 'recordatorio' || !t.tipo);
+
       const contenedor = document.getElementById('notificacionAgenda');
       contenedor.innerHTML = `
         <div class="notification-premium">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-            <div style="background: #570fff; color: white; padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Aviso Importante</div>
+            <div style="background: #570fff; color: white; padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Prioridades de Hoy</div>
             <button onclick="this.parentElement.parentElement.style.display='none'" style="background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 16px;">✖</button>
           </div>
-          <h4 style="font-size: 16px; color: #0f172a; margin-bottom: 8px;">¡Tienes ${tareas.length} compromiso(s) hoy!</h4>
-          <ul style="list-style: none; padding: 0; margin: 0;">
-            ${tareas.map(t => `<li style="margin-bottom: 8px; font-size: 13px; color: #475569; display: flex; gap: 8px;"><span>⚡</span> ${t.titulo}</li>`).join('')}
-          </ul>
-          <button onclick="this.parentElement.style.display='none'" style="width: 100%; margin-top: 15px; background: #570fff; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s;">Entendido, revisaré mi agenda</button>
+          ${citasNuevas.length > 0 ? `
+            <h5 style="font-size: 13px; color: #059669; margin: 10px 0 5px;">🤝 Citas agendadas por el Bot:</h5>
+            <ul style="list-style: none; padding: 0; margin-bottom: 10px;">
+              ${citasNuevas.map(t => `<li style="font-size: 12px; color: #1e293b; margin-bottom: 4px;">• ${t.titulo}</li>`).join('')}
+            </ul>
+          ` : ''}
+          ${recNuevos.length > 0 ? `
+            <h5 style="font-size: 13px; color: #570fff; margin: 10px 0 5px;">📝 Tus Recordatorios:</h5>
+            <ul style="list-style: none; padding: 0; margin-bottom: 10px;">
+              ${recNuevos.map(t => `<li style="font-size: 12px; color: #1e293b; margin-bottom: 4px;">• ${t.titulo}</li>`).join('')}
+            </ul>
+          ` : ''}
+          <button onclick="this.parentElement.style.display='none'" style="width: 100%; margin-top: 10px; background: #570fff; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: 700; cursor: pointer;">Cerrar Recordatorio</button>
         </div>
       `;
       contenedor.style.display = 'block';
-      
-      // Auto-ocultar después de 10 segundos
-      setTimeout(() => {
-        contenedor.style.display = 'none';
-      }, 10000);
+      setTimeout(() => { contenedor.style.display = 'none'; }, 15000);
     }
 
     // Guardar Tarea en la Agenda
     const formAgenda = document.getElementById('formAgenda');
     formAgenda.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
       const titulo = document.getElementById('a_titulo').value.trim();
       const fecha_inicio = document.getElementById('a_fecha').value;
       const id_usuario = userData ? userData.id_usuario : null;
@@ -781,11 +925,11 @@
         const res = await fetch('/api/agenda', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id_usuario, titulo, fecha_inicio })
+          body: JSON.stringify({ id_usuario, titulo, fecha_inicio, tipo: 'recordatorio' })
         });
 
         if (!res.ok) throw new Error('Error al programar tarea');
-        
+
         document.getElementById('a_titulo').value = '';
         cargarAgenda();
 
@@ -803,7 +947,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id_usuario: u.id_usuario })
           });
-        } catch(e) {}
+        } catch (e) { }
       }
       localStorage.removeItem('arevalo_user');
       window.location.href = '/login.html';
@@ -811,11 +955,23 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       const u = JSON.parse(localStorage.getItem('arevalo_user'));
-      if (u && (u.rol === 'vendedor' || u.rol === 'asesor')) {
+      if (u) {
+        const rol = (u.rol || '').toLowerCase();
+
+        // Reglas de visualización por rol
         const mv = document.getElementById('menu-vendedores');
         const mc = document.getElementById('menu-configuracion');
-        if (mv) mv.style.display = 'none';
-        if (mc) mc.style.display = 'none';
+        const mr = document.getElementById('menu-nuevo-registro');
+
+        if (rol === 'asesor') {
+          if (mv) mv.style.display = 'none';
+          if (mc) mc.style.display = 'none';
+          if (mr) mr.style.display = 'none';
+        }
+
+        if (rol === 'direccion') {
+          if (mr) mr.style.display = 'block';
+        }
       }
     });
 
@@ -830,4 +986,5 @@
   <script src="/public/traductorGlobal.js"></script>
 
 </body>
+
 </html>

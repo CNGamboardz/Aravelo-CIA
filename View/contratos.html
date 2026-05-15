@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Acuerdos y Contratos - Arevalo & CIA</title>
@@ -42,22 +43,26 @@
       </li>
       <li>
         <a href="/clientes.html">
-          <img src="/public/clientes.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Clientes (CRM)
+          <img src="/public/clientes.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Clientes
+          (CRM)
         </a>
       </li>
       <li>
         <a href="/terrenos.html">
-          <img src="/public/terrenos.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Lotes Inmobiliarios
+          <img src="/public/terrenos.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Lotes
+          Inmobiliarios
         </a>
       </li>
       <li>
         <a href="/contratos.html" class="active">
-          <img src="/public/contrato.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Acuerdos / Contratos
+          <img src="/public/contrato.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Acuerdos /
+          Contratos
         </a>
       </li>
       <li>
         <a href="/pagos.html">
-          <img src="/public/cobranza.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Cobranza y Pagos
+          <img src="/public/cobranza.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Cobranza y
+          Pagos
         </a>
       </li>
       <li id="menu-vendedores">
@@ -67,7 +72,15 @@
       </li>
       <li id="menu-configuracion">
         <a href="/configuracion.html">
-          <img src="/public/configuracion.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Configuración
+          <img src="/public/configuracion.png" style="width:20px; height:20px; object-fit:contain;" alt="icon">
+          Configuración
+        </a>
+      </li>
+      <li id="menu-nuevo-registro" style="display: none;">
+        <a href="/registrar.html">
+          <span
+            style="font-size: 16px; margin-right: 12px; display: inline-block; width: 20px; text-align: center;">➕</span>
+          Alta de Usuarios
         </a>
       </li>
     </ul>
@@ -77,29 +90,32 @@
         <span id="iconoTema">🌙</span> <span id="textoTema">Modo Oscuro</span>
       </button>
       <button class="btn-logout" onclick="cerrarSesion()">
-        <img src="/public/cerrar_sesión.png" style="width:18px; height:18px; object-fit:contain;" alt="logout"> Cerrar sesión
+        <img src="/public/cerrar_sesión.png" style="width:18px; height:18px; object-fit:contain;" alt="logout"> Cerrar
+        sesión
       </button>
     </div>
   </aside>
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="main-content">
-    
+
     <header class="contratos-header">
       <h1>Emisión de Contratos Inmobiliarios</h1>
       <p>Formaliza la venta o financiamiento vinculando clientes con lotes disponibles</p>
     </header>
 
     <div class="contratos-grid">
-      
+
       <!-- FORMULARIO DE EMISIÓN -->
       <section class="form-card">
         <h2>✍️ Formalizar Nuevo Acuerdo</h2>
-        
-        <div id="mensaje-box" style="display: none; padding: 10px; margin-bottom: 15px; border-radius: 8px; font-size: 13px; text-align: center;"></div>
+
+        <div id="mensaje-box"
+          style="display: none; padding: 10px; margin-bottom: 15px; border-radius: 8px; font-size: 13px; text-align: center;">
+        </div>
 
         <form id="formContrato">
-          
+
           <div class="form-group">
             <label for="selCliente">Cliente Comprador</label>
             <select id="selCliente" required onchange="actualizarListaTerrenos()">
@@ -141,9 +157,13 @@
             </div>
           </div>
 
-          <div class="form-group" style="background: #ede9fe; padding: 16px; border-radius: 12px; margin-top: 10px; border: 1px solid #c4b5fd;">
-            <label style="color: #4c1d95; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Monto Mensual Proyectado:</label>
-            <div id="lblMensualidad" style="font-size: 24px; font-weight: 900; color: #570fff; margin-top: 4px;">$0.00</div>
+          <div class="form-group"
+            style="background: #ede9fe; padding: 16px; border-radius: 12px; margin-top: 10px; border: 1px solid #c4b5fd;">
+            <label
+              style="color: #4c1d95; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Monto
+              Mensual Proyectado:</label>
+            <div id="lblMensualidad" style="font-size: 24px; font-weight: 900; color: #570fff; margin-top: 4px;">$0.00
+            </div>
           </div>
 
           <div class="form-group" style="margin-top: 15px;">
@@ -199,7 +219,7 @@
         const resCl = await fetch('/clientes');
         let dataClientes = await resCl.json();
         const userData = JSON.parse(localStorage.getItem('arevalo_user'));
-        
+
         // FILTRADO DE SEGURIDAD POR ASESOR
         if (userData && userData.rol) {
           const rCrm = userData.rol.toLowerCase();
@@ -225,7 +245,7 @@
         const resTe = await fetch('/terrenos');
         const todosLosTerrenos = await resTe.json();
         listadoTerrenos = Array.isArray(todosLosTerrenos) ? todosLosTerrenos : [];
-        
+
         actualizarListaTerrenos();
 
       } catch (err) {
@@ -245,10 +265,10 @@
         const e = (t.estado || 'disponible').toLowerCase();
         const esLibre = e.includes('libre') || e.includes('disponible');
         const esApartado = e.includes('apartado');
-        
+
         if (esLibre) return true;
         if (esApartado && id_cliente_sel && t.id_propietario == id_cliente_sel) return true;
-        
+
         return false;
       });
 
@@ -257,7 +277,7 @@
           const p = parseFloat(t.precio_venta) || parseFloat(t.precio_lista) || 0;
           const e = (t.estado || '').toLowerCase();
           let etiqueta = `${t.fraccionamiento} - ${t.superficie}m² ($${p.toLocaleString('es-MX')})`;
-          
+
           if (e.includes('apartado')) {
             const cl = listadoClientes.find(c => c.id_cliente == t.id_propietario);
             const nombreCl = cl ? `${cl.nombre} ${cl.apellido_paterno || ''}`.trim() : 'Cliente en Portal';
@@ -285,7 +305,7 @@
       const plazoInput = document.getElementById('c_plazo');
       const rowFinanciamiento = document.getElementById('rowFinanciamiento');
       const lbl = document.getElementById('lblMensualidad');
-      
+
       const precio = parseFloat(precioInput.value) || 0;
 
       if (plan === 'contado') {
@@ -305,7 +325,7 @@
         plazoInput.disabled = false;
         rowFinanciamiento.style.opacity = '1';
         rowFinanciamiento.style.pointerEvents = 'auto';
-        
+
         const enganche = parseFloat(engancheInput.value) || 0;
         const plazo = parseInt(plazoInput.value) || 1;
         const saldo = Math.max(0, precio - enganche);
@@ -320,7 +340,7 @@
       try {
         const res = await fetch('/contratos');
         const contratos = await res.json();
-        
+
         const tbody = document.getElementById('tablaContratosBody');
         tbody.innerHTML = '';
 
@@ -363,7 +383,7 @@
       const precio_total = document.getElementById('c_precio').value;
       const enganche = document.getElementById('c_enganche').value;
       const plazo = document.getElementById('c_plazo').value;
-      
+
       // Calcular mensualidad para la base de datos
       const saldo = Math.max(0, parseFloat(precio_total) - parseFloat(enganche || 0));
       const monto_mensual = tipo_plan === 'financiamiento' ? (saldo / (parseInt(plazo) || 1)).toFixed(2) : 0;
@@ -373,14 +393,14 @@
         const res = await fetch('/contratos', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            id_cliente, 
-            id_terreno, 
-            tipo_plan, 
-            precio_total, 
-            enganche, 
-            plazo, 
-            monto_mensual, 
+          body: JSON.stringify({
+            id_cliente,
+            id_terreno,
+            tipo_plan,
+            precio_total,
+            enganche,
+            plazo,
+            monto_mensual,
             documento_ref,
             id_asesor: userData ? userData.id_usuario : null
           })
@@ -417,11 +437,23 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       const u = JSON.parse(localStorage.getItem('arevalo_user'));
-      if (u && (u.rol === 'vendedor' || u.rol === 'asesor')) {
+      if (u) {
+        const rol = (u.rol || '').toLowerCase();
+
+        // Reglas de visualización por rol
         const mv = document.getElementById('menu-vendedores');
         const mc = document.getElementById('menu-configuracion');
-        if (mv) mv.style.display = 'none';
-        if (mc) mc.style.display = 'none';
+        const mr = document.getElementById('menu-nuevo-registro');
+
+        if (rol === 'asesor') {
+          if (mv) mv.style.display = 'none';
+          if (mc) mc.style.display = 'none';
+          if (mr) mr.style.display = 'none';
+        }
+
+        if (rol === 'direccion') {
+          if (mr) mr.style.display = 'block';
+        }
       }
     });
 
@@ -433,4 +465,5 @@
   <script src="/public/traductorGlobal.js"></script>
 
 </body>
+
 </html>

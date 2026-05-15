@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Lotes Inmobiliarios - Arevalo & CIA</title>
@@ -43,22 +44,26 @@
       </li>
       <li>
         <a href="/clientes.html">
-          <img src="/public/clientes.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Clientes (CRM)
+          <img src="/public/clientes.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Clientes
+          (CRM)
         </a>
       </li>
       <li>
         <a href="/terrenos.html" class="active">
-          <img src="/public/terrenos.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Lotes Inmobiliarios
+          <img src="/public/terrenos.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Lotes
+          Inmobiliarios
         </a>
       </li>
       <li>
         <a href="/contratos.html">
-          <img src="/public/contrato.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Acuerdos / Contratos
+          <img src="/public/contrato.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Acuerdos /
+          Contratos
         </a>
       </li>
       <li>
         <a href="/pagos.html">
-          <img src="/public/cobranza.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Cobranza y Pagos
+          <img src="/public/cobranza.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Cobranza y
+          Pagos
         </a>
       </li>
       <li id="menu-vendedores">
@@ -68,7 +73,15 @@
       </li>
       <li id="menu-configuracion">
         <a href="/configuracion.html">
-          <img src="/public/configuracion.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Configuración
+          <img src="/public/configuracion.png" style="width:20px; height:20px; object-fit:contain;" alt="icon">
+          Configuración
+        </a>
+      </li>
+      <li id="menu-nuevo-registro" style="display: none;">
+        <a href="/registrar.html">
+          <span
+            style="font-size: 16px; margin-right: 12px; display: inline-block; width: 20px; text-align: center;">➕</span>
+          Alta de Usuarios
         </a>
       </li>
     </ul>
@@ -78,18 +91,22 @@
         <span id="iconoTema">🌙</span> <span id="textoTema">Modo Oscuro</span>
       </button>
       <button class="btn-logout" onclick="cerrarSesion()">
-        <img src="/public/cerrar_sesión.png" style="width:18px; height:18px; object-fit:contain;" alt="logout"> Cerrar sesión
+        <img src="/public/cerrar_sesión.png" style="width:18px; height:18px; object-fit:contain;" alt="logout"> Cerrar
+        sesión
       </button>
     </div>
   </aside>
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="main-content">
-    
-    <header class="catalog-header-custom" style="display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 30px; text-align: center; min-height: 120px;">
+
+    <header class="catalog-header-custom"
+      style="display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 30px; text-align: center; min-height: 120px;">
       <!-- BOTÓN DE ACCESO DIRECTO A LA IZQUIERDA -->
       <div style="position: absolute; left: 0; top: 35px;">
-        <a href="/registrarlote.html" style="background: linear-gradient(135deg, #3b07ff, #7c3aed); color: white; padding: 10px 20px; border-radius: 14px; font-weight: 800; font-size: 13px; text-decoration: none; box-shadow: 0 4px 15px rgba(59,7,255,0.25); display: inline-block; transition: 0.2s;">➕ Registrar Lote</a>
+        <a href="/registrarlote.html"
+          style="background: linear-gradient(135deg, #3b07ff, #7c3aed); color: white; padding: 10px 20px; border-radius: 14px; font-weight: 800; font-size: 13px; text-decoration: none; box-shadow: 0 4px 15px rgba(59,7,255,0.25); display: inline-block; transition: 0.2s;">➕
+          Registrar Lote</a>
       </div>
       <div>
         <h1 style="font-size: 32px; color: #0f172a; font-weight: 800; margin-bottom: 6px;">VENTA DE LOTES</h1>
@@ -97,26 +114,41 @@
       </div>
       <!-- ESCUDO CIRCULAR MEMBRETADO A LA DERECHA -->
       <div style="position: absolute; right: 0; top: 0;">
-        <div style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #dc2626; padding: 4px; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
-          <div style="width: 100%; height: 100%; border-radius: 50%; border: 2px solid #2563eb; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 4px; box-sizing: border-box;">
+        <div
+          style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #dc2626; padding: 4px; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+          <div
+            style="width: 100%; height: 100%; border-radius: 50%; border: 2px solid #2563eb; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 4px; box-sizing: border-box;">
             <img src="/public/LogoApp.png" style="width: 42px; height: 42px; object-fit: contain;">
-            <span style="font-size: 7px; font-weight: 800; color: #2563eb; text-align: center; line-height: 1.1; margin-top: 2px;">AREVALO Y CIA.<br><span style="color:#dc2626;">INMOBILIARIA</span></span>
+            <span
+              style="font-size: 7px; font-weight: 800; color: #2563eb; text-align: center; line-height: 1.1; margin-top: 2px;">AREVALO
+              Y CIA.<br><span style="color:#dc2626;">INMOBILIARIA</span></span>
           </div>
         </div>
       </div>
     </header>
 
     <!-- BARRA DE BUSQUEDA Y FILTROS CATASTRALES -->
-    <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; margin-bottom: 30px; background: #fff; padding: 12px 20px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+    <div
+      style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; margin-bottom: 30px; background: #fff; padding: 12px 20px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
       <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 260px;">
         <span style="font-size: 16px;">🔍</span>
-        <input type="text" id="inputBuscarLote" placeholder="Buscar por Desarrollo, Nomenclatura (ej. Lote 12, M1) o Clave..." style="width: 100%; border: none; outline: none; font-size: 13px; color: #334155; background: transparent;" onkeyup="renderizarLotesFiltrados()">
+        <input type="text" id="inputBuscarLote"
+          placeholder="Buscar por Desarrollo, Nomenclatura (ej. Lote 12, M1) o Clave..."
+          style="width: 100%; border: none; outline: none; font-size: 13px; color: #334155; background: transparent;"
+          onkeyup="renderizarLotesFiltrados()">
       </div>
       <div style="display: flex; gap: 6px; overflow-x: auto;">
-        <button class="btn-filtro-lote active" onclick="aplicarFiltroEstado(this, 'todos')" style="padding: 6px 12px; font-size: 11px; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; background: #3b07ff; color: #fff;">Todos</button>
-        <button class="btn-filtro-lote" onclick="aplicarFiltroEstado(this, 'disponible')" style="padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; background: #fff; color: #334155;">🟢 Libres</button>
-        <button class="btn-filtro-lote" onclick="aplicarFiltroEstado(this, 'apartado')" style="padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; background: #fff; color: #334155;">🟡 Apartados</button>
-        <button class="btn-filtro-lote" onclick="aplicarFiltroEstado(this, 'vendido')" style="padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; background: #fff; color: #334155;">🔴 Vendidos</button>
+        <button class="btn-filtro-lote active" onclick="aplicarFiltroEstado(this, 'todos')"
+          style="padding: 6px 12px; font-size: 11px; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; background: #3b07ff; color: #fff;">Todos</button>
+        <button class="btn-filtro-lote" onclick="aplicarFiltroEstado(this, 'disponible')"
+          style="padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; background: #fff; color: #334155;">🟢
+          Libres</button>
+        <button class="btn-filtro-lote" onclick="aplicarFiltroEstado(this, 'apartado')"
+          style="padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; background: #fff; color: #334155;">🟡
+          Apartados</button>
+        <button class="btn-filtro-lote" onclick="aplicarFiltroEstado(this, 'vendido')"
+          style="padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; background: #fff; color: #334155;">🔴
+          Vendidos</button>
       </div>
     </div>
 
@@ -127,7 +159,9 @@
         <button class="btn-close" onclick="toggleModal(false)">✖</button>
       </div>
 
-      <div id="mensaje-lote" style="display: none; padding: 10px; margin-bottom: 15px; border-radius: 8px; font-size: 13px; text-align: center;"></div>
+      <div id="mensaje-lote"
+        style="display: none; padding: 10px; margin-bottom: 15px; border-radius: 8px; font-size: 13px; text-align: center;">
+      </div>
 
       <!-- SISTEMA DE PESTAÑAS INTERNAS -->
       <div class="modal-tabs">
@@ -208,7 +242,8 @@
               <input type="number" step="any" id="t_lado_der" placeholder="Ej. 25.00">
             </div>
             <div class="form-group" style="grid-column: 1/-1; margin-top: 10px;">
-              <span style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Colindancias Específicas</span>
+              <span style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Colindancias
+                Específicas</span>
             </div>
             <div class="form-group">
               <label for="t_col_norte">Norte</label>
@@ -251,17 +286,21 @@
             </div>
             <div class="form-group">
               <label for="t_cp">Código Postal (5 dígitos)</label>
-              <input type="text" id="t_cp" placeholder="Ej. 29000" maxlength="5" oninput="this.value = this.value.replace(/[^0-9]/g, ''); consultarCP(this.value)">
+              <input type="text" id="t_cp" placeholder="Ej. 29000" maxlength="5"
+                oninput="this.value = this.value.replace(/[^0-9]/g, ''); consultarCP(this.value)">
               <span id="statusCP" style="font-size:10px; font-weight:700; display:block; margin-top:3px;"></span>
             </div>
-            
+
             <!-- CONTENEDOR DEL MAPA Y COORDENADAS -->
-            <div style="grid-column: 1/-1; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 10px;">
+            <div
+              style="grid-column: 1/-1; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 10px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="font-size: 13px; font-weight: 700; color: #0f172a;">📍 Coordenadas GPS (Haz clic en el mapa para capturar)</span>
+                <span style="font-size: 13px; font-weight: 700; color: #0f172a;">📍 Coordenadas GPS (Haz clic en el mapa
+                  para capturar)</span>
                 <span style="font-size: 11px; color: #64748b;">Motor Leaflet OpenStreetMap</span>
               </div>
-              <div id="mapa-lote" style="height: 240px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; z-index: 1;"></div>
+              <div id="mapa-lote"
+                style="height: 240px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; z-index: 1;"></div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
                 <div>
                   <label style="font-size: 11px; color: #475569; font-weight: 600;">Latitud</label>
@@ -291,25 +330,33 @@
               <label for="t_anticipo">Anticipo Solicitado ($)</label>
               <input type="number" step="any" id="t_anticipo" placeholder="Ej. 50000">
             </div>
-            
+
             <div class="form-group" style="grid-column: 1/-1; margin-top: 10px;">
-              <span style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Servicios Disponibles a Pie de Lote</span>
+              <span style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Servicios
+                Disponibles a Pie de Lote</span>
               <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px;">
-                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;"><input type="checkbox" id="t_serv_agua"> 💧 Agua Potable</label>
-                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;"><input type="checkbox" id="t_serv_luz"> ⚡ Electricidad</label>
-                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;"><input type="checkbox" id="t_serv_drenaje"> 🚰 Drenaje</label>
-                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;"><input type="checkbox" id="t_serv_internet"> 🌐 Fibra / Internet</label>
-                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;"><input type="checkbox" id="t_calle_pav"> 🛣️ Pavimentado</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;"><input
+                    type="checkbox" id="t_serv_agua"> 💧 Agua Potable</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;"><input
+                    type="checkbox" id="t_serv_luz"> ⚡ Electricidad</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;"><input
+                    type="checkbox" id="t_serv_drenaje"> 🚰 Drenaje</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;"><input
+                    type="checkbox" id="t_serv_internet"> 🌐 Fibra / Internet</label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;"><input
+                    type="checkbox" id="t_calle_pav"> 🛣️ Pavimentado</label>
               </div>
             </div>
 
             <div class="form-group" style="grid-column: 1/-1;">
               <label for="t_descripcion">Descripción y Amenidades</label>
-              <textarea id="t_descripcion" rows="2" placeholder="Información promocional sobre el entorno..."></textarea>
+              <textarea id="t_descripcion" rows="2"
+                placeholder="Información promocional sobre el entorno..."></textarea>
             </div>
             <div class="form-group" style="grid-column: 1/-1;">
               <label for="t_observaciones">Observaciones Internas</label>
-              <textarea id="t_observaciones" rows="2" placeholder="Detalles de negociación o estatus legal interno..."></textarea>
+              <textarea id="t_observaciones" rows="2"
+                placeholder="Detalles de negociación o estatus legal interno..."></textarea>
             </div>
           </div>
         </div>
@@ -319,7 +366,8 @@
           <div class="form-grid">
             <div class="form-group" style="grid-column: 1/-1;">
               <label for="t_archivo_img">📸 Render o Fotografía Principal del Lote</label>
-              <input type="file" id="t_archivo_img" accept="image/*" style="background: #ffffff; padding: 10px; cursor: pointer;">
+              <input type="file" id="t_archivo_img" accept="image/*"
+                style="background: #ffffff; padding: 10px; cursor: pointer;">
               <input type="hidden" id="t_imagen_base64">
             </div>
             <div class="form-group">
@@ -337,7 +385,8 @@
           </div>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+        <div
+          style="display: flex; justify-content: flex-end; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
           <button type="submit" class="btn-submit-lote" id="btnGuardarLote">Guardar Expediente de Lote</button>
         </div>
       </form>
@@ -404,7 +453,7 @@
       }
 
       // Capturar clic en el mapa para rellenar campos
-      mapaLeaflet.on('click', function(e) {
+      mapaLeaflet.on('click', function (e) {
         const coords = e.latlng;
         document.getElementById('t_latitud').value = coords.lat.toFixed(6);
         document.getElementById('t_longitud').value = coords.lng.toFixed(6);
@@ -505,11 +554,11 @@
         filtrados.forEach(t => {
           const precio = parseFloat(t.precio_venta || t.precio_lista || 0);
           const superficieFormateada = parseFloat(t.superficie || 0).toLocaleString('es-MX', { maximumFractionDigits: 2 });
-          
+
           let textoEstado = 'Libre';
           let colorPunto = '#22c55e'; // Verde
           const estLimpio = (t.estado || '').toLowerCase().trim();
-          
+
           if (estLimpio.includes('vendido')) {
             textoEstado = 'Vendido';
             colorPunto = '#dc2626'; // Rojo
@@ -540,7 +589,7 @@
                 <div style="background: #3b07ff; color: #fff; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 12px; display: flex; align-items: center; gap: 5px; letter-spacing: 0.03em;">
                   <span style="width: 7px; height: 7px; border-radius: 50%; background: ${colorPunto}; display: inline-block;"></span> ${textoEstado}
                 </div>
-                <span style="font-size:11px; font-weight:800; color:#10b981;">$${precio.toLocaleString('es-MX', {maximumFractionDigits:0})}</span>
+                <span style="font-size:11px; font-weight:800; color:#10b981;">$${precio.toLocaleString('es-MX', { maximumFractionDigits: 0 })}</span>
               </div>
 
               <div style="font-size: 11px; font-weight: 800; color: #0f172a; margin-top: 6px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; letter-spacing: 0.02em;" title="${t.fraccionamiento || 'Desarrollo Privado'}">
@@ -571,7 +620,7 @@
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:3px 6px; border-radius:4px; border:1px solid #f1f5f9;">
                   <span style="font-weight:600; color:#0f172a;">Servicios:</span>
-                  <span style="font-size:11px;">${t.servicio_agua?'💧':''}${t.servicio_luz?'⚡':''}${t.servicio_drenaje?'🚰':''}${t.servicio_internet?'🌐':''}${t.calle_pavimentada?'🛣️':''}</span>
+                  <span style="font-size:11px;">${t.servicio_agua ? '💧' : ''}${t.servicio_luz ? '⚡' : ''}${t.servicio_drenaje ? '🚰' : ''}${t.servicio_internet ? '🌐' : ''}${t.calle_pavimentada ? '🛣️' : ''}</span>
                 </div>
                 ${t.imagen ? `<div style="margin-top:6px; text-align:center;"><button onclick="abrirLightbox('${t.imagen}')" style="background:none; border:none; color:#2563eb; font-size:10px; font-weight:700; cursor:pointer;">🔍 Ampliar Render</button></div>` : ''}
               </div>
@@ -608,11 +657,11 @@
     }
 
     // Manejo de la subida de imagen local en Base64
-    document.getElementById('t_archivo_img').addEventListener('change', function(e) {
+    document.getElementById('t_archivo_img').addEventListener('change', function (e) {
       const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = function(evt) {
+        reader.onload = function (evt) {
           document.getElementById('t_imagen_base64').value = evt.target.result;
         };
         reader.readAsDataURL(file);
@@ -629,7 +678,7 @@
         document.getElementById('t_manzana').value = lote.manzana || '';
         document.getElementById('t_clave_catastral').value = lote.clave_catastral || '';
         if (lote.tipo_uso) document.getElementById('t_tipo_uso').value = lote.tipo_uso;
-        
+
         if (lote.estado) {
           const estLimp = lote.estado.toLowerCase().trim();
           if (estLimp.includes('vendido')) document.getElementById('t_estado_inm').value = 'vendido';
@@ -662,7 +711,7 @@
         document.getElementById('t_precio').value = lote.precio_venta || lote.precio_lista || '';
         document.getElementById('t_precio_lista').value = lote.precio_lista || '';
         document.getElementById('t_anticipo').value = lote.anticipo || '';
-        
+
         document.getElementById('t_serv_agua').checked = !!lote.servicio_agua;
         document.getElementById('t_serv_luz').checked = !!lote.servicio_luz;
         document.getElementById('t_serv_drenaje').checked = !!lote.servicio_drenaje;
@@ -708,7 +757,7 @@
     // Enviar formulario integral al servidor
     const formLote = document.getElementById('formLote');
     const msgLote = document.getElementById('mensaje-lote');
-    
+
     formLote.addEventListener('submit', async (e) => {
       e.preventDefault();
       const btnGuardarLote = document.getElementById('btnGuardarLote');
@@ -728,7 +777,7 @@
         tipo_uso: document.getElementById('t_tipo_uso').value,
         estado: document.getElementById('t_estado_inm').value,
         id_propietario: document.getElementById('t_id_propietario').value,
-        
+
         superficie: document.getElementById('t_superficie').value,
         frente: document.getElementById('t_frente').value,
         fondo: document.getElementById('t_fondo').value,
@@ -822,10 +871,10 @@
         status.innerText = '';
         return;
       }
-      
+
       status.innerText = '⏳ Consultando código postal...';
       status.style.color = '#eab308';
-      
+
       try {
         const res = await fetch(`https://api.zippopotam.us/mx/${cpLimpio}`);
         if (!res.ok) {
@@ -833,13 +882,13 @@
           status.style.color = '#64748b';
           return;
         }
-        
+
         const data = await res.json();
         if (data && data.places && data.places.length > 0) {
           const estado = data.places[0].state || '';
           // Ocasionalmente el 'place name' (o la colonia/municipio principal) sirve como referencia
           document.getElementById('t_estado_rep').value = estado;
-          
+
           // Llenar datalist de colonias
           const dl = document.getElementById('listaColonias');
           if (dl) {
@@ -850,13 +899,13 @@
               dl.appendChild(opt);
             });
           }
-          
+
           if (data.places.length === 1) {
             document.getElementById('t_colonia').value = data.places[0]['place name'];
           } else {
             document.getElementById('t_colonia').placeholder = 'Selecciona del listado o escribe...';
           }
-          
+
           status.innerText = `✅ ¡${data.places.length} colonias disponibles!`;
           status.style.color = '#16a34a';
         } else {
@@ -878,11 +927,23 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       const u = JSON.parse(localStorage.getItem('arevalo_user'));
-      if (u && (u.rol === 'vendedor' || u.rol === 'asesor')) {
+      if (u) {
+        const rol = (u.rol || '').toLowerCase();
+
+        // Reglas de visualización por rol
         const mv = document.getElementById('menu-vendedores');
         const mc = document.getElementById('menu-configuracion');
-        if (mv) mv.style.display = 'none';
-        if (mc) mc.style.display = 'none';
+        const mr = document.getElementById('menu-nuevo-registro');
+
+        if (rol === 'asesor') {
+          if (mv) mv.style.display = 'none';
+          if (mc) mc.style.display = 'none';
+          if (mr) mr.style.display = 'none';
+        }
+
+        if (rol === 'direccion') {
+          if (mr) mr.style.display = 'block';
+        }
       }
     });
 
@@ -890,9 +951,13 @@
   </script>
 
   <!-- LIGHTBOX MODAL PARA IMÁGENES -->
-  <div id="lightbox" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.9); z-index:99999; justify-content:center; align-items:center; backdrop-filter:blur(8px);">
-    <span onclick="document.getElementById('lightbox').style.display='none'" style="position:absolute; top:20px; right:30px; color:#fff; font-size:40px; cursor:pointer; font-weight:bold; transition:0.2s;" title="Cerrar">&times;</span>
-    <img id="lightbox-img" src="" style="max-width:90%; max-height:85vh; border-radius:12px; box-shadow:0 20px 40px rgba(0,0,0,0.6); object-fit:contain;">
+  <div id="lightbox"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.9); z-index:99999; justify-content:center; align-items:center; backdrop-filter:blur(8px);">
+    <span onclick="document.getElementById('lightbox').style.display='none'"
+      style="position:absolute; top:20px; right:30px; color:#fff; font-size:40px; cursor:pointer; font-weight:bold; transition:0.2s;"
+      title="Cerrar">&times;</span>
+    <img id="lightbox-img" src=""
+      style="max-width:90%; max-height:85vh; border-radius:12px; box-shadow:0 20px 40px rgba(0,0,0,0.6); object-fit:contain;">
   </div>
 
   <!-- ASISTENTE VIRTUAL KOMMO -->
@@ -902,4 +967,5 @@
   <script src="/public/traductorGlobal.js"></script>
 
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Directorio de Vendedores - Arevalo & CIA</title>
@@ -13,9 +14,22 @@
       margin: 0;
       padding: 0;
     }
-    .badge-vendedor { background: #ede9fe; color: #570fff; }
-    .badge-admin { background: #fee2e2; color: #dc2626; }
-    .badge-direccion { background: #fef3c7; color: #d97706; }
+
+    .badge-vendedor {
+      background: #ede9fe;
+      color: #570fff;
+    }
+
+    .badge-admin {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .badge-direccion {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
     .btn-action-edit {
       background: #ffffff;
       color: #570fff;
@@ -31,6 +45,7 @@
       gap: 6px;
       transition: 0.2s;
     }
+
     .btn-action-edit:hover {
       background: #570fff;
       color: white;
@@ -38,6 +53,7 @@
     }
   </style>
 </head>
+
 <body>
   <script>
     if (localStorage.getItem('arevalo_theme') === 'dark') {
@@ -71,22 +87,26 @@
       </li>
       <li>
         <a href="/clientes.html">
-          <img src="/public/clientes.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Clientes (CRM)
+          <img src="/public/clientes.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Clientes
+          (CRM)
         </a>
       </li>
       <li>
         <a href="/terrenos.html">
-          <img src="/public/terrenos.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Lotes Inmobiliarios
+          <img src="/public/terrenos.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Lotes
+          Inmobiliarios
         </a>
       </li>
       <li>
         <a href="/contratos.html">
-          <img src="/public/contrato.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Acuerdos / Contratos
+          <img src="/public/contrato.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Acuerdos /
+          Contratos
         </a>
       </li>
       <li>
         <a href="/pagos.html">
-          <img src="/public/cobranza.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Cobranza y Pagos
+          <img src="/public/cobranza.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Cobranza y
+          Pagos
         </a>
       </li>
       <li id="menu-vendedores">
@@ -96,7 +116,15 @@
       </li>
       <li id="menu-configuracion">
         <a href="/configuracion.html">
-          <img src="/public/configuracion.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Configuración
+          <img src="/public/configuracion.png" style="width:20px; height:20px; object-fit:contain;" alt="icon">
+          Configuración
+        </a>
+      </li>
+      <li id="menu-nuevo-registro" style="display: none;">
+        <a href="/registrar.html">
+          <span
+            style="font-size: 16px; margin-right: 12px; display: inline-block; width: 20px; text-align: center;">➕</span>
+          Alta de Usuarios
         </a>
       </li>
     </ul>
@@ -106,7 +134,8 @@
         <span id="iconoTema">🌙</span> <span id="textoTema">Modo Oscuro</span>
       </button>
       <button class="btn-logout" onclick="cerrarSesion()">
-        <img src="/public/cerrar_sesión.png" style="width:18px; height:18px; object-fit:contain;" alt="logout"> Cerrar sesión
+        <img src="/public/cerrar_sesión.png" style="width:18px; height:18px; object-fit:contain;" alt="logout"> Cerrar
+        sesión
       </button>
     </div>
   </aside>
@@ -119,7 +148,8 @@
         <p>Directorio gerencial de asesores, comisionistas y roles del CRM</p>
       </div>
       <div>
-        <a href="/modificarvendedores.html" style="background: linear-gradient(135deg, #570fff 0%, #7c3aed 100%); color: white; padding: 12px 20px; border-radius: 12px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(87, 15, 255, 0.2);">
+        <a href="/modificarvendedores.html"
+          style="background: linear-gradient(135deg, #570fff 0%, #7c3aed 100%); color: white; padding: 12px 20px; border-radius: 12px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(87, 15, 255, 0.2);">
           <span>➕</span> Registrar Agente
         </a>
       </div>
@@ -138,7 +168,9 @@
           </tr>
         </thead>
         <tbody id="tablaVendedoresBody">
-          <tr><td colspan="6" style="text-align: center; color: #9ca3af;">Cargando personal...</td></tr>
+          <tr>
+            <td colspan="6" style="text-align: center; color: #9ca3af;">Cargando personal...</td>
+          </tr>
         </tbody>
       </table>
     </section>
@@ -154,7 +186,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id_usuario: u.id_usuario })
           });
-        } catch(e) {}
+        } catch (e) { }
       }
       localStorage.removeItem('arevalo_user');
       window.location.href = '/login.html';
@@ -166,7 +198,7 @@
         window.location.href = '/login.html';
         return;
       }
-      
+
       // BLINDAJE RBAC ESTRICTO: EXPULSIÓN INMEDIATA SI ES ASESOR / VENDEDOR
       if (u.rol === 'vendedor' || u.rol === 'asesor') {
         alert('⛔ ACCESO DENEGADO: El directorio de vendedores es de uso exclusivo para Administración y Dirección.');
@@ -175,6 +207,28 @@
       }
 
       cargarVendedores();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const u = JSON.parse(localStorage.getItem('arevalo_user'));
+      if (u) {
+        const rol = (u.rol || '').toLowerCase();
+
+        // Reglas de visualización por rol
+        const mv = document.getElementById('menu-vendedores');
+        const mc = document.getElementById('menu-configuracion');
+        const mr = document.getElementById('menu-nuevo-registro');
+
+        if (rol === 'asesor') {
+          if (mv) mv.style.display = 'none';
+          if (mc) mc.style.display = 'none';
+          if (mr) mr.style.display = 'none';
+        }
+
+        if (rol === 'direccion') {
+          if (mr) mr.style.display = 'block';
+        }
+      }
     });
 
     async function cargarVendedores() {
@@ -192,10 +246,10 @@
 
         lista.forEach(v => {
           const inicial = (v.nombre || 'A').charAt(0).toUpperCase();
-          const avatar = v.foto 
+          const avatar = v.foto
             ? `<img src="${v.foto}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #c4b5fd;">`
             : `<div style="width:40px; height:40px; border-radius:50%; background:#ede9fe; color:#570fff; display:flex; align-items:center; justify-content:center; font-weight:800; border:2px solid #e2e8f0;">${inicial}</div>`;
-          
+
           const arrobaTxt = v.arroba || `@${(v.nombre || 'asesor').toLowerCase().replace(/\s+/g, '')}`;
           const badgeRol = v.rol === 'administrativo' ? 'badge-admin' : v.rol === 'direccion' ? 'badge-direccion' : 'badge-vendedor';
           const isSelf = u && u.id_usuario === v.id_usuario;
@@ -223,8 +277,8 @@
             }
           }
 
-          const estatusBadge = isActivo 
-            ? `<span style="background: #dcfce7; color: #15803d; padding: 4px 10px; border-radius: 12px; font-weight: 800; font-size: 11px; display: inline-flex; align-items: center; gap: 6px;"><span style="width:7px; height:7px; background:#10b981; border-radius:50%; box-shadow:0 0 6px #10b981;"></span> ${isSelf ? 'Tú (En línea)' : 'Activo'}</span>` 
+          const estatusBadge = isActivo
+            ? `<span style="background: #dcfce7; color: #15803d; padding: 4px 10px; border-radius: 12px; font-weight: 800; font-size: 11px; display: inline-flex; align-items: center; gap: 6px;"><span style="width:7px; height:7px; background:#10b981; border-radius:50%; box-shadow:0 0 6px #10b981;"></span> ${isSelf ? 'Tú (En línea)' : 'Activo'}</span>`
             : `<span style="background: #f1f5f9; color: #64748b; padding: 4px 10px; border-radius: 12px; font-weight: 700; font-size: 11px; display: inline-flex; align-items: center; gap: 6px;" title="Última conexión registrada">⚪ ${txtInactivo}</span>`;
 
           tbody.innerHTML += `
@@ -265,4 +319,5 @@
   <script src="/public/traductorGlobal.js"></script>
 
 </body>
+
 </html>

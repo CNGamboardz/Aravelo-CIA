@@ -132,16 +132,30 @@ const asignarAsesor = async (id_cliente, id_asesor) => {
 
 /**
  * Agendar cita desde el portal
+ * Sincroniza con la tabla de clientes y crea un evento en la agenda del asesor asignado
  */
 const agendarCita = async (id_cliente, fecha, id_lote, nota) => {
-  const res = await db.query(
+  // 1. Actualizar campos de cita en el cliente
+  const resCl = await db.query(
     `UPDATE sistema.clientes 
      SET cita_fecha = $1, cita_lote_id = $2, cita_nota = $3, cita_estatus = 'pendiente'
      WHERE id_cliente = $4
-     RETURNING id_cliente, cita_fecha, cita_lote_id, cita_nota, cita_estatus`,
+     RETURNING id_cliente, id_asesor_asignado, nombre, apellido_paterno`,
     [fecha, id_lote || null, nota || '', id_cliente]
   );
-  return res.rows[0];
+  
+  const cliente = resCl.rows[0];
+  if (cliente && cliente.id_asesor_asignado) {
+    // 2. Crear evento en la agenda para el asesor
+    const tit = `CITA: Recorrido con ${cliente.nombre} ${cliente.apellido_paterno || ''}`;
+    await db.query(
+      `INSERT INTO sistema.agenda (id_usuario, id_cliente, titulo, descripcion, fecha_inicio, tipo, estatus)
+       VALUES ($1, $2, $3, $4, $5, 'cita', 'pendiente')`,
+      [cliente.id_asesor_asignado, id_cliente, tit, nota || 'Solicitud desde portal', fecha]
+    );
+  }
+  
+  return cliente;
 };
 
 /**
@@ -249,6 +263,7 @@ const getMisLotesApartados = async (id_cliente) => {
 
 /**
  * Liberar un lote apartado por arrepentimiento o cancelación
+ * Cancela también las citas pendientes asociadas
  */
 const liberarLote = async (id_lote, id_cliente) => {
   const res = await db.query(
@@ -258,6 +273,17 @@ const liberarLote = async (id_lote, id_cliente) => {
      RETURNING id_terreno, fraccionamiento, numero_lote AS lote`,
     [id_lote, id_cliente]
   );
+  
+  if (res.rows.length > 0) {
+    // Cancelar citas pendientes en la agenda para este cliente y este día/lote
+    await db.query(
+      `UPDATE sistema.agenda 
+       SET estatus = 'cancelado', titulo = CONCAT('CANCELADO: ', titulo)
+       WHERE id_cliente = $1 AND tipo = 'cita' AND estatus = 'pendiente'`,
+      [id_cliente]
+    );
+  }
+  
   return res.rows[0];
 };
 

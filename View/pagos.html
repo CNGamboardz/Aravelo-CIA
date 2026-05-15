@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Cobranza y Pagos - Arevalo & CIA</title>
@@ -40,22 +41,26 @@
       </li>
       <li>
         <a href="/clientes.html">
-          <img src="/public/clientes.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Clientes (CRM)
+          <img src="/public/clientes.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Clientes
+          (CRM)
         </a>
       </li>
       <li>
         <a href="/terrenos.html">
-          <img src="/public/terrenos.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Lotes Inmobiliarios
+          <img src="/public/terrenos.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Lotes
+          Inmobiliarios
         </a>
       </li>
       <li>
         <a href="/contratos.html">
-          <img src="/public/contrato.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Acuerdos / Contratos
+          <img src="/public/contrato.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Acuerdos /
+          Contratos
         </a>
       </li>
       <li>
         <a href="/pagos.html" class="active">
-          <img src="/public/cobranza.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Cobranza y Pagos
+          <img src="/public/cobranza.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Cobranza y
+          Pagos
         </a>
       </li>
       <li id="menu-vendedores">
@@ -65,7 +70,15 @@
       </li>
       <li id="menu-configuracion">
         <a href="/configuracion.html">
-          <img src="/public/configuracion.png" style="width:20px; height:20px; object-fit:contain;" alt="icon"> Configuración
+          <img src="/public/configuracion.png" style="width:20px; height:20px; object-fit:contain;" alt="icon">
+          Configuración
+        </a>
+      </li>
+      <li id="menu-nuevo-registro" style="display: none;">
+        <a href="/registrar.html">
+          <span
+            style="font-size: 16px; margin-right: 12px; display: inline-block; width: 20px; text-align: center;">➕</span>
+          Alta de Usuarios
         </a>
       </li>
     </ul>
@@ -75,14 +88,15 @@
         <span id="iconoTema">🌙</span> <span id="textoTema">Modo Oscuro</span>
       </button>
       <button class="btn-logout" onclick="cerrarSesion()">
-        <img src="/public/cerrar_sesión.png" style="width:18px; height:18px; object-fit:contain;" alt="logout"> Cerrar sesión
+        <img src="/public/cerrar_sesión.png" style="width:18px; height:18px; object-fit:contain;" alt="logout"> Cerrar
+        sesión
       </button>
     </div>
   </aside>
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="main-content">
-    
+
     <header class="pagos-header">
       <div>
         <h1>Gestión de Cobranza e Ingresos</h1>
@@ -127,14 +141,16 @@
       <div class="form-box" style="box-sizing: border-box; max-width: 100%; overflow-x: hidden;">
         <h2 style="font-size: 18px; color: #1e293b; margin-bottom: 20px;">Aplicar Ingreso a Caja</h2>
 
-        <div id="mensaje-pago" style="display: none; padding: 12px; margin-bottom: 20px; border-radius: 10px; font-size: 13px; text-align: center;"></div>
+        <div id="mensaje-pago"
+          style="display: none; padding: 12px; margin-bottom: 20px; border-radius: 10px; font-size: 13px; text-align: center;">
+        </div>
 
         <form id="formPago" style="box-sizing: border-box; max-width: 100%;">
-          
+
           <input type="hidden" id="p_id_calendario">
 
           <div class="form-grid" style="box-sizing: border-box; max-width: 100%;">
-            
+
             <div class="form-group">
               <label for="selPCliente">Cliente</label>
               <select id="selPCliente" required onchange="actualizarFiltroContratos()">
@@ -258,7 +274,7 @@
       try {
         const resCl = await fetch('/clientes');
         let dataClientes = await resCl.json();
-        
+
         // FILTRADO DE SEGURIDAD POR ASESOR
         if (userData && userData.rol) {
           const rCrm = userData.rol.toLowerCase();
@@ -282,7 +298,7 @@
 
         const resCo = await fetch('/contratos');
         listaContratosGlobal = await resCo.json();
-        
+
         actualizarFiltroContratos();
         generarFolioAutorelleno();
       } catch (err) {
@@ -294,8 +310,8 @@
       const id_cliente = document.getElementById('selPCliente').value;
       const selCo = document.getElementById('selPContrato');
       selCo.innerHTML = '<option value="">Selecciona un contrato</option>';
-      
-      const filtrados = id_cliente 
+
+      const filtrados = id_cliente
         ? listaContratosGlobal.filter(c => c.id_cliente == id_cliente)
         : listaContratosGlobal;
 
@@ -314,7 +330,7 @@
       try {
         const res = await fetch('/pagos/calendario');
         const calendarioTotal = await res.json();
-        
+
         const tbody = document.getElementById('tablaCalendarioBody');
         tbody.innerHTML = '';
 
@@ -333,7 +349,7 @@
         calendario.forEach(item => {
           const status = item.estatus || 'pendiente';
           const badgeClass = `status-${status}`;
-          
+
           const fechaStr = item.fecha_esperada ? item.fecha_esperada.split('T')[0] : 'N/A';
           const monto = parseFloat(item.monto_esperado).toLocaleString('es-MX', { minimumFractionDigits: 2 });
 
@@ -380,16 +396,16 @@
       try {
         const res = await fetch('/pagos');
         const pagosTotal = await res.json();
-        
+
         // Filtrar solo los de este asesor si el usuario logueado es vendedor/asesor
         const isAsesor = userData && (userData.rol === 'vendedor' || userData.rol === 'asesor' || userData.rol === 'administrativo');
         listaPagosGlobal = isAsesor ? pagosTotal.filter(p => {
           // REGLA DE ORO: Si YO registré el pago, es mío (aunque el cliente haya cambiado de asesor)
           if (p.id_usuario === userData.id_usuario) return true;
-          
+
           // O si el cliente me pertenece actualmente en el portal
           if (p.id_asesor_asignado) return p.id_asesor_asignado === userData.id_usuario;
-          
+
           // O si soy el asesor original y no tiene uno asignado en el portal
           return p.id_asesor === userData.id_usuario;
         }) : pagosTotal;
@@ -434,18 +450,18 @@
         document.getElementById('print-metodo').innerText = pago.metodo_pago || 'Efectivo';
         document.getElementById('print-ref').innerText = 'Ref: ' + (pago.comprobante_ref || 'Ninguna');
         document.getElementById('print-concepto').innerText = pago.concepto || 'Abono a Cuenta';
-        
+
         // Buscar el lote en los contratos si es posible
         const cAsoc = listaContratosGlobal.find(c => c.id_contrato == pago.id_contrato);
         document.getElementById('print-lote').innerText = cAsoc ? `Contrato #${cAsoc.id_contrato} - ${cAsoc.fraccionamiento}` : 'Proyecto Arévalo & CIA';
-        
+
         document.getElementById('print-monto').innerText = '$' + parseFloat(pago.monto).toLocaleString('es-MX', { minimumFractionDigits: 2 });
-        
+
         // Inyectar al usuario emisor del comprobante
         const u = userData || JSON.parse(localStorage.getItem('arevalo_user')) || {};
         const emisorNombre = u.nombre || 'Administración Central';
         const emisorRol = u.rol || 'Caja / Finanzas';
-        
+
         document.getElementById('print-emisor').innerText = emisorNombre;
         document.getElementById('print-rol').innerText = 'Rol: ' + emisorRol;
 
@@ -496,7 +512,7 @@
           try {
             const errD = await res.json();
             if (errD.error) errR = errD.error;
-          } catch(e) { errR = `Error interno (HTTP ${res.status})`; }
+          } catch (e) { errR = `Error interno (HTTP ${res.status})`; }
           throw new Error(errR);
         }
 
@@ -509,7 +525,7 @@
         document.getElementById('p_id_calendario').value = '';
         generarFolioAutorelleno();
 
-        setTimeout(() => { 
+        setTimeout(() => {
           msgPago.style.display = 'none';
           switchTab('historial');
         }, 1500);
@@ -527,11 +543,23 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       const u = JSON.parse(localStorage.getItem('arevalo_user'));
-      if (u && (u.rol === 'vendedor' || u.rol === 'asesor')) {
+      if (u) {
+        const rol = (u.rol || '').toLowerCase();
+
+        // Reglas de visualización por rol
         const mv = document.getElementById('menu-vendedores');
         const mc = document.getElementById('menu-configuracion');
-        if (mv) mv.style.display = 'none';
-        if (mc) mc.style.display = 'none';
+        const mr = document.getElementById('menu-nuevo-registro');
+
+        if (rol === 'asesor') {
+          if (mv) mv.style.display = 'none';
+          if (mc) mc.style.display = 'none';
+          if (mr) mr.style.display = 'none';
+        }
+
+        if (rol === 'direccion') {
+          if (mr) mr.style.display = 'block';
+        }
       }
     });
 
@@ -540,26 +568,35 @@
   </script>
 
   <!-- COMPROBANTE DE PAGO PARA IMPRESIÓN PROFESIONAL -->
-  <div id="recibo-impresion" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#f8fafc; z-index:999999; overflow-y:auto; padding:40px 20px; box-sizing: border-box;">
-    <div style="max-width:720px; margin:0 auto; background:#fff; border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.15); border:2px solid #cbd5e1; overflow:hidden; box-sizing: border-box; position:relative;">
+  <div id="recibo-impresion"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#f8fafc; z-index:999999; overflow-y:auto; padding:40px 20px; box-sizing: border-box;">
+    <div
+      style="max-width:720px; margin:0 auto; background:#fff; border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.15); border:2px solid #cbd5e1; overflow:hidden; box-sizing: border-box; position:relative;">
       <!-- Borde decorativo superior -->
       <div style="height:10px; background:linear-gradient(90deg, #570fff, #2563eb, #10b981);"></div>
-      
+
       <div style="padding:48px; box-sizing: border-box;">
-        
+
         <!-- CABECERA DE RECIBO -->
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #f1f5f9; padding-bottom:24px; margin-bottom:28px;">
+        <div
+          style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #f1f5f9; padding-bottom:24px; margin-bottom:28px;">
           <div style="display:flex; align-items:center; gap:16px;">
             <img src="/public/LogoApp.png" style="width:56px; height:56px; object-fit:contain;" alt="Logo">
             <div>
-              <h2 style="font-size:22px; font-weight:800; color:#0f172a; margin:0; letter-spacing:-0.5px;">ARÉVALO & CIA</h2>
-              <p style="font-size:12px; color:#64748b; margin:0; font-weight:600;">Desarrollo Inmobiliario y Bienes Raíces</p>
+              <h2 style="font-size:22px; font-weight:800; color:#0f172a; margin:0; letter-spacing:-0.5px;">ARÉVALO & CIA
+              </h2>
+              <p style="font-size:12px; color:#64748b; margin:0; font-weight:600;">Desarrollo Inmobiliario y Bienes
+                Raíces</p>
             </div>
           </div>
           <div style="text-align:right;">
             <div style="display:flex; align-items:center; gap:8px; justify-content:flex-end; margin-bottom:4px;">
-              <span style="background:#dcfce7; color:#15803d; font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px; border:1px solid #bbf7d0;">✔ PAGADO</span>
-              <span style="background:#eff6ff; color:#2563eb; font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px;">RECIBO OFICIAL</span>
+              <span
+                style="background:#dcfce7; color:#15803d; font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px; border:1px solid #bbf7d0;">✔
+                PAGADO</span>
+              <span
+                style="background:#eff6ff; color:#2563eb; font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px;">RECIBO
+                OFICIAL</span>
             </div>
             <div style="font-size:20px; font-weight:800; color:#0f172a;" id="print-folio">REC-000</div>
             <div style="font-size:12px; color:#64748b; font-weight:600;" id="print-fecha">Fecha: --</div>
@@ -568,13 +605,18 @@
 
         <!-- CÁPSULAS DE METADATOS -->
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:36px;">
-          <div style="background:#f8fafc; padding:18px 20px; border-radius:12px; border:1px solid #f1f5f9; box-sizing: border-box;">
-            <div style="font-size:11px; color:#64748b; text-transform:uppercase; font-weight:700; margin-bottom:4px;">Recibido de:</div>
+          <div
+            style="background:#f8fafc; padding:18px 20px; border-radius:12px; border:1px solid #f1f5f9; box-sizing: border-box;">
+            <div style="font-size:11px; color:#64748b; text-transform:uppercase; font-weight:700; margin-bottom:4px;">
+              Recibido de:</div>
             <div style="font-size:15px; font-weight:800; color:#0f172a;" id="print-cliente">Cliente Comprador</div>
           </div>
-          <div style="background:#f8fafc; padding:18px 20px; border-radius:12px; border:1px solid #f1f5f9; box-sizing: border-box;">
-            <div style="font-size:11px; color:#64748b; text-transform:uppercase; font-weight:700; margin-bottom:4px;">Método y Referencia:</div>
-            <div style="font-size:15px; font-weight:800; color:#0f172a; text-transform:capitalize;" id="print-metodo">Efectivo</div>
+          <div
+            style="background:#f8fafc; padding:18px 20px; border-radius:12px; border:1px solid #f1f5f9; box-sizing: border-box;">
+            <div style="font-size:11px; color:#64748b; text-transform:uppercase; font-weight:700; margin-bottom:4px;">
+              Método y Referencia:</div>
+            <div style="font-size:15px; font-weight:800; color:#0f172a; text-transform:capitalize;" id="print-metodo">
+              Efectivo</div>
             <div style="font-size:12px; color:#64748b; margin-top:2px;" id="print-ref">Ref: Ninguna</div>
           </div>
         </div>
@@ -590,60 +632,98 @@
           <tbody>
             <tr>
               <td style="padding:20px 0; border-bottom:1px solid #e2e8f0;">
-                <div style="font-size:15px; font-weight:800; color:#0f172a; text-transform:capitalize;" id="print-concepto">Mensualidad</div>
+                <div style="font-size:15px; font-weight:800; color:#0f172a; text-transform:capitalize;"
+                  id="print-concepto">Mensualidad</div>
                 <div style="font-size:13px; color:#64748b; margin-top:2px;" id="print-lote">Proyecto Inmobiliario</div>
               </td>
-              <td style="padding:20px 0; border-bottom:1px solid #e2e8f0; text-align:right; font-size:18px; font-weight:800; color:#10b981;" id="print-monto">$0.00</td>
+              <td
+                style="padding:20px 0; border-bottom:1px solid #e2e8f0; text-align:right; font-size:18px; font-weight:800; color:#10b981;"
+                id="print-monto">$0.00</td>
             </tr>
           </tbody>
         </table>
 
         <!-- SECCIÓN DE FIRMAS Y CÓDIGO QR -->
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:80px; padding-top:24px; gap:20px;">
-          
+        <div
+          style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:80px; padding-top:24px; gap:20px;">
+
           <!-- FIRMA 1: EMISOR -->
           <div style="text-align:center; flex:1; max-width:220px;">
             <div style="height:45px;"></div>
-            <div style="border-top:2px solid #0f172a; padding-top:8px; font-size:13px; color:#0f172a; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="print-emisor">Sello y Firma Autorizada</div>
-            <div style="font-size:10px; color:#570fff; font-weight:800; text-transform:uppercase; margin-top:2px;" id="print-rol">Arévalo & CIA</div>
+            <div
+              style="border-top:2px solid #0f172a; padding-top:8px; font-size:13px; color:#0f172a; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+              id="print-emisor">Sello y Firma Autorizada</div>
+            <div style="font-size:10px; color:#570fff; font-weight:800; text-transform:uppercase; margin-top:2px;"
+              id="print-rol">Arévalo & CIA</div>
           </div>
 
           <!-- VERIFICACIÓN QR -->
           <div style="text-align:center; width:130px; flex-shrink:0;">
-            <img id="print-qr" src="" style="width:85px; height:85px; object-fit:contain; border:2px solid #e2e8f0; padding:6px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.04); background:#fff;">
+            <img id="print-qr" src=""
+              style="width:85px; height:85px; object-fit:contain; border:2px solid #e2e8f0; padding:6px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.04); background:#fff;">
             <div style="font-size:10px; color:#64748b; font-weight:700; margin-top:6px;">Verificación QR</div>
           </div>
 
           <!-- FIRMA 2: CLIENTE COMPRADOR -->
           <div style="text-align:center; flex:1; max-width:220px;">
             <div style="height:45px;"></div>
-            <div style="border-top:2px solid #0f172a; padding-top:8px; font-size:13px; color:#0f172a; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="print-firma-cliente">Cliente Comprador</div>
-            <div style="font-size:10px; color:#64748b; font-weight:800; text-transform:uppercase; margin-top:2px;">Firma de Conformidad</div>
+            <div
+              style="border-top:2px solid #0f172a; padding-top:8px; font-size:13px; color:#0f172a; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+              id="print-firma-cliente">Cliente Comprador</div>
+            <div style="font-size:10px; color:#64748b; font-weight:800; text-transform:uppercase; margin-top:2px;">Firma
+              de Conformidad</div>
           </div>
 
         </div>
 
         <!-- PIE LEGAL DIMINUTO -->
-        <div style="font-size:11px; color:#94a3b8; text-align:center; margin-top:40px; border-top:1px solid #f1f5f9; padding-top:16px;">
-          Este documento acredita el pago formal e irrevocable del importe especificado.<br>Conserve este recibo digital/impreso para efectos de escrituración y control interno.
+        <div
+          style="font-size:11px; color:#94a3b8; text-align:center; margin-top:40px; border-top:1px solid #f1f5f9; padding-top:16px;">
+          Este documento acredita el pago formal e irrevocable del importe especificado.<br>Conserve este recibo
+          digital/impreso para efectos de escrituración y control interno.
         </div>
 
       </div>
 
       <!-- BOTONERA DE ACCIÓN EXCLUIDA EN IMPRESIÓN -->
-      <div style="background:#f8fafc; padding:20px; text-align:center; display:flex; gap:16px; justify-content:center; border-top:1px solid #e2e8f0;" class="print-actions">
-        <button onclick="window.print()" style="padding:12px 28px; background:#2563eb; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer; font-size:14px; box-shadow:0 4px 12px rgba(37,99,235,0.25); transition:0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">🖨️ Imprimir Documento</button>
-        <button onclick="document.getElementById('recibo-impresion').style.display='none'" style="padding:12px 20px; background:#e2e8f0; color:#334155; border:none; border-radius:8px; font-weight:800; cursor:pointer; font-size:14px; transition:0.2s;" onmouseover="this.style.background='#cbd5e1'" onmouseout="this.style.background='#e2e8f0'">Cerrar Vista</button>
+      <div
+        style="background:#f8fafc; padding:20px; text-align:center; display:flex; gap:16px; justify-content:center; border-top:1px solid #e2e8f0;"
+        class="print-actions">
+        <button onclick="window.print()"
+          style="padding:12px 28px; background:#2563eb; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer; font-size:14px; box-shadow:0 4px 12px rgba(37,99,235,0.25); transition:0.2s;"
+          onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">🖨️ Imprimir
+          Documento</button>
+        <button onclick="document.getElementById('recibo-impresion').style.display='none'"
+          style="padding:12px 20px; background:#e2e8f0; color:#334155; border:none; border-radius:8px; font-weight:800; cursor:pointer; font-size:14px; transition:0.2s;"
+          onmouseover="this.style.background='#cbd5e1'" onmouseout="this.style.background='#e2e8f0'">Cerrar
+          Vista</button>
       </div>
 
     </div>
   </div>
   <style>
     @media print {
-      body > *:not(#recibo-impresion) { display: none !important; }
-      #recibo-impresion { display: block !important; position: static !important; background: #fff !important; padding: 0 !important; overflow: visible !important; height: auto !important; }
-      #recibo-impresion .print-actions { display: none !important; }
-      #recibo-impresion > div { border: none !important; box-shadow: none !important; }
+      body>*:not(#recibo-impresion) {
+        display: none !important;
+      }
+
+      #recibo-impresion {
+        display: block !important;
+        position: static !important;
+        background: #fff !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        height: auto !important;
+      }
+
+      #recibo-impresion .print-actions {
+        display: none !important;
+      }
+
+      #recibo-impresion>div {
+        border: none !important;
+        box-shadow: none !important;
+      }
     }
   </style>
 
@@ -651,4 +731,5 @@
   <script src="/public/traductorGlobal.js"></script>
 
 </body>
+
 </html>
