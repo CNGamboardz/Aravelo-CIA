@@ -1,5 +1,6 @@
 const portalModel = require('../Model/portalClienteModel');
 const pagosModel = require('../Model/pagosModel');
+const clientesModel = require('../Model/clientesModel');
 
 // ============================================================
 // DATOS BANCARIOS (Reemplaza con los datos reales de Arévalo)
@@ -105,6 +106,10 @@ const apartarLote = async (req, res) => {
     if (!lote) {
       return res.status(404).json({ error: 'Lote no encontrado.' });
     }
+
+    // Actualizar etapa a 'Apartó'
+    await clientesModel.actualizarEtapaCliente(id_cliente, 'Apartó');
+
     res.json({ mensaje: `Lote ${lote.lote} en ${lote.fraccionamiento} apartado exitosamente.`, lote });
   } catch (error) {
     console.error('Error al apartar lote:', error.message);
@@ -144,6 +149,13 @@ const agendarCita = async (req, res) => {
       return res.status(400).json({ error: 'Se requieren id_cliente y fecha.' });
     }
     const cita = await portalModel.agendarCita(id_cliente, fecha, id_lote, nota);
+    
+    // Actualizar etapa a 'Contactado' si es prospecto nuevo
+    const cliente = await clientesModel.getClientes().then(list => list.find(c => c.id_cliente == id_cliente));
+    if (cliente && cliente.etapa === 'Prospecto nuevo') {
+      await clientesModel.actualizarEtapaCliente(id_cliente, 'Contactado');
+    }
+
     res.json({ mensaje: 'Cita agendada exitosamente.', cita });
   } catch (error) {
     console.error('Error al agendar cita:', error.message);
@@ -254,6 +266,10 @@ const liberarLote = async (req, res) => {
     if (!liberado) {
       return res.status(404).json({ error: 'No se pudo liberar el lote. Verifica tu propiedad.' });
     }
+
+    // Actualizar etapa a 'Cancelado'
+    await clientesModel.actualizarEtapaCliente(id_cliente, 'Cancelado');
+
     res.json({ mensaje: `El lote en ${liberado.fraccionamiento} ha sido liberado exitosamente.`, liberado });
   } catch (error) {
     res.status(500).json({ error: 'Error interno al liberar la reserva.' });

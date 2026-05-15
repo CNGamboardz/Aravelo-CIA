@@ -33,7 +33,16 @@ const crearEvento = async (evento) => {
   }
 };
 
+const actualizarEstatusEvento = async (id_agenda, estatus) => {
+  const res = await db.query(
+    'UPDATE sistema.agenda SET estatus = $1 WHERE id_agenda = $2 RETURNING *',
+    [estatus, id_agenda]
+  );
+  return res.rows[0];
+};
+
 module.exports = {
   getAgenda,
-  crearEvento
+  crearEvento,
+  actualizarEstatusEvento
 };

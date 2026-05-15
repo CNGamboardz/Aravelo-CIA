@@ -1,4 +1,5 @@
 const agendaModel = require('../Model/agendaModel');
+const clientesModel = require('../Model/clientesModel');
 const { desencriptarId } = require('./cryptoHelper');
 
 const listarEventos = async (req, res) => {
@@ -49,7 +50,25 @@ const guardarEvento = async (req, res) => {
   }
 };
 
+const actualizarEstatus = async (req, res) => {
+  try {
+    const { id_agenda, estatus } = req.body;
+    const actualizado = await agendaModel.actualizarEstatusEvento(id_agenda, estatus);
+    
+    // Si se marca como completado y tiene un cliente asociado, actualizar etapa
+    if (estatus === 'completado' && actualizado.id_cliente) {
+      await clientesModel.actualizarEtapaCliente(actualizado.id_cliente, 'Visitó terreno');
+    }
+
+    res.json(actualizado);
+  } catch (error) {
+    console.error('Error al actualizar estatus de agenda:', error);
+    res.status(500).json({ error: 'Error al actualizar el evento' });
+  }
+};
+
 module.exports = {
   listarEventos,
-  guardarEvento
+  guardarEvento,
+  actualizarEstatus
 };

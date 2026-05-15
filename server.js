@@ -63,6 +63,7 @@ app.put('/api/vendedores/:id', usuariosController.modificarVendedor);
 // Rutas de API - Agenda Personal
 app.get('/api/agenda', agendaController.listarEventos);
 app.post('/api/agenda', agendaController.guardarEvento);
+app.put('/api/agenda', agendaController.actualizarEstatus);
 
 // Rutas de API - Clientes
 app.get('/clientes', clientesController.obtenerClientes);

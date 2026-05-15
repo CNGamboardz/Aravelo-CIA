@@ -56,6 +56,18 @@ const registrarPago = async (pago) => {
     }
 
     await client.query('COMMIT');
+
+    // Lógica de etapa: Si paga y estaba en Moroso/Cancelado -> Recuperado. Si no -> Cliente activo.
+    const resCli = await client.query('SELECT etapa FROM sistema.clientes WHERE id_cliente = $1', [id_cliente]);
+    if (resCli.rows.length > 0) {
+      const etapaActual = resCli.rows[0].etapa;
+      let nuevaEtapa = 'Cliente activo';
+      if (etapaActual === 'Moroso' || etapaActual === 'Cancelado') {
+        nuevaEtapa = 'Recuperado';
+      }
+      await client.query('UPDATE sistema.clientes SET etapa = $1 WHERE id_cliente = $2', [nuevaEtapa, id_cliente]);
+    }
+
     return nuevoPago;
   } catch (error) {
     await client.query('ROLLBACK');
@@ -66,8 +78,35 @@ const registrarPago = async (pago) => {
   }
 };
 
+const auditarRiesgosDB = async () => {
+  // 1. Marcar 'En riesgo' si tienen pagos pendientes con más de 5 días de retraso
+  await db.query(`
+    UPDATE sistema.clientes cl
+    SET etapa = 'En riesgo'
+    WHERE id_cliente IN (
+      SELECT id_cliente FROM sistema.calendario_pagos 
+      WHERE estatus = 'pendiente' 
+      AND fecha_esperada < CURRENT_DATE - INTERVAL '5 days'
+    )
+    AND etapa NOT IN ('Moroso', 'Cancelado')
+  `);
+
+  // 2. Marcar 'Moroso' si tienen pagos pendientes con más de 30 días de retraso
+  await db.query(`
+    UPDATE sistema.clientes cl
+    SET etapa = 'Moroso'
+    WHERE id_cliente IN (
+      SELECT id_cliente FROM sistema.calendario_pagos 
+      WHERE estatus = 'pendiente' 
+      AND fecha_esperada < CURRENT_DATE - INTERVAL '30 days'
+    )
+    AND etapa != 'Cancelado'
+  `);
+};
+
 module.exports = {
   getCalendarioCobranza,
   getPagosReales,
-  registrarPago
+  registrarPago,
+  auditarRiesgosDB
 };

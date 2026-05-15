@@ -55,8 +55,8 @@ const crearCliente = async (cliente) => {
      telefono, telefono_secundario, correo, direccion, colonia, municipio, 
      estado, codigo_postal, ocupacion, empresa, ingresos_mensuales, estado_civil, 
      nacionalidad, identificacion_oficial, numero_identificacion, foto_identificacion, 
-     comprobante_domicilio, foto_cliente, estatus, observaciones, id_asesor, password_cliente)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29) 
+     comprobante_domicilio, foto_cliente, estatus, observaciones, id_asesor, password_cliente, etapa)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30) 
     RETURNING *`,
     [
       nombre || '', apellido_paterno || '', apellido_materno || '', c_nac, sexo || '', 
@@ -65,7 +65,7 @@ const crearCliente = async (cliente) => {
       codigo_postal || '', ocupacion || '', empresa || '', c_ingresos, estado_civil || '', 
       nacionalidad || '', identificacion_oficial || '', numero_identificacion || '', 
       foto_identificacion || '', comprobante_domicilio || '', foto_cliente || '', 
-      estatus || 'activo', observaciones || '', id_asesor || null, passHash
+      estatus || 'activo', observaciones || '', id_asesor || null, passHash, cliente.etapa || 'Prospecto nuevo'
     ]
   );
 
@@ -119,9 +119,18 @@ const eliminarClienteDB = async (id) => {
   }
 };
 
+const actualizarEtapaCliente = async (id_cliente, etapa) => {
+  const res = await db.query(
+    'UPDATE sistema.clientes SET etapa = $1 WHERE id_cliente = $2 RETURNING *',
+    [etapa, id_cliente]
+  );
+  return res.rows[0];
+};
+
 module.exports = {
   getClientes,
   crearCliente,
   actualizarClienteDB,
-  eliminarClienteDB
-};
+  eliminarClienteDB,
+  actualizarEtapaCliente
+};

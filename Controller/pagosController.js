@@ -3,6 +3,9 @@ const { encriptarId, desencriptarId } = require('./cryptoHelper');
 
 const listarCalendario = async (req, res) => {
   try {
+    // Auditar riesgos antes de listar (Pipeline)
+    await pagosModel.auditarRiesgosDB();
+    
     const data = await pagosModel.getCalendarioCobranza();
     const ofuscados = data.map(item => ({
       ...item,

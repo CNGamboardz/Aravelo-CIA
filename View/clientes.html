@@ -103,13 +103,42 @@
         <p>Gestión de prospectos, compradores y estatus del CRM</p>
       </div>
       <div>
-        <a href="/registrar_cliente.html"
-          style="background: linear-gradient(135deg, #570fff 0%, #7c3aed 100%); color: white; padding: 12px 25px; border-radius: 12px; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 10px 20px rgba(87, 15, 255, 0.25);"
+        <button onclick="toggleModal(true)" 
+          style="background: linear-gradient(135deg, #570fff 0%, #7c3aed 100%); color: white; padding: 12px 25px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 10px 20px rgba(87, 15, 255, 0.25);"
           onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-          <span>⚡</span> Portal de Alta Dedicada
-        </a>
+          <span>⚡</span> Nuevo Prospecto
+        </button>
       </div>
     </header>
+
+    <!-- BARRA DE FILTROS Y BÚSQUEDA -->
+    <section style="display: flex; gap: 15px; margin-bottom: 25px; background: white; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+      <div style="flex: 1; position: relative;">
+        <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8;">🔍</span>
+        <input type="text" id="filtroNombre" placeholder="Buscar por nombre o ID de cliente..." 
+          style="width: 100%; padding: 12px 15px 12px 45px; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 14px; outline: none; transition: 0.3s;"
+          onfocus="this.style.borderColor='#570fff'; this.style.boxShadow='0 0 0 4px rgba(87, 15, 255, 0.1)'"
+          onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'"
+          oninput="filtrarClientes()">
+      </div>
+      
+      <div style="width: 250px;">
+        <select id="filtroEtapa" onchange="filtrarClientes()"
+          style="width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 14px; outline: none; background: #f8fafc; font-weight: 600; color: #475569;">
+          <option value="">Todas las etapas</option>
+          <option value="Prospecto nuevo">Prospecto nuevo</option>
+          <option value="Contactado">Contactado</option>
+          <option value="Visitó terreno">Visitó terreno</option>
+          <option value="Apartó">Apartó</option>
+          <option value="Cliente activo">Cliente activo</option>
+          <option value="En riesgo">En riesgo</option>
+          <option value="Moroso">Moroso</option>
+          <option value="Cancelado">Cancelado</option>
+          <option value="Recuperado">Recuperado</option>
+        </select>
+      </div>
+      
+    </section>
 
     <!-- FORMULARIO MODAL NUEVO CLIENTE (29 COLUMNAS DE CAPTURA CONTABLE) -->
     <section class="modal-container" id="modalCliente">
@@ -265,14 +294,17 @@
             <input type="text" id="c_num_id" placeholder="Clave de elector o folio" maxlength="100">
           </div>
           <div class="form-group">
-            <label for="c_estatus">Estatus CRM</label>
+            <label for="c_estatus">Etapa del Pipeline</label>
             <select id="c_estatus">
-              <option value="activo">Activo</option>
-              <option value="prospecto">Prospecto</option>
-              <option value="contactado">Contactado</option>
-              <option value="visito">Visitó Predio</option>
-              <option value="apartado">Con Apartado</option>
-              <option value="inactivo">Inactivo / Cancelado</option>
+              <option value="Prospecto nuevo">Prospecto nuevo</option>
+              <option value="Contactado">Contactado</option>
+              <option value="Visitó terreno">Visitó terreno</option>
+              <option value="Apartó">Apartó</option>
+              <option value="Cliente activo">Cliente activo</option>
+              <option value="En riesgo">En riesgo</option>
+              <option value="Moroso">Moroso</option>
+              <option value="Cancelado">Cancelado</option>
+              <option value="Recuperado">Recuperado</option>
             </select>
           </div>
           <div class="form-group">
@@ -332,7 +364,7 @@
             <th>Nombre Completo</th>
             <th>Contacto</th>
             <th>Ubicación</th>
-            <th>Estatus</th>
+            <th>Etapa Pipeline</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -487,78 +519,108 @@
         // FILTRADO ESTRICTO DE CARTERA (RBAC MULTI-TENANT)
         if (userData && userData.rol) {
           const rCrm = userData.rol.toLowerCase();
-          // Aplicar filtros de privacidad para todos los roles excepto SuperAdmin (si existiera uno que deba ver todo)
           if (['vendedor', 'asesor', 'administrativo', 'administrador', 'gerencia'].includes(rCrm)) {
             dataGlobal = dataGlobal.filter(c => {
-              // 1. Prioridad: Si el cliente eligió a alguien en el portal, ESE es el único dueño
               if (c.id_asesor_asignado && c.id_asesor_asignado.trim() !== '' && c.id_asesor_asignado !== 'null') {
                 return c.id_asesor_asignado === userData.id_usuario;
               }
-              // 2. Fallback: Si no hay elección en el portal, lo ve quien lo registró originalmente
               return c.id_asesor === userData.id_usuario;
             });
           }
         }
         listaClientesGlobal = dataGlobal;
-
-        const tbody = document.getElementById('tablaClientesBody');
-        tbody.innerHTML = '';
-
-        if (!listaClientesGlobal || listaClientesGlobal.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #6b7280;">No hay clientes registrados en el sistema.</td></tr>`;
-          return;
-        }
-
-        listaClientesGlobal.forEach(c => {
-          const nomCompl = `${c.nombre || ''} ${c.apellido_paterno || ''} ${c.apellido_materno || ''}`.trim() || c.nombre || 'Sin Nombre';
-          const inicial = nomCompl.charAt(0).toUpperCase();
-
-          let avatarHtml = '';
-          if (c.foto_cliente) {
-            if (c.foto_cliente.includes('application/pdf')) {
-              avatarHtml = `<a href="javascript:void(0)" onclick="descargarBlobBase64(listaClientesGlobal.find(i => i.id_cliente == '${c.id_cliente}').foto_cliente, 'Foto_Perfil.pdf')" style="width: 42px; height: 42px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px; flex-shrink: 0; border: 2px solid #fca5a5; text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1);" title="Descargar / Ver PDF">📄 PDF</a>`;
-            } else {
-              avatarHtml = `<img src="${c.foto_cliente}" alt="Avatar" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #c4b5fd; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">`;
-            }
-          } else {
-            avatarHtml = `<div style="width: 42px; height: 42px; border-radius: 50%; background: #ede9fe; color: #570fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; flex-shrink: 0; border: 2px solid #e2e8f0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">${inicial}</div>`;
-          }
-
-          const estatusClase = `badge-${(c.estatus || c.etapa || 'activo').toLowerCase()}`;
-          const estatusTxt = c.estatus || c.etapa || 'Activo';
-
-          tbody.innerHTML += `
-            <tr>
-              <td>
-                <div style="display: flex; align-items: center; gap: 12px; text-align: left;">
-                  ${avatarHtml}
-                  <div>
-                    <div style="font-weight: 800; color: #0f172a; font-size: 14px;">${nomCompl}</div>
-                    <div style="font-size: 11px; color: #64748b; margin-top: 2px;">ID CRM: #${c.id_cliente}</div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <div style="font-weight: 600; color: #1e293b;">📞 ${c.telefono || 'Sin teléfono'}</div>
-                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${c.correo || c.email || 'Sin correo'}</div>
-              </td>
-              <td>
-                <div style="font-weight: 700; color: #0f172a;">${c.colonia || c.municipio || 'Sin Asentamiento'}</div>
-                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${c.estado || 'Chiapas'}</div>
-              </td>
-              <td><span class="badge ${estatusClase}">${estatusTxt}</span></td>
-              <td style="display: flex; gap: 6px; justify-content: center;">
-                <button onclick="editarCliente('${c.id_cliente}')" style="padding: 6px 12px; border:none; background:#ede9fe; color:#570fff; border-radius:6px; cursor:pointer; font-size:12px; font-weight:800; transition:0.2s;" onmouseover="this.style.background='#d8b4fe'" onmouseout="this.style.background='#ede9fe'" title="Auditar / Modificar Ficha">✏️ Auditar</button>
-                <button onclick="eliminarClienteLocal('${c.id_cliente}')" style="padding: 6px 12px; border:none; background:#fee2e2; color:#dc2626; border-radius:6px; cursor:pointer; font-size:12px; transition:0.2s;" onmouseover="this.style.background='#fca5a5'" onmouseout="this.style.background='#fee2e2'" title="Eliminar / Inactivar">🗑️</button>
-              </td>
-            </tr>
-          `;
-        });
-
+        filtrarClientes();
       } catch (error) {
         console.error('Error al cargar clientes:', error);
         document.getElementById('tablaClientesBody').innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ef4444;">Error al cargar registros del CRM.</td></tr>`;
       }
+    }
+
+    function filtrarClientes() {
+      const input = document.getElementById('filtroNombre');
+      const query = (input ? input.value : '').toLowerCase();
+      const etapaSel = document.getElementById('filtroEtapa').value;
+
+      const filtrados = listaClientesGlobal.filter(c => {
+        const nombreCompl = `${c.nombre || ''} ${c.apellido_paterno || ''} ${c.apellido_materno || ''}`.toLowerCase();
+        const idStr = String(c.id_cliente);
+        const matchesQuery = nombreCompl.includes(query) || idStr.includes(query);
+        
+        const etapaC = c.etapa || c.estatus || 'Prospecto nuevo';
+        const matchesEtapa = !etapaSel || etapaC === etapaSel;
+
+        return matchesQuery && matchesEtapa;
+      });
+
+      renderClientes(filtrados);
+    }
+
+    function renderClientes(lista) {
+      const tbody = document.getElementById('tablaClientesBody');
+      tbody.innerHTML = '';
+
+      if (!lista || lista.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #6b7280; padding: 40px;">No se encontraron clientes con los filtros aplicados.</td></tr>`;
+        return;
+      }
+
+      lista.forEach(c => {
+        const nomCompl = `${c.nombre || ''} ${c.apellido_paterno || ''} ${c.apellido_materno || ''}`.trim() || c.nombre || 'Sin Nombre';
+        const inicial = nomCompl.charAt(0).toUpperCase();
+
+        let avatarHtml = '';
+        if (c.foto_cliente) {
+          if (c.foto_cliente.includes('application/pdf')) {
+            avatarHtml = `<a href="javascript:void(0)" onclick="descargarBlobBase64(listaClientesGlobal.find(i => i.id_cliente == '${c.id_cliente}').foto_cliente, 'Foto_Perfil.pdf')" style="width: 42px; height: 42px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px; flex-shrink: 0; border: 2px solid #fca5a5; text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1);" title="Descargar / Ver PDF">📄 PDF</a>`;
+          } else {
+            avatarHtml = `<img src="${c.foto_cliente}" alt="Avatar" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #c4b5fd; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">`;
+          }
+        } else {
+          avatarHtml = `<div style="width: 42px; height: 42px; border-radius: 50%; background: #ede9fe; color: #570fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; flex-shrink: 0; border: 2px solid #e2e8f0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">${inicial}</div>`;
+        }
+
+        const etapa = c.etapa || c.estatus || 'Prospecto nuevo';
+        let colorEtapa = '#64748b'; // default
+        if (etapa === 'Contactado') colorEtapa = '#3b82f6';
+        if (etapa === 'Visitó terreno') colorEtapa = '#8b5cf6';
+        if (etapa === 'Apartó') colorEtapa = '#f59e0b';
+        if (etapa === 'Cliente activo') colorEtapa = '#10b981';
+        if (etapa === 'En riesgo') colorEtapa = '#f43f5e';
+        if (etapa === 'Moroso') colorEtapa = '#991b1b';
+        if (etapa === 'Cancelado') colorEtapa = '#475569';
+        if (etapa === 'Recuperado') colorEtapa = '#065f46';
+
+        tbody.innerHTML += `
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center; gap: 12px; text-align: left;">
+                ${avatarHtml}
+                <div>
+                  <div style="font-weight: 800; color: #0f172a; font-size: 14px;">${nomCompl}</div>
+                  <div style="font-size: 11px; color: #64748b; margin-top: 2px;">ID CRM: #${c.id_cliente}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div style="font-weight: 600; color: #1e293b;">📞 ${c.telefono || 'Sin teléfono'}</div>
+              <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${c.correo || c.email || 'Sin correo'}</div>
+            </td>
+            <td>
+              <div style="font-weight: 700; color: #0f172a;">${c.colonia || c.municipio || 'Sin Asentamiento'}</div>
+              <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${c.estado || 'Chiapas'}</div>
+            </td>
+            <td>
+              <span style="background: ${colorEtapa}15; color: ${colorEtapa}; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 900; border: 1px solid ${colorEtapa}30; text-transform: uppercase; white-space: nowrap;">
+                ${etapa}
+              </span>
+            </td>
+            <td style="display: flex; gap: 6px; justify-content: center;">
+              <button onclick="editarCliente('${c.id_cliente}')" style="padding: 6px 12px; border:none; background:#ede9fe; color:#570fff; border-radius:6px; cursor:pointer; font-size:12px; font-weight:800; transition:0.2s;" onmouseover="this.style.background='#d8b4fe'" onmouseout="this.style.background='#ede9fe'" title="Auditar / Modificar Ficha">✏️ Auditar</button>
+              <button onclick="eliminarClienteLocal('${c.id_cliente}')" style="padding: 6px 12px; border:none; background:#fee2e2; color:#dc2626; border-radius:6px; cursor:pointer; font-size:12px; transition:0.2s;" onmouseover="this.style.background='#fca5a5'" onmouseout="this.style.background='#fee2e2'" title="Eliminar / Inactivar">🗑️</button>
+            </td>
+          </tr>
+        `;
+      });
     }
 
     function editarCliente(id) {
@@ -594,7 +656,7 @@
         document.getElementById('c_ingresos').value = cliente.ingresos_mensuales || '';
         document.getElementById('c_id_oficial').value = cliente.identificacion_oficial || 'INE';
         document.getElementById('c_num_id').value = cliente.numero_identificacion || '';
-        document.getElementById('c_estatus').value = cliente.estatus || cliente.etapa || 'activo';
+        document.getElementById('c_estatus').value = cliente.etapa || cliente.estatus || 'Prospecto nuevo';
 
         document.getElementById('c_foto_cli').value = cliente.foto_cliente || '';
         document.getElementById('prev_c_foto_cli').innerHTML = cliente.foto_cliente ? `<a href="javascript:void(0)" onclick="descargarBlobBase64(document.getElementById('c_foto_cli').value, 'Foto_Cliente.pdf')" style="color: #570fff; text-decoration: underline; font-weight: 700;">👁️ Ver / Descargar Archivo Guardado</a>` : 'Sin archivo previo';
@@ -666,6 +728,7 @@
         identificacion_oficial: document.getElementById('c_id_oficial').value,
         numero_identificacion: document.getElementById('c_num_id').value.trim(),
         estatus: document.getElementById('c_estatus').value,
+        etapa: document.getElementById('c_estatus').value,
         foto_cliente: document.getElementById('c_foto_cli').value.trim(),
         foto_identificacion: document.getElementById('c_foto_id').value.trim(),
         comprobante_domicilio: document.getElementById('c_comp_dom').value.trim(),
