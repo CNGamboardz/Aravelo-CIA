@@ -122,7 +122,7 @@ const apartarLote = async (id_lote, id_cliente) => {
 const asignarAsesor = async (id_cliente, id_asesor) => {
   const res = await db.query(
     `UPDATE sistema.clientes 
-     SET id_asesor_asignado = $1, id_asesor = $1 
+     SET id_asesor_asignado = $1 
      WHERE id_cliente = $2
      RETURNING id_cliente, id_asesor_asignado, id_asesor`,
     [id_asesor, id_cliente]

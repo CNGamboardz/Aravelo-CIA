@@ -373,7 +373,17 @@
         const res = await fetch('/contratos', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id_cliente, id_terreno, tipo_plan, precio_total, enganche, plazo, monto_mensual, documento_ref })
+          body: JSON.stringify({ 
+            id_cliente, 
+            id_terreno, 
+            tipo_plan, 
+            precio_total, 
+            enganche, 
+            plazo, 
+            monto_mensual, 
+            documento_ref,
+            id_asesor: userData ? userData.id_usuario : null
+          })
         });
 
         if (!res.ok) {

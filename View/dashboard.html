@@ -8,9 +8,87 @@
   <!-- ESCUDO DE SEGURIDAD GLOBAL ANTI-CRACKERS Y ENCRIPTACIÓN -->
   <script src="/public/security-bundle.js"></script>
   <style>
-    @keyframes fadeInSlide {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .agenda-card {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+      border: 1px solid #f1f5f9;
+      position: relative;
+      overflow: hidden;
+    }
+    .agenda-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 8px;
+      background: linear-gradient(90deg, #570fff, #7c3aed);
+    }
+    .agenda-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+    .agenda-item {
+      background: #f8fafc;
+      margin-bottom: 12px;
+      padding: 16px 20px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      transition: 0.3s;
+      border: 1px solid transparent;
+    }
+    .agenda-item:hover {
+      transform: translateX(5px);
+      background: #fff;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      border-color: #e2e8f0;
+    }
+    .agenda-item-title {
+      font-weight: 800;
+      color: #1e293b;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+    .agenda-item-date {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .diary-section {
+      margin-top: 40px;
+      background: #f1f5f9;
+      border-radius: 24px;
+      padding: 30px;
+      border: 2px dashed #cbd5e1;
+      opacity: 0.85;
+    }
+    .diary-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      background: rgba(255,255,255,0.5);
+      margin-bottom: 10px;
+      border-radius: 14px;
+      transition: 0.3s;
+    }
+    .diary-item:hover {
+      opacity: 1;
+      background: #fff;
+    }
+    .badge-today {
+      background: #ef4444;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 9px;
+      font-weight: 900;
+      margin-left: 8px;
+      vertical-align: middle;
     }
     .tr-audit:hover {
       background: #f1f5f9 !important;
@@ -279,6 +357,20 @@
 
     </section>
 
+    <!-- DIARIO DE TAREAS / HISTORIAL DE RECORDATORIOS -->
+    <section class="diary-section" id="seccionDiario" style="display: none;">
+      <h3 style="display: flex; align-items: center; gap: 8px; font-size: 16px; color: #475569;">
+        <img src="/public/historial.png" style="width:18px; height:18px; object-fit:contain; filter: grayscale(1);" alt="icon"> Diario de Tareas Pasadas
+      </h3>
+      <p style="color: #94a3b8; font-size: 12px; margin-bottom: 15px;">Registro automático de compromisos que ya han expirado.</p>
+      <div id="listaDiario">
+        <!-- RENDER DINÁMICO DE HISTORIAL -->
+      </div>
+    </section>
+
+    <!-- CONTENEDOR DE NOTIFICACIÓN FLOTANTE -->
+    <div id="notificacionAgenda" style="display: none;"></div>
+
   </main>
 
   <script>
@@ -342,13 +434,25 @@
         if (!Array.isArray(inventarioLotesGlobal)) inventarioLotesGlobal = [];
         if (!Array.isArray(listaClientesGlobal)) listaClientesGlobal = [];
 
-        // APLICAR FILTRADO DE SEGURIDAD PARA VENDEDORES
+        // FILTRADO DE SEGURIDAD PARA DASHBOARD
         if (userData && userData.rol) {
           const rCrm = userData.rol.toLowerCase();
-          if (rCrm === 'vendedor' || rCrm === 'asesor') {
-            listaClientesGlobal = listaClientesGlobal.filter(c => {
-              if (c.id_asesor_asignado) return c.id_asesor_asignado === userData.id_usuario;
-              return c.id_asesor === userData.id_usuario;
+          if (['vendedor', 'asesor', 'administrativo', 'administrador', 'gerencia'].includes(rCrm)) {
+            inventarioLotesGlobal = inventarioLotesGlobal.filter(t => {
+              const est = (t.estado || 'disponible').toLowerCase();
+              // 1. Si el lote está LIBRE, todos deben verlo para poder venderlo
+              if (est.includes('libre') || est.includes('disponible')) return true;
+
+              // 2. REGLA DE ORO: Si yo hice el contrato del lote, es mío para mis métricas
+              if (t.id_asesor_contrato === userData.id_usuario) return true;
+              
+              // 3. Si el cliente del lote me pertenece actualmente (prioridad portal)
+              if (t.id_asesor_asignado_cliente) return t.id_asesor_asignado_cliente === userData.id_usuario;
+              
+              // 4. Si el cliente fue registrado por mí originalmente (y no tiene asignado otro)
+              if (t.id_asesor_cliente) return t.id_asesor_cliente === userData.id_usuario;
+              
+              return false;
             });
           }
         }
@@ -366,10 +470,6 @@
           const esApartado = e.includes('apartado') || e.includes('reservado');
           if (!esApartado) return false;
           
-          // Si es vendedor, solo ve sus propios apartados
-          if (userData && (userData.rol.toLowerCase() === 'vendedor' || userData.rol.toLowerCase() === 'asesor')) {
-            return misIdsClientes.includes(String(t.id_cliente)) || misIdsClientes.includes(String(t.id_propietario));
-          }
           return true;
         });
 
@@ -378,10 +478,6 @@
           const esVendido = e.includes('vendido') || e.includes('ocupado') || e.includes('cerrado');
           if (!esVendido) return false;
 
-          // Si es vendedor, solo ve sus propias ventas
-          if (userData && (userData.rol.toLowerCase() === 'vendedor' || userData.rol.toLowerCase() === 'asesor')) {
-            return misIdsClientes.includes(String(t.id_cliente)) || misIdsClientes.includes(String(t.id_propietario));
-          }
           return true;
         });
 
@@ -481,21 +577,30 @@
           // Obtener nombre del cliente si es vendido
           let infoCliente = 'Sin Asignar';
           if (tipo === 'vendidos') {
-            const clientId = parseInt(t.id_cliente) || parseInt(t.id_propietario);
-            if (!isNaN(clientId)) {
-              const cFound = listaClientesGlobal.find(c => c.id_cliente === clientId || c.id === clientId);
+            const rawId = t.id_cliente || t.id_propietario;
+            
+            if (t.propietario_nombre && t.propietario_nombre.trim() !== '') {
+              infoCliente = `
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                  <span>👤 <b>${t.propietario_nombre}</b></span>
+                  <button onclick="verInfoClienteDirecto('${rawId}')" style="background: #ede9fe; color: #570fff; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.2s;">ℹ️ Ver Info</button>
+                </div>
+              `;
+            } else if (rawId) {
+              const cFound = listaClientesGlobal.find(c => c.id_cliente === rawId || c.id === rawId);
               if (cFound) {
+                const nom = `${cFound.nombre || ''} ${cFound.apellido_paterno || ''} ${cFound.apellido_materno || ''}`.trim() || cFound.nombre_completo;
                 infoCliente = `
                   <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                    <span>👤 <b>${cFound.nombre || cFound.nombre_completo}</b></span>
-                    <button onclick="verInfoClienteDirecto(${clientId})" style="background: #ede9fe; color: #570fff; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.2s;">ℹ️ Ver Info</button>
+                    <span>👤 <b>${nom}</b></span>
+                    <button onclick="verInfoClienteDirecto('${rawId}')" style="background: #ede9fe; color: #570fff; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.2s;">ℹ️ Ver Info</button>
                   </div>
                 `;
               } else {
                 infoCliente = `
                   <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                    <span>👤 Comprador ID #${clientId}</span>
-                    <button onclick="verInfoClienteDirecto(${clientId})" style="background: #ede9fe; color: #570fff; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer;">ℹ️ Ver Info</button>
+                    <span>👤 Comprador ID #${String(rawId).substring(0,8)}</span>
+                    <button onclick="verInfoClienteDirecto('${rawId}')" style="background: #ede9fe; color: #570fff; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer;">ℹ️ Ver Info</button>
                   </div>
                 `;
               }
@@ -554,6 +659,7 @@
     }
 
     // Cargar Agenda Personal
+    let notificoHoy = false;
     async function cargarAgenda() {
       try {
         const idParam = userData ? `?id_usuario=${userData.id_usuario}` : '';
@@ -561,32 +667,105 @@
         const eventos = await res.json();
 
         const lista = document.getElementById('listaAgenda');
+        const listaDiario = document.getElementById('listaDiario');
+        const seccionDiario = document.getElementById('seccionDiario');
+        
         lista.innerHTML = '';
+        listaDiario.innerHTML = '';
 
         if (!eventos || eventos.length === 0) {
           lista.innerHTML = `<li style="color: #6b7280; font-size: 13px;">No tienes tareas o recordatorios pendientes.</li>`;
+          seccionDiario.style.display = 'none';
           return;
         }
 
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+
+        let tareasHoy = [];
+        let hayPasadas = false;
+
         eventos.forEach(e => {
-          // Extraer fecha limpia (usando fecha_inicio como prioridad)
-          const rawFecha = e.fecha_inicio || e.fecha_evento;
-          const f = new Date(rawFecha + 'T00:00:00');
-          const fStr = isNaN(f) ? rawFecha : `${f.getDate()} ${meses[f.getMonth()]}`;
+          let rawFecha = e.fecha_inicio || e.fecha_evento || '';
+          // Limpiar si viene con hora ISO para evitar conflictos de zona horaria al comparar días
+          let cleanFecha = rawFecha.includes('T') ? rawFecha.split('T')[0] : rawFecha;
           
-          lista.innerHTML += `
-            <li class="agenda-item">
-              <div>
-                <div class="agenda-item-title">📌 ${e.titulo}</div>
-                <div class="agenda-item-date">Programado para: <b>${fStr}</b></div>
+          const f = new Date(cleanFecha + 'T00:00:00');
+          f.setHours(0, 0, 0, 0);
+          
+          const fStr = isNaN(f.getTime()) ? rawFecha : `${f.getDate()} ${meses[f.getMonth()]}`;
+
+          if (f < hoy) {
+            // TAREA PASADA -> AL DIARIO
+            hayPasadas = true;
+            listaDiario.innerHTML += `
+              <div class="diary-item">
+                <div style="background: #e2e8f0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;">✅</div>
+                <div style="flex:1;">
+                  <div style="font-weight: 700; color: #475569; font-size: 13px; text-decoration: line-through; opacity: 0.6;">${e.titulo}</div>
+                  <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">COMPLETADA EL ${fStr}</div>
+                </div>
               </div>
-            </li>
-          `;
+            `;
+          } else {
+            // TAREA PRESENTE O FUTURA
+            const esHoy = !isNaN(f.getTime()) && f.getTime() === hoy.getTime();
+            if (esHoy) {
+              tareasHoy.push(e);
+            }
+
+            lista.innerHTML += `
+              <li class="agenda-item" style="${esHoy ? 'background: #fff; border: 2px solid #fee2e2; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.08);' : ''}">
+                <div style="background: ${esHoy ? '#ef4444' : '#570fff'}; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; box-shadow: 0 8px 15px ${esHoy ? 'rgba(239, 68, 68, 0.2)' : 'rgba(87, 15, 255, 0.2)'};">
+                  ${esHoy ? '🔥' : '📅'}
+                </div>
+                <div style="flex:1;">
+                  <div class="agenda-item-title">
+                    ${e.titulo} 
+                    ${esHoy ? '<span class="badge-today">PARA HOY</span>' : ''}
+                  </div>
+                  <div class="agenda-item-date">${esHoy ? 'Prioridad Máxima' : 'Programado para: ' + fStr}</div>
+                </div>
+              </li>
+            `;
+          }
         });
+
+        seccionDiario.style.display = hayPasadas ? 'block' : 'none';
+
+        // Lanzar Notificación si hay algo para HOY y no se ha notificado en este ciclo
+        if (tareasHoy.length > 0 && !notificoHoy) {
+          mostrarNotificacionPremium(tareasHoy);
+          notificoHoy = true;
+        }
+
       } catch (err) {
         console.error('Error al cargar agenda:', err);
         document.getElementById('listaAgenda').innerHTML = `<li style="color: #ef4444; font-size: 13px;">Error al conectar con la agenda.</li>`;
       }
+    }
+
+    function mostrarNotificacionPremium(tareas) {
+      const contenedor = document.getElementById('notificacionAgenda');
+      contenedor.innerHTML = `
+        <div class="notification-premium">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+            <div style="background: #570fff; color: white; padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Aviso Importante</div>
+            <button onclick="this.parentElement.parentElement.style.display='none'" style="background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 16px;">✖</button>
+          </div>
+          <h4 style="font-size: 16px; color: #0f172a; margin-bottom: 8px;">¡Tienes ${tareas.length} compromiso(s) hoy!</h4>
+          <ul style="list-style: none; padding: 0; margin: 0;">
+            ${tareas.map(t => `<li style="margin-bottom: 8px; font-size: 13px; color: #475569; display: flex; gap: 8px;"><span>⚡</span> ${t.titulo}</li>`).join('')}
+          </ul>
+          <button onclick="this.parentElement.style.display='none'" style="width: 100%; margin-top: 15px; background: #570fff; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s;">Entendido, revisaré mi agenda</button>
+        </div>
+      `;
+      contenedor.style.display = 'block';
+      
+      // Auto-ocultar después de 10 segundos
+      setTimeout(() => {
+        contenedor.style.display = 'none';
+      }, 10000);
     }
 
     // Guardar Tarea en la Agenda

@@ -382,9 +382,15 @@
         const pagosTotal = await res.json();
         
         // Filtrar solo los de este asesor si el usuario logueado es vendedor/asesor
-        const isAsesor = userData && (userData.rol === 'vendedor' || userData.rol === 'asesor');
+        const isAsesor = userData && (userData.rol === 'vendedor' || userData.rol === 'asesor' || userData.rol === 'administrativo');
         listaPagosGlobal = isAsesor ? pagosTotal.filter(p => {
+          // REGLA DE ORO: Si YO registré el pago, es mío (aunque el cliente haya cambiado de asesor)
+          if (p.id_usuario === userData.id_usuario) return true;
+          
+          // O si el cliente me pertenece actualmente en el portal
           if (p.id_asesor_asignado) return p.id_asesor_asignado === userData.id_usuario;
+          
+          // O si soy el asesor original y no tiene uno asignado en el portal
           return p.id_asesor === userData.id_usuario;
         }) : pagosTotal;
 

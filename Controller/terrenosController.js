@@ -1,11 +1,18 @@
 const terrenosModel = require('../Model/terrenosModel');
 const fs = require('fs');
 const path = require('path');
+const { encriptarId } = require('./cryptoHelper');
 
 const obtenerTerrenos = async (req, res) => {
   try {
     const terrenos = await terrenosModel.getTerrenos();
-    res.json(terrenos);
+    const ofuscados = terrenos.map(t => ({
+      ...t,
+      id_asesor_contrato: t.id_asesor_contrato ? encriptarId(t.id_asesor_contrato) : null,
+      id_asesor_cliente: t.id_asesor_cliente ? encriptarId(t.id_asesor_cliente) : null,
+      id_asesor_asignado_cliente: t.id_asesor_asignado_cliente ? encriptarId(t.id_asesor_asignado_cliente) : null
+    }));
+    res.json(ofuscados);
   } catch (error) {
     console.error('Error al obtener terrenos:', error);
     res.status(500).json({ error: 'Error interno del servidor al obtener terrenos' });

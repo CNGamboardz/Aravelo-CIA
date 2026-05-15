@@ -435,13 +435,14 @@
         // FILTRADO ESTRICTO DE CARTERA (RBAC MULTI-TENANT)
         if (userData && userData.rol) {
           const rCrm = userData.rol.toLowerCase();
-          if (rCrm === 'vendedor' || rCrm === 'asesor') {
+          // Aplicar filtros de privacidad para todos los roles excepto SuperAdmin (si existiera uno que deba ver todo)
+          if (['vendedor', 'asesor', 'administrativo', 'administrador', 'gerencia'].includes(rCrm)) {
             dataGlobal = dataGlobal.filter(c => {
-              // Si el cliente ya eligió un asesor en el portal, ese tiene prioridad absoluta de visibilidad
-              if (c.id_asesor_asignado) {
+              // 1. Prioridad: Si el cliente eligió a alguien en el portal, ESE es el único dueño
+              if (c.id_asesor_asignado && c.id_asesor_asignado.trim() !== '' && c.id_asesor_asignado !== 'null') {
                 return c.id_asesor_asignado === userData.id_usuario;
               }
-              // Si no ha elegido, lo ve quien lo registró (su id_asesor original)
+              // 2. Fallback: Si no hay elección en el portal, lo ve quien lo registró originalmente
               return c.id_asesor === userData.id_usuario;
             });
           }

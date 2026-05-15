@@ -21,6 +21,7 @@ const listarPagos = async (req, res) => {
     const data = await pagosModel.getPagosReales();
     const ofuscados = data.map(item => ({
       ...item,
+      id_usuario: item.id_usuario ? encriptarId(item.id_usuario) : null,
       id_asesor: item.id_asesor ? encriptarId(item.id_asesor) : null,
       id_asesor_asignado: item.id_asesor_asignado ? encriptarId(item.id_asesor_asignado) : null
     }));

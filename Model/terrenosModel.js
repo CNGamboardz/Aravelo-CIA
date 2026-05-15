@@ -26,7 +26,15 @@ const asegurarColumnasCatastrales = async () => {
 const getTerrenos = async () => {
   await asegurarColumnasCatastrales();
   const res = await db.query(
-    "SELECT * FROM sistema.terrenos ORDER BY id_terreno DESC"
+    `SELECT t.*, 
+            c.id_asesor AS id_asesor_contrato, 
+            cl.id_asesor AS id_asesor_cliente,
+            cl.id_asesor_asignado AS id_asesor_asignado_cliente,
+            TRIM(CONCAT(cl.nombre, ' ', cl.apellido_paterno, ' ', cl.apellido_materno)) AS propietario_nombre
+     FROM sistema.terrenos t
+     LEFT JOIN sistema.contratos c ON t.id_terreno = c.id_terreno
+     LEFT JOIN sistema.clientes cl ON t.id_propietario = cl.id_cliente
+     ORDER BY t.id_terreno DESC`
   );
   return res.rows;
 };
