@@ -1,6 +1,28 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <script>
+    // Escudo Anti-Intrusión: Verificación de Rol Directivo
+    (function(){
+      const u = localStorage.getItem('arevalo_user');
+      if (!u) {
+        document.documentElement.innerHTML = '';
+        window.location.replace('/login.html');
+        return;
+      }
+      try {
+        const user = JSON.parse(u);
+        if (!user.rol || user.rol.toLowerCase() !== 'direccion') {
+          document.documentElement.innerHTML = '';
+          window.location.replace('/dashboard.html');
+        }
+      } catch(e) {
+        document.documentElement.innerHTML = '';
+        window.location.replace('/login.html');
+      }
+    })();
+  </script>
+
   <meta charset="UTF-8">
   <title>Modificar Perfil de Agente - Arevalo & CIA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -238,6 +260,7 @@
       }
     }
   </style>
+  <script src="/public/security-bundle.js"></script>
 </head>
 <body>
 

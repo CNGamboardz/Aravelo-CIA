@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <script>
+    // Escudo Anti-Intrusión: Verificación de Sesión Cliente
+    (function(){
+      const token = localStorage.getItem('secure_portal_token');
+      const ses = localStorage.getItem('portal_cliente');
+      if (!token && !ses) {
+        document.documentElement.innerHTML = '';
+        window.location.replace('/login-cliente.html');
+      }
+    })();
+  </script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mi Portal — Arévalo & CIA</title>

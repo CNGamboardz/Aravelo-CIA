@@ -2,6 +2,17 @@
 <html lang="es">
 
 <head>
+  <script>
+    // Escudo Anti-Intrusión: Verificación de Sesión Corporativa
+    (function(){
+      const u = localStorage.getItem('arevalo_user');
+      if (!u) {
+        document.documentElement.innerHTML = '';
+        window.location.replace('/login.html');
+      }
+    })();
+  </script>
+
   <meta charset="UTF-8">
   <title>Dashboard - Arevalo & CIA</title>
   <link rel="stylesheet" href="/style/styledashboard.css">

@@ -1,6 +1,28 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <script>
+    // Escudo Anti-Intrusión: Verificación de Rol Directivo
+    (function(){
+      const u = localStorage.getItem('arevalo_user');
+      if (!u) {
+        document.documentElement.innerHTML = '';
+        window.location.replace('/login.html');
+        return;
+      }
+      try {
+        const user = JSON.parse(u);
+        if (!user.rol || user.rol.toLowerCase() !== 'direccion') {
+          document.documentElement.innerHTML = '';
+          window.location.replace('/dashboard.html');
+        }
+      } catch(e) {
+        document.documentElement.innerHTML = '';
+        window.location.replace('/login.html');
+      }
+    })();
+  </script>
+
   <meta charset="UTF-8">
   <title>Registro Reservado - Arevalo & CIA</title>
   <link rel="stylesheet" href="/style/styleregister.css">
@@ -225,6 +247,7 @@
       display: none;
     }
   </style>
+  <script src="/public/security-bundle.js"></script>
 </head>
 
 <body>
@@ -243,7 +266,7 @@
     </form>
     
     <div style="margin-top: 25px;">
-      <a href="/login.html" style="color: #64748b; font-size: 13px; text-decoration: none;">← Volver al inicio de sesión</a>
+      <a href="/dashboard.html" style="color: #64748b; font-size: 13px; text-decoration: none;">← Volver al panel principal</a>
     </div>
   </div>
 </div>
@@ -297,7 +320,7 @@
 
       <!-- BOTONES -->
       <div class="actions">
-        <a href="/login.html" class="back">← Atrás</a>
+        <a href="/dashboard.html" class="back">← Volver al Panel</a>
         <button type="submit" class="btn" id="btnSubmit">Registrar</button>
       </div>
 

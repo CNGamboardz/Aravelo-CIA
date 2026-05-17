@@ -17,10 +17,11 @@ app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   // Activar protección XSS en navegadores
   res.setHeader('X-XSS-Protection', '1; mode=block');
-  // Control de caché para datos confidenciales en endpoints de API
-  if (req.path.includes('/api/') || req.path.includes('/clientes')) {
+  // Control de caché para datos confidenciales en endpoints de API y vistas HTML internas
+  if (req.path.includes('/api/') || req.path.includes('/clientes') || (req.path.endsWith('.html') && !['/index.html', '/login.html', '/login-cliente.html', '/portal-cliente.html'].includes(req.path))) {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
   }
   next();
 });

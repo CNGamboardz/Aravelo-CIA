@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <script>
+    // Redirección automática si ya hay sesión activa
+    (function(){
+      const token = localStorage.getItem('secure_portal_token');
+      const ses = localStorage.getItem('portal_cliente');
+      if (token || ses) {
+        document.documentElement.innerHTML = '';
+        window.location.replace('/portal-cliente.html');
+      }
+    })();
+  </script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal de Clientes — Arévalo & CIA</title>

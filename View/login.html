@@ -2,6 +2,17 @@
 <html lang="es">
 
 <head>
+  <script>
+    // Redirección automática si ya hay sesión activa
+    (function(){
+      const u = localStorage.getItem('arevalo_user');
+      if (u) {
+        document.documentElement.innerHTML = '';
+        window.location.replace('/dashboard.html');
+      }
+    })();
+  </script>
+
   <meta charset="UTF-8">
   <title>Login - Arevalo & CIA</title>
   <link rel="stylesheet" href="/style/stylelogin.css">
