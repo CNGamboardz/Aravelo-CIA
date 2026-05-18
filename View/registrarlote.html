@@ -419,22 +419,22 @@
           <div class="form-grid">
             <div class="form-group full">
               <label for="t_fracc">Fraccionamiento / Residencial *</label>
-              <input type="text" id="t_fracc" placeholder="Ej. Campestre Arévalo" maxlength="150" required>
+              <input type="text" id="t_fracc" placeholder="Ej. Campestre Arévalo" maxlength="150">
             </div>
             <div class="form-group">
-              <label for="t_numero_lote">Número de Lote</label>
+              <label for="t_numero_lote">Número de Lote *</label>
               <input type="text" id="t_numero_lote" placeholder="Ej. 12" maxlength="50">
             </div>
             <div class="form-group">
-              <label for="t_manzana">Manzana</label>
+              <label for="t_manzana">Manzana *</label>
               <input type="text" id="t_manzana" placeholder="Ej. 3" maxlength="50">
             </div>
             <div class="form-group">
-              <label for="t_clave_catastral">Clave Catastral</label>
+              <label for="t_clave_catastral">Clave Catastral *</label>
               <input type="text" id="t_clave_catastral" placeholder="Ej. 001-029-399" maxlength="100">
             </div>
             <div class="form-group">
-              <label for="t_tipo_uso">Tipo de Uso</label>
+              <label for="t_tipo_uso">Tipo de Uso *</label>
               <select id="t_tipo_uso">
                 <option value="habitacional">Habitacional</option>
                 <option value="comercial">Comercial</option>
@@ -443,7 +443,7 @@
               </select>
             </div>
             <div class="form-group">
-              <label for="t_estado_inm">Estado Inmobiliario</label>
+              <label for="t_estado_inm">Estado Inmobiliario *</label>
               <select id="t_estado_inm">
                 <option value="disponible">🟢 Libre / Disponible</option>
                 <option value="apartado">🟡 Apartado / Reservado</option>
@@ -453,7 +453,7 @@
             </div>
             <div class="form-group">
               <label for="t_id_asesor">Asesor Responsable *</label>
-              <select id="t_id_asesor" required disabled>
+              <select id="t_id_asesor" disabled>
                 <option value="">Seleccionar Asesor...</option>
               </select>
             </div>
@@ -469,22 +469,22 @@
           <div class="form-grid">
             <div class="form-group full">
               <label for="t_superficie">Superficie Total (m²) *</label>
-              <input type="number" step="any" id="t_superficie" placeholder="Ej. 250.00" required>
+              <input type="number" step="any" id="t_superficie" placeholder="Ej. 250.00">
             </div>
             <div class="form-group">
-              <label for="t_frente">Frente (m)</label>
+              <label for="t_frente">Frente (m) *</label>
               <input type="number" step="any" id="t_frente" placeholder="Ej. 10.00">
             </div>
             <div class="form-group">
-              <label for="t_fondo">Fondo (m)</label>
+              <label for="t_fondo">Fondo (m) *</label>
               <input type="number" step="any" id="t_fondo" placeholder="Ej. 25.00">
             </div>
             <div class="form-group">
-              <label for="t_lado_izq">Lado Izquierdo (m)</label>
+              <label for="t_lado_izq">Lado Izquierdo (m) *</label>
               <input type="number" step="any" id="t_lado_izq" placeholder="Ej. 25.00">
             </div>
             <div class="form-group">
-              <label for="t_lado_der">Lado Derecho (m)</label>
+              <label for="t_lado_der">Lado Derecho (m) *</label>
               <input type="number" step="any" id="t_lado_der" placeholder="Ej. 25.00">
             </div>
             <div class="form-group full" style="margin-top: 10px;">
@@ -513,24 +513,24 @@
         <section class="tab-content" id="sec-3">
           <div class="form-grid">
             <div class="form-group full">
-              <label for="t_direccion">Dirección / Ubicación General</label>
+              <label for="t_direccion">Dirección / Ubicación General *</label>
               <input type="text" id="t_direccion" placeholder="Ej. Av. de los Pinos S/N" maxlength="250">
             </div>
             <div class="form-group">
-              <label for="t_colonia">Colonia / Localidad</label>
+              <label for="t_colonia">Colonia / Localidad *</label>
               <input type="text" id="t_colonia" list="listaColonias" placeholder="Ej. Centro" maxlength="150">
               <datalist id="listaColonias"></datalist>
             </div>
             <div class="form-group">
-              <label for="t_municipio">Municipio</label>
+              <label for="t_municipio">Municipio *</label>
               <input type="text" id="t_municipio" placeholder="Ej. Tuxtla Gutiérrez" maxlength="150">
             </div>
             <div class="form-group">
-              <label for="t_estado_rep">Estado</label>
+              <label for="t_estado_rep">Estado *</label>
               <input type="text" id="t_estado_rep" placeholder="Ej. Chiapas" maxlength="100">
             </div>
             <div class="form-group">
-              <label for="t_cp">Código Postal (5 dígitos)</label>
+              <label for="t_cp">Código Postal (5 dígitos) *</label>
               <input type="text" id="t_cp" placeholder="Ej. 29000" maxlength="5" oninput="this.value = this.value.replace(/[^0-9]/g, ''); consultarCP(this.value)">
               <span id="statusCP" style="font-size:11px; font-weight:700; display:block; margin-top:4px;"></span>
             </div>
@@ -561,14 +561,14 @@
           <div class="form-grid">
             <div class="form-group full">
               <label for="t_precio">Precio de Venta ($) *</label>
-              <input type="number" step="any" id="t_precio" placeholder="Ej. 450000" required>
+              <input type="number" step="any" id="t_precio" placeholder="Ej. 450000">
             </div>
             <div class="form-group">
-              <label for="t_precio_lista">Precio de Lista Inicial ($)</label>
+              <label for="t_precio_lista">Precio de Lista Inicial ($) *</label>
               <input type="number" step="any" id="t_precio_lista" placeholder="Ej. 480000">
             </div>
             <div class="form-group">
-              <label for="t_anticipo">Anticipo Solicitado ($)</label>
+              <label for="t_anticipo">Anticipo Solicitado ($) *</label>
               <input type="number" step="any" id="t_anticipo" placeholder="Ej. 50000">
             </div>
             <div class="form-group">
@@ -676,45 +676,70 @@
       // Cargar asesores si es la primera vez que se entra
       if (index === 1) cargarAsesores();
 
-      // Invalidar mapa para dibujar los tiles de OpenStreetMap
+      // Reinicializar mapa cada vez que se entra a la sección 3
       if (index === 3) {
-        setTimeout(() => {
-          initMap();
-          if (mapaLeaflet) mapaLeaflet.invalidateSize();
-        }, 150);
+        setTimeout(initMap, 250);
       }
     }
 
     function initMap() {
-      if (mapaLeaflet !== null) return;
-      
-      let lat = 16.7532;
-      let lng = -93.1145;
-      const iLat = document.getElementById('t_latitud').value;
-      const iLng = document.getElementById('t_longitud').value;
-      if (iLat && iLng) {
-        lat = parseFloat(iLat);
-        lng = parseFloat(iLng);
+      // Destrucción completa (fix definitivo tiles en blanco)
+      if (mapaLeaflet !== null) {
+        try { mapaLeaflet.remove(); } catch(e) {}
+        mapaLeaflet = null;
+        markerLeaflet = null;
       }
 
-      mapaLeaflet = L.map('mapa-lote').setView([lat, lng], 13);
+      let lat = 16.7532;
+      let lng = -93.1145;
+      const rawLat = parseFloat(document.getElementById('t_latitud').value);
+      const rawLng = parseFloat(document.getElementById('t_longitud').value);
+      if (!isNaN(rawLat) && !isNaN(rawLng) &&
+          rawLat >= -90 && rawLat <= 90 && rawLng >= -180 && rawLng <= 180) {
+        lat = rawLat;
+        lng = rawLng;
+      }
+
+      mapaLeaflet = L.map('mapa-lote', { zoomControl: true }).setView([lat, lng], 15);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap',
+        attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a>',
         maxZoom: 19
       }).addTo(mapaLeaflet);
 
-      if (iLat && iLng) {
-        markerLeaflet = L.marker([lat, lng]).addTo(mapaLeaflet);
-      }
+      markerLeaflet = L.marker([lat, lng], { draggable: true }).addTo(mapaLeaflet);
 
-      mapaLeaflet.on('click', function(e) {
-        const coords = e.latlng;
-        document.getElementById('t_latitud').value = coords.lat.toFixed(6);
-        document.getElementById('t_longitud').value = coords.lng.toFixed(6);
-
-        if (markerLeaflet) markerLeaflet.setLatLng(coords);
-        else markerLeaflet = L.marker(coords).addTo(mapaLeaflet);
+      markerLeaflet.on('dragend', () => {
+        const p = markerLeaflet.getLatLng();
+        document.getElementById('t_latitud').value = p.lat.toFixed(6);
+        document.getElementById('t_longitud').value = p.lng.toFixed(6);
       });
+
+      mapaLeaflet.on('click', (e) => {
+        const c = e.latlng;
+        document.getElementById('t_latitud').value = c.lat.toFixed(6);
+        document.getElementById('t_longitud').value = c.lng.toFixed(6);
+        markerLeaflet.setLatLng(c);
+      });
+
+      // Con debounce de 400ms al escribir manualmente
+      document.getElementById('t_latitud').oninput = () => debounceCoords();
+      document.getElementById('t_longitud').oninput = () => debounceCoords();
+    }
+
+    let _coordTimer = null;
+    function debounceCoords() {
+      clearTimeout(_coordTimer);
+      _coordTimer = setTimeout(actualizarMapaDesdeInputs, 400);
+    }
+
+    function actualizarMapaDesdeInputs() {
+      if (!mapaLeaflet || !markerLeaflet) return;
+      const lat = parseFloat(document.getElementById('t_latitud').value);
+      const lng = parseFloat(document.getElementById('t_longitud').value);
+      if (isNaN(lat) || isNaN(lng)) return;
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return;
+      markerLeaflet.setLatLng([lat, lng]);
+      mapaLeaflet.setView([lat, lng], mapaLeaflet.getZoom() || 15);
     }
 
     // Código Postal
@@ -785,9 +810,64 @@
     const msg = document.getElementById('mensaje-box');
     const btn = document.getElementById('btnGuardar');
 
+    // Campos obligatorios por sección
+    const camposObligatorios = [
+      { id: 't_fracc',          sec: 1, label: 'Fraccionamiento / Residencial' },
+      { id: 't_numero_lote',    sec: 1, label: 'Número de Lote' },
+      { id: 't_manzana',        sec: 1, label: 'Manzana' },
+      { id: 't_clave_catastral',sec: 1, label: 'Clave Catastral' },
+      { id: 't_id_asesor',      sec: 1, label: 'Asesor Responsable' },
+      { id: 't_superficie',     sec: 2, label: 'Superficie Total' },
+      { id: 't_frente',         sec: 2, label: 'Frente (m)' },
+      { id: 't_fondo',          sec: 2, label: 'Fondo (m)' },
+      { id: 't_lado_izq',       sec: 2, label: 'Lado Izquierdo (m)' },
+      { id: 't_lado_der',       sec: 2, label: 'Lado Derecho (m)' },
+      { id: 't_direccion',      sec: 3, label: 'Dirección / Ubicación' },
+      { id: 't_colonia',        sec: 3, label: 'Colonia / Localidad' },
+      { id: 't_municipio',      sec: 3, label: 'Municipio' },
+      { id: 't_estado_rep',     sec: 3, label: 'Estado' },
+      { id: 't_cp',             sec: 3, label: 'Código Postal' },
+      { id: 't_precio',         sec: 4, label: 'Precio de Venta' },
+      { id: 't_precio_lista',   sec: 4, label: 'Precio de Lista' },
+      { id: 't_anticipo',       sec: 4, label: 'Anticipo Solicitado' },
+    ];
+
+    function validarFormulario() {
+      document.querySelectorAll('.campo-error').forEach(el => {
+        el.style.borderColor = '';
+        el.style.boxShadow = '';
+        el.classList.remove('campo-error');
+      });
+      for (const campo of camposObligatorios) {
+        const el = document.getElementById(campo.id);
+        if (!el) continue;
+        const val = el.value ? el.value.trim() : '';
+        if (!val) {
+          switchSection(campo.sec);
+          el.style.borderColor = '#ef4444';
+          el.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.15)';
+          el.classList.add('campo-error');
+          el.focus();
+          return `El campo "${campo.label}" es obligatorio (Sección ${campo.sec})`;
+        }
+      }
+      return null;
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       msg.style.display = 'none';
+
+      const errorMsg = validarFormulario();
+      if (errorMsg) {
+        msg.style.background = '#fee2e2';
+        msg.style.color = '#b91c1c';
+        msg.innerText = '⚠️ ' + errorMsg;
+        msg.style.display = 'block';
+        msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
       btn.disabled = true;
       btn.innerText = 'Guardando Expediente...';
 

@@ -89,33 +89,69 @@ const getDireccionDashboard = async () => {
 };
 
 const getAuditoriaCompleta = async () => {
-  const clientes = await db.query('SELECT id_cliente, nombre, apellido_paterno, apellido_materno, curp, rfc, correo, telefono, etapa FROM sistema.clientes ORDER BY id_cliente ASC');
+  // Clientes
+  const clientes = await db.query(
+    'SELECT id_cliente, nombre, apellido_paterno, apellido_materno, curp, rfc, correo, telefono, etapa FROM sistema.clientes ORDER BY id_cliente ASC'
+  );
+
+  // Contratos con JOINs seguros, columnas explícitas y cálculo de total pagado
   const contratos = await db.query(`
-    SELECT c.*, 
-           TRIM(CONCAT(cl.nombre, ' ', COALESCE(cl.apellido_paterno, ''), ' ', COALESCE(cl.apellido_materno, ''))) AS cliente_nombre,
-           t.fraccionamiento, t.numero_lote AS lote_num,
-           u.nombre AS asesor_nombre
+    SELECT c.id_contrato, c.tipo_plan, c.precio_total, c.enganche, c.plazo, c.monto_mensual, c.estatus, c.fecha_firma,
+           COALESCE(TRIM(CONCAT(cl.nombre, ' ', COALESCE(cl.apellido_paterno,''), ' ', COALESCE(cl.apellido_materno,''))), 'Sin Nombre') AS cliente_nombre,
+           COALESCE(t.fraccionamiento, 'Sin Fraccionamiento') AS fraccionamiento,
+           COALESCE(t.numero_lote::text, '') AS lote_num,
+           COALESCE(u.nombre, 'Portal Web') AS asesor_nombre,
+           (SELECT COALESCE(SUM(p.monto), 0) FROM sistema.pagos p WHERE p.id_contrato = c.id_contrato) AS total_pagado
     FROM sistema.contratos c
     LEFT JOIN sistema.clientes cl ON c.id_cliente = cl.id_cliente
     LEFT JOIN sistema.terrenos t ON c.id_terreno = t.id_terreno
     LEFT JOIN sistema.usuarios u ON c.id_asesor = u.id_usuario
-    ORDER BY c.id_contrato ASC
+    ORDER BY c.fecha_firma DESC
+    LIMIT 500
   `);
+
+  const contratosMapeados = contratos.rows.map(c => {
+    const pagado = parseFloat(c.total_pagado) || 0;
+    const enganche = parseFloat(c.enganche) || 0;
+    const precio = parseFloat(c.precio_total) || 0;
+
+    if (c.tipo_plan === 'contado' || (pagado + enganche) >= precio) {
+      c.estatus = 'Liquidado';
+    } else {
+      c.estatus = 'Activo';
+    }
+    return c;
+  });
+
+  // Pagos — sin JOIN a terrenos (columna id_terreno puede no existir en todos los registros)
   const pagos = await db.query(`
-    SELECT p.*, 
-           TRIM(CONCAT(cl.nombre, ' ', COALESCE(cl.apellido_paterno, ''), ' ', COALESCE(cl.apellido_materno, ''))) AS cliente_nombre,
-           t.fraccionamiento, t.numero_lote AS lote_num
+    SELECT p.id_pago, p.id_cliente, p.id_contrato, p.fecha_pago, p.concepto, p.monto, p.metodo_pago, p.comprobante, p.estatus,
+           COALESCE(TRIM(CONCAT(cl.nombre, ' ', COALESCE(cl.apellido_paterno,''), ' ', COALESCE(cl.apellido_materno,''))), 'Sin Nombre') AS cliente_nombre
     FROM sistema.pagos p
     LEFT JOIN sistema.clientes cl ON p.id_cliente = cl.id_cliente
-    LEFT JOIN sistema.terrenos t ON p.id_terreno = t.id_terreno
-    ORDER BY p.id_pago ASC
+    ORDER BY p.fecha_pago DESC
+    LIMIT 500
   `);
-  const terrenos = await db.query('SELECT * FROM sistema.terrenos ORDER BY id_terreno ASC');
-  const usuarios = await db.query('SELECT id_usuario, nombre, correo, rol, activo FROM sistema.usuarios ORDER BY id_usuario ASC');
+
+  // Terrenos (incluyendo información de quién apartó y compró)
+  const terrenos = await db.query(`
+    SELECT t.id_terreno, t.fraccionamiento, t.numero_lote, t.manzana, t.estado, t.precio_venta, t.precio_lista, t.id_cliente, t.id_propietario,
+           COALESCE(TRIM(CONCAT(cl.nombre, ' ', COALESCE(cl.apellido_paterno,''), ' ', COALESCE(cl.apellido_materno,''))), 'Sin Nombre') AS comprador_nombre,
+           COALESCE(TRIM(CONCAT(cp.nombre, ' ', COALESCE(cp.apellido_paterno,''), ' ', COALESCE(cp.apellido_materno,''))), 'Sin Nombre') AS apartado_por_nombre
+    FROM sistema.terrenos t
+    LEFT JOIN sistema.clientes cl ON t.id_cliente = cl.id_cliente
+    LEFT JOIN sistema.clientes cp ON t.id_propietario = cp.id_cliente
+    ORDER BY t.id_terreno ASC
+  `);
+
+  // Usuarios
+  const usuarios = await db.query(
+    'SELECT id_usuario, nombre, correo, rol FROM sistema.usuarios ORDER BY id_usuario ASC'
+  );
 
   return {
     clientes: clientes.rows,
-    contratos: contratos.rows,
+    contratos: contratosMapeados,
     pagos: pagos.rows,
     terrenos: terrenos.rows,
     usuarios: usuarios.rows
