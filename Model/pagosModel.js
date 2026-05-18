@@ -34,23 +34,30 @@ const getPagosReales = async () => {
 
 // Registrar un pago en el sistema
 const registrarPago = async (pago) => {
-  const { id_cliente, id_contrato, id_terreno, concepto, monto, metodo_pago, id_usuario, comprobante, id_calendario } = pago;
+  const { id_cliente, id_contrato, id_terreno, concepto, monto, metodo_pago, id_usuario, comprobante, id_calendario, estatus } = pago;
 
   const client = await db.connect();
   try {
     await client.query('BEGIN');
 
+    // Si es pendiente y tiene id_calendario, guardamos la referencia en el comprobante
+    let compFinal = comprobante || '';
+    const pagoEstatus = estatus || 'pagado';
+    if (pagoEstatus === 'pendiente' && id_calendario) {
+      compFinal = `CAL_REF:${id_calendario}` + (comprobante ? ` | ${comprobante}` : '');
+    }
+
     // 1. Insertar el pago real
     const resPago = await client.query(
       `INSERT INTO sistema.pagos 
        (id_cliente, id_contrato, id_terreno, fecha_pago, concepto, monto, metodo_pago, id_usuario, comprobante, estatus)
-       VALUES ($1, $2, $3, CURRENT_DATE, $4, $5, $6, $7, $8, 'pagado') RETURNING *`,
-      [id_cliente, id_contrato, id_terreno, concepto || 'mensualidad', monto, metodo_pago || 'efectivo', id_usuario || null, comprobante || '']
+       VALUES ($1, $2, $3, CURRENT_DATE, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [id_cliente, id_contrato, id_terreno, concepto || 'mensualidad', monto, metodo_pago || 'efectivo', id_usuario || null, compFinal, pagoEstatus]
     );
     const nuevoPago = resPago.rows[0];
 
-    // 2. Si el pago corresponde a una cuota proyectada, la marcamos como pagada
-    if (id_calendario) {
+    // 2. Si el pago corresponde a una cuota proyectada y está pagado, la marcamos como pagada
+    if (id_calendario && pagoEstatus === 'pagado') {
       await client.query(
         `UPDATE sistema.calendario_pagos 
          SET estatus = 'pagado' 

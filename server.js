@@ -86,6 +86,8 @@ app.post('/contratos', contratosController.guardarContrato);
 app.get('/pagos/calendario', pagosController.listarCalendario);
 app.get('/pagos', pagosController.listarPagos);
 app.post('/pagos', pagosController.aplicarPago);
+app.post('/api/pagos/confirmar', pagosController.confirmarPago);
+app.post('/api/pagos/rechazar', pagosController.rechazarPago);
 
 // Rutas de API - Dashboard
 app.get('/dashboard', dashboardController.dashboard);
@@ -113,6 +115,7 @@ app.get('/api/portal/cliente/:id', portalController.getClientePortal);
 app.get('/api/portal/datos-banco', portalController.getDatosBanco);
 app.post('/api/portal/stripe-intent', portalController.crearStripeIntent);
 app.post('/api/portal/pagar', portalController.registrarPagoPortal);
+app.post('/api/portal/bbva-charge', portalController.procesarBBVACharge);
 app.get('/api/portal/mis-apartados/:id_cliente', portalController.getMisApartados);
 app.post('/api/portal/liberar', portalController.liberarLote);
 app.put('/api/portal/cliente/:id', portalController.actualizarPerfilCliente);
@@ -121,4 +124,8 @@ app.get('/api/portal/mis-compras/:id_cliente', portalController.getMisCompras);
 // Servidor
 app.listen(3000, () => {
   console.log('Servidor en http://localhost:3000');
+  
+  // Rutina de purgado automático inicial y recurrente (cada 12 horas)
+  pagosController.purgarFoliosVencidos();
+  setInterval(pagosController.purgarFoliosVencidos, 12 * 60 * 60 * 1000);
 });

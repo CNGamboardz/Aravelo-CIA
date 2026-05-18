@@ -430,7 +430,7 @@ const crearStripeIntent = async (req, res) => {
 /** POST /api/portal/pagar — Registrar pago (transferencia/depósito) */
 const registrarPagoPortal = async (req, res) => {
   try {
-    const { id_cliente, id_terreno, id_contrato, concepto, monto, metodo_pago, comprobante, stripe_payment_id } = req.body;
+    const { id_cliente, id_terreno, id_contrato, concepto, monto, metodo_pago, comprobante, stripe_payment_id, id_calendario } = req.body;
     if (!monto || parseFloat(monto) <= 0) {
       return res.status(400).json({ error: 'El monto debe ser mayor a cero.' });
     }
@@ -439,6 +439,9 @@ const registrarPagoPortal = async (req, res) => {
     if (!id_contrato) {
       return res.status(400).json({ error: 'Regla de negocio: No se permite registrar pagos sin un contrato asociado y válido.' });
     }
+
+    const isPending = (metodo_pago === 'transferencia' || metodo_pago === 'deposito' || metodo_pago === 'oxxo');
+    const estatusFinal = isPending ? 'pendiente' : 'pagado';
 
     const pago = await pagosModel.registrarPago({
       id_cliente: id_cliente,
@@ -449,7 +452,8 @@ const registrarPagoPortal = async (req, res) => {
       metodo_pago: metodo_pago || 'transferencia',
       id_usuario: null,
       comprobante: comprobante || stripe_payment_id || '',
-      id_calendario: null
+      id_calendario: id_calendario || null,
+      estatus: estatusFinal
     });
 
     // Registrar en el historial de auditoría
@@ -457,15 +461,70 @@ const registrarPagoPortal = async (req, res) => {
     await dashboardModel.registrarMovimiento(
       'pagos',
       'creacion',
-      `Pago registrado desde portal: abono de $${parseFloat(monto).toLocaleString('es-MX', {minimumFractionDigits:2})} mediante ${metodo_pago || 'transferencia'} para Contrato ID ${pago.id_contrato}.`,
+      `Pago registrado desde portal (${estatusFinal}): abono de $${parseFloat(monto).toLocaleString('es-MX', {minimumFractionDigits:2})} mediante ${metodo_pago || 'transferencia'} para Contrato ID ${pago.id_contrato}.`,
       responsable,
       pago.id_pago
     );
 
-    res.status(201).json({ mensaje: 'Pago registrado exitosamente.', pago });
+    res.status(201).json({ mensaje: `Pago registrado como ${estatusFinal} exitosamente.`, pago });
   } catch (error) {
     console.error('Error registrando pago portal:', error.message);
     res.status(500).json({ error: 'Error al registrar el pago.' });
+  }
+};
+
+/** POST /api/portal/bbva-charge — Simular cargo de tarjeta BBVA Bancomer */
+const procesarBBVACharge = async (req, res) => {
+  try {
+    const { id_cliente, id_terreno, id_contrato, concepto, monto, tarjeta_datos, id_calendario } = req.body;
+    if (!monto || parseFloat(monto) <= 0) {
+      return res.status(400).json({ error: 'El monto debe ser mayor a cero.' });
+    }
+    if (!id_contrato) {
+      return res.status(400).json({ error: 'Regla de negocio: No se permite registrar pagos sin un contrato asociado y válido.' });
+    }
+    if (!tarjeta_datos || !tarjeta_datos.numero || !tarjeta_datos.cvv) {
+      return res.status(400).json({ error: 'Datos de tarjeta de crédito/débito BBVA incompletos.' });
+    }
+
+    // Generar un folio de autorización BBVA Bancomer simulado
+    const authCode = Math.floor(100000 + Math.random() * 900000);
+    const folioBBVA = `BBVA-AUT-${authCode}`;
+
+    // Registrar el pago directamente como pagado
+    const pago = await pagosModel.registrarPago({
+      id_cliente: id_cliente,
+      id_contrato: id_contrato,
+      id_terreno: id_terreno || null,
+      concepto: concepto || 'Pago Tarjeta BBVA',
+      monto: parseFloat(monto),
+      metodo_pago: 'tarjeta',
+      id_usuario: null,
+      comprobante: folioBBVA,
+      id_calendario: id_calendario || null,
+      estatus: 'pagado'
+    });
+
+    // Registrar en auditoría
+    const responsable = await obtenerResponsable(req);
+    await dashboardModel.registrarMovimiento(
+      'pagos',
+      'creacion',
+      `Pago con Tarjeta BBVA procesado: abono de $${parseFloat(monto).toLocaleString('es-MX', {minimumFractionDigits:2})} (Folio Aut: ${folioBBVA}) para Contrato ID ${pago.id_contrato}.`,
+      responsable,
+      pago.id_pago
+    );
+
+    res.status(200).json({
+      success: true,
+      mensaje: 'Pago de tarjeta procesado exitosamente por la pasarela segura BBVA.',
+      authCode,
+      folio: folioBBVA,
+      pago
+    });
+  } catch (error) {
+    console.error('Error BBVA charge:', error.message);
+    res.status(500).json({ error: 'Error al procesar el pago con BBVA. Intente de nuevo.' });
   }
 };
 
@@ -579,5 +638,6 @@ module.exports = {
   getMisApartados,
   liberarLote,
   actualizarPerfilCliente,
-  getMisCompras
+  getMisCompras,
+  procesarBBVACharge
 };

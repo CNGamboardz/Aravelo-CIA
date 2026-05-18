@@ -446,17 +446,37 @@
         listaPagosGlobal.forEach(p => {
           const fStr = p.fecha_pago ? p.fecha_pago.split('T')[0] : '';
           const montoF = parseFloat(p.monto).toLocaleString('es-MX', { minimumFractionDigits: 2 });
+          const status = p.estatus || 'pagado';
+          
+          let statusBadge = '';
+          if (status === 'pendiente') {
+            statusBadge = ` <span style="background: #fef3c7; color: #d97706; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 12px; margin-left: 6px; border: 1px solid #fde68a;">PENDIENTE</span>`;
+          } else {
+            statusBadge = ` <span style="background: #dcfce7; color: #15803d; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 12px; margin-left: 6px; border: 1px solid #bbf7d0;">CONFIRMADO</span>`;
+          }
+
+          let actionButtons = `
+            <button onclick="imprimirReciboProfesional('${p.id_pago}')" class="btn-comprobante" style="padding: 5px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:700; border: 1px solid #cbd5e1; transition: 0.2s; background: #ffffff; color: #334155;" title="Generar Recibo de Impresión">🖨️ Comprobante</button>
+            <button onclick="generarFacturaPDF('${p.id_pago}')" class="btn-factura" style="padding: 5px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:700; border: 1px solid #10b981; transition: 0.2s; background: #dcfce7; color: #065f46;" title="Generar Factura Oficial PDF">📄 Factura</button>
+          `;
+
+          if (status === 'pendiente') {
+            actionButtons = `
+              <button onclick="confirmarPagoAdm('${p.id_pago}')" style="padding: 5px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:700; border: 1px solid #10b981; background: #10b981; color: #ffffff; transition: 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'" title="Confirmar Recepción de Fondos">✔️ Confirmar</button>
+              <button onclick="rechazarPagoAdm('${p.id_pago}')" style="padding: 5px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:700; border: 1px solid #ef4444; background: #ef4444; color: #ffffff; transition: 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'" title="Rechazar y Eliminar Registro">❌ Rechazar</button>
+            `;
+          }
+
           tbody.innerHTML += `
-            <tr>
+            <tr style="${status === 'pendiente' ? 'background: #fbfbfe;' : ''}">
               <td><b>#REC-${p.id_pago}</b></td>
               <td>${fStr}</td>
               <td style="font-weight: 600;">${p.cliente_nombre || 'Cliente General'}</td>
               <td style="text-transform: capitalize;">${p.concepto}</td>
-              <td style="color: #10b981; font-weight: 700;">$${montoF}</td>
-              <td style="text-transform: capitalize;">${p.metodo_pago}</td>
-              <td style="text-align: center; display: flex; gap: 8px; justify-content: center;">
-                <button onclick="imprimirReciboProfesional('${p.id_pago}')" class="btn-comprobante" style="padding: 5px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:700; border: 1px solid #cbd5e1; transition: 0.2s; background: #ffffff; color: #334155;" title="Generar Recibo de Impresión">🖨️ Comprobante</button>
-                <button onclick="generarFacturaPDF('${p.id_pago}')" class="btn-factura" style="padding: 5px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:700; border: 1px solid #10b981; transition: 0.2s; background: #dcfce7; color: #065f46;" title="Generar Factura Oficial PDF">📄 Factura</button>
+              <td style="${status === 'pendiente' ? 'color: #d97706;' : 'color: #10b981;'} font-weight: 700;">$${montoF}</td>
+              <td style="text-transform: capitalize; display: flex; align-items: center; gap: 4px; border:none; padding:12px 8px;">${p.metodo_pago}${statusBadge}</td>
+              <td style="text-align: center; display: flex; gap: 8px; justify-content: center; height:100%; border:none; padding:12px 8px;">
+                ${actionButtons}
               </td>
             </tr>
           `;
@@ -662,6 +682,101 @@
         });
       } catch (err) {
         Swal.fire('Error', 'No se pudo generar la factura en PDF.', 'error');
+      }
+    }
+
+    async function confirmarPagoAdm(id_pago) {
+      const result = await Swal.fire({
+        title: '¿Confirmar Recepción de Transferencia?',
+        text: '¿Has verificado en tu banca en línea que esta transferencia bancaria/depósito ha sido efectivamente recibida en la cuenta de Arévalo & CIA? Esta acción es irreversible.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, Confirmar Entrada',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#10b981',
+        cancelButtonColor: '#64748b'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          Swal.fire({
+            title: 'Procesando Confirmación...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+          });
+
+          const res = await fetch('/api/pagos/confirmar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_pago })
+          });
+
+          if (!res.ok) {
+            const errD = await res.json();
+            throw new Error(errD.error || 'Error interno');
+          }
+
+          Swal.close();
+          await Swal.fire({
+            icon: 'success',
+            title: '¡Ingreso Confirmado!',
+            text: 'El pago ha sido validado, los saldos se actualizaron y el calendario fue marcado como pagado.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+
+          cargarHistorialPagos();
+          if (typeof cargarCalendario === 'function') cargarCalendario();
+        } catch (err) {
+          Swal.fire('Error', err.message, 'error');
+        }
+      }
+    }
+
+    async function rechazarPagoAdm(id_pago) {
+      const result = await Swal.fire({
+        title: '¿Rechazar y Eliminar Pago?',
+        text: 'Esta acción eliminará de forma segura este registro de pago pendiente ya que los fondos no fueron recibidos. Esto es irreversible.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, Rechazar y Eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#64748b'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          Swal.fire({
+            title: 'Eliminando Registro...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+          });
+
+          const res = await fetch('/api/pagos/rechazar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_pago })
+          });
+
+          if (!res.ok) {
+            const errD = await res.json();
+            throw new Error(errD.error || 'Error interno');
+          }
+
+          Swal.close();
+          await Swal.fire({
+            icon: 'success',
+            title: '¡Pago Pendiente Rechazado!',
+            text: 'El pago pendiente fue descartado y eliminado correctamente del historial.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+
+          cargarHistorialPagos();
+        } catch (err) {
+          Swal.fire('Error', err.message, 'error');
+        }
       }
     }
 

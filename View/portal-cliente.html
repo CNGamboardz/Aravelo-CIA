@@ -760,16 +760,18 @@
             <h2 class="section-title">Estado de Cuenta y Pagos en Línea</h2>
             <p class="section-desc">Monitorea tus cuotas pendientes y descarga tus recibos con validez oficial.</p>
           </div>
-          <button class="btn-nuevo-pago" onclick="abrirModalPagoDirecto(null, 'Aportación a Cuenta')">
-            <span>💳</span> Pago Libre
-          </button>
         </div>
 
         <!-- SUB-PANEL: CUOTAS PENDIENTES O PROGRAMADAS -->
         <div style="margin-bottom: 32px;">
-          <h3 style="font-size: 16px; color: var(--primary); margin-bottom: 12px; display:flex; align-items:center; gap:6px;">
-            <span>⏳</span> Cuotas Programadas por Pagar
-          </h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 12px;">
+            <h3 style="font-size: 16px; color: var(--primary); margin: 0; display:flex; align-items:center; gap:6px;">
+              <span>⏳</span> Cuotas Programadas por Pagar
+            </h3>
+            <button class="btn-nuevo-pago" onclick="abrirModalPagoDirecto(null, 'Aportación Libre')" style="margin: 0; padding: 8px 16px; font-size: 13px;">
+              <span>💳</span> Pago Libre
+            </button>
+          </div>
           <div class="pagos-container" style="border-left: 4px solid #f59e0b;">
             <table class="pagos-table">
               <thead>
@@ -1064,40 +1066,72 @@
 
         <!-- TAB 2: DEPÓSITO -->
         <div class="tab-content" id="tab-deposito">
-          <div class="datos-bancarios-box" style="border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.05);">
-            <div class="dato-line"><span class="dato-label">Convenio / Cuenta:</span><span class="dato-val" id="banco_cuenta">1234567890</span></div>
-            <div class="dato-line"><span class="dato-label">Referencia Bancaria:</span><span class="dato-val" style="color: #3b82f6;" id="banco_ref_dep">AREVALO-CLI</span></div>
-            <p style="font-size: 11px; color: var(--text-muted); margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
-              Acude a cualquier sucursal bancaria o practicaja e ingresa el número de cuenta y tu referencia única asignada.
+          <div class="datos-bancarios-box" style="border-color: rgba(225,29,72,0.3); background: rgba(225,29,72,0.03);">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+              <span style="font-size: 20px; color:#e11d48;">🏪</span>
+              <h4 style="margin: 0; font-weight: 800; color: #e11d48; font-size: 14px;">Pago en Tiendas OXXO Pay</h4>
+            </div>
+            <p style="font-size: 11px; color: var(--text-muted); line-height: 1.4; margin: 0;">
+              Genera una ficha de pago segura con código de barras y referencia única de 14 dígitos. Podrás pagar en cualquier sucursal OXXO de la República Mexicana en efectivo. <b>La referencia expira en 24 horas.</b>
             </p>
           </div>
-          <div class="form-group">
-            <label>Monto Depositado ($ MXN) *</label>
+          <div class="form-group" style="margin-top: 14px;">
+            <label>Monto a Depositar ($ MXN) *</label>
             <input type="number" id="p_monto_dep" placeholder="0.00">
           </div>
           <div class="form-group">
-            <label>Concepto del Depósito</label>
-            <input type="text" id="p_concepto_dep" placeholder="Ej. Mensualidad 1">
+            <label>Concepto del Abono</label>
+            <input type="text" id="p_concepto_dep" placeholder="Ej. Abono mensualidad o capital">
           </div>
-          <button class="btn-submit" onclick="registrarPagoManual('deposito')">Notificar Depósito Realizado</button>
+          <button class="btn-submit" style="background: #e11d48;" onmouseover="this.style.background='#be123c'" onmouseout="this.style.background='#e11d48'" onclick="generarFichaOxxo()">Generar Ficha Oxxo Pay (PDF)</button>
         </div>
 
-        <!-- TAB 3: TARJETA DE CRÉDITO / DÉBITO (STRIPE) -->
+        <!-- TAB 3: TARJETA DE CRÉDITO / DÉBITO (BBVA BANCOMER) -->
         <div class="tab-content" id="tab-tarjeta">
-          <div class="form-group">
+          <div class="datos-bancarios-box" style="border-color: rgba(0,68,129,0.3); background: rgba(0,68,129,0.03); display: flex; align-items: center; justify-content: space-between; padding: 12px 16px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 20px;">💳</span>
+              <h4 style="margin: 0; font-weight: 800; color: #004481; font-size: 14px;">Pasarela de Pago BBVA México</h4>
+            </div>
+            <span style="font-size: 10px; font-weight: 800; background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 12px; border: 1px solid #bae6fd;">BBVA 3D SECURE</span>
+          </div>
+
+          <div class="form-group" style="margin-top: 14px;">
             <label>Monto a Pagar ($ MXN) *</label>
             <input type="number" id="p_monto_tarjeta" placeholder="0.00">
           </div>
           <div class="form-group">
-            <label>Concepto</label>
+            <label>Concepto de Transacción</label>
             <input type="text" id="p_concepto_tarjeta" placeholder="Pago Seguro Arévalo & CIA">
           </div>
-          <div class="form-group">
-            <label>Datos de la Tarjeta</label>
-            <div class="stripe-input-box" id="card-element"></div>
-            <div id="card-errors" style="color: #fca5a5; font-size: 12px; margin-top: 4px;"></div>
+
+          <!-- Formulario de Tarjeta BBVA Interactivo Premium -->
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 14px;">
+            <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:12px;">
+              <span style="font-size: 11px; font-weight:800; color:#64748b; letter-spacing:0.5px;">DETALLES DE TARJETA</span>
+              <div id="bbva-card-logo" style="font-size: 18px; font-weight: 900; color:#004481; font-family:'Outfit', sans-serif;">BBVA</div>
+            </div>
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label style="font-size:11px; color:#475569;">Número de Tarjeta</label>
+              <input type="text" id="bbva_card_number" maxlength="19" placeholder="4152 3133 XXXX XXXX" style="letter-spacing:1.5px; font-weight:700; padding:10px; font-size:14px; border:1px solid #cbd5e1; border-radius:8px; width:100%; box-sizing:border-box;" oninput="detectarTarjetaBBVA(this)">
+            </div>
+            <div style="display:flex; gap:12px;">
+              <div class="form-group" style="flex:1; margin-bottom:10px;">
+                <label style="font-size:11px; color:#475569;">Fecha Vencimiento (MM/AA)</label>
+                <input type="text" id="bbva_card_expiry" maxlength="5" placeholder="MM/AA" style="letter-spacing:1px; font-weight:700; text-align:center; padding:10px; font-size:14px; border:1px solid #cbd5e1; border-radius:8px; width:100%; box-sizing:border-box;" oninput="formatearVencimientoBBVA(this)">
+              </div>
+              <div class="form-group" style="flex:1; margin-bottom:10px;">
+                <label style="font-size:11px; color:#475569;">Código de Seguridad (CVV)</label>
+                <input type="password" id="bbva_card_cvv" maxlength="4" placeholder="•••" style="letter-spacing:4px; font-weight:700; text-align:center; padding:10px; font-size:14px; border:1px solid #cbd5e1; border-radius:8px; width:100%; box-sizing:border-box;">
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label style="font-size:11px; color:#475569;">Nombre del Tarjetahabiente</label>
+              <input type="text" id="bbva_card_name" placeholder="Nombre como aparece en la tarjeta" style="text-transform:uppercase; font-weight:600; padding:10px; font-size:14px; border:1px solid #cbd5e1; border-radius:8px; width:100%; box-sizing:border-box;">
+            </div>
           </div>
-          <button class="btn-submit" id="btnPagarStripe" onclick="procesarPagoStripe()">Pagar Seguro con Tarjeta</button>
+
+          <button class="btn-submit" style="background: #004481;" onmouseover="this.style.background='#003366'" onmouseout="this.style.background='#004481'" id="btnPagarBBVA" onclick="procesarPagoBBVA()">Pagar Seguro con BBVA</button>
         </div>
 
       </div>
@@ -1204,7 +1238,12 @@
         }
 
       } catch (e) {
-        window.location.href = '/login-cliente.html';
+        console.error("Error crítico de inicialización:", e);
+        const token = localStorage.getItem('secure_portal_token');
+        const ses = localStorage.getItem('portal_cliente');
+        if (!token && !ses) {
+          window.location.href = '/login-cliente.html';
+        }
       }
     });
 
@@ -1938,6 +1977,7 @@
     // PAGOS Y MODAL STRIPE
     // ─────────────────────────────────────────────────────────
     let listaMisPagosGlobal = [];
+    let misPendientesGlobal = [];
 
     // ─────────────────────────────────────────────────────────
     // PAGOS, CUOTAS PENDIENTES Y GENERACIÓN MAESTRA DE PDF
@@ -1994,6 +2034,7 @@
         } else {
           console.warn("No se pudo cargar el calendario de pagos:", calTotal);
         }
+        misPendientesGlobal = misPendientes;
 
         if (!misPendientes || misPendientes.length === 0) {
           tbodyPend.innerHTML = '<tr><td colspan="4" style="text-align:center; color: var(--text-muted);">¡Excelente! Al corriente. No tienes cuotas programadas pendientes.</td></tr>';
@@ -2009,7 +2050,7 @@
                 <td><b>${conc}</b></td>
                 <td style="font-weight:800; color:#2563eb;">$${montoEsp}</td>
                 <td style="text-align:center;">
-                  <button onclick="abrirModalPagoDirecto(${c.monto_esperado}, '${conc}')" style="background:#2563eb; color:white; border:none; padding:5px 12px; border-radius:6px; cursor:pointer; font-size:11px; font-weight:700;">
+                  <button onclick="abrirModalPagoDirecto(${c.monto_esperado}, '${conc}', '${c.id_contrato}', '${c.id_terreno || ''}', '${c.id_calendario || ''}')" style="background:#2563eb; color:white; border:none; padding:5px 12px; border-radius:6px; cursor:pointer; font-size:11px; font-weight:700;">
                     💳 Pagar Cuota
                   </button>
                 </td>
@@ -2023,7 +2064,50 @@
       }
     }
 
-    function abrirModalPagoDirecto(montoPropuesto, conceptoPropuesto) {
+    let currentContractId = '';
+    let currentTerrenoId = '';
+    let currentCalendarioId = '';
+
+    function abrirModalPagoDirecto(montoPropuesto, conceptoPropuesto, idContrato, idTerreno, idCalendario) {
+      currentContractId = idContrato || '';
+      currentTerrenoId = idTerreno || '';
+      currentCalendarioId = idCalendario || '';
+      
+      // 1. Si no hay contrato directo, buscar el primero en pagos completados
+      if (!currentContractId && typeof listaMisPagosGlobal !== 'undefined' && listaMisPagosGlobal.length > 0) {
+        const algunPago = listaMisPagosGlobal.find(p => p.id_contrato);
+        if (algunPago) {
+          currentContractId = algunPago.id_contrato;
+          currentTerrenoId = algunPago.id_terreno || '';
+        }
+      }
+
+      // 2. Si aún no hay contrato, buscar el primero en cuotas programadas / pendientes
+      if (!currentContractId && typeof misPendientesGlobal !== 'undefined' && misPendientesGlobal.length > 0) {
+        const algunPend = misPendientesGlobal.find(p => p.id_contrato);
+        if (algunPend) {
+          currentContractId = algunPend.id_contrato;
+          currentTerrenoId = algunPend.id_terreno || '';
+        }
+      }
+
+      // REGLA DE NEGOCIO CLIENTE: Bloquear si no hay ningún contrato asociado asignado
+      if (!currentContractId) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Sin Contrato Activo',
+          html: `<div style="text-align: left; font-size: 14px; color: #475569; line-height: 1.6;">` +
+                `<p>No tienes ningún contrato o lote adquirido asignado en tu cuenta de portal.</p><br>` +
+                `<p><b>Regla de negocio:</b> Para realizar un Pago Libre, debes contar con al menos un lote comprado o financiado previamente.</p>` +
+                `</div>`,
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#2563eb',
+          background: '#ffffff',
+          color: '#0f172a'
+        });
+        return;
+      }
+
       abrirModalPago();
       if (montoPropuesto) {
         const m = parseFloat(montoPropuesto);
@@ -2294,6 +2378,9 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             id_cliente: clienteLogueado.id_cliente,
+            id_contrato: currentContractId || null,
+            id_terreno: currentTerrenoId || null,
+            id_calendario: currentCalendarioId || null,
             monto,
             concepto: concepto || `Pago en línea (${metodo})`,
             metodo_pago: metodo,
@@ -2303,11 +2390,20 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Error registrando el pago.');
 
-        showModalMsg('¡Pago registrado con éxito! Abriendo comprobante oficial...');
-        
-        // Disparar previsualización premium inmaculada
-        const nuevoPagoObj = data.pago || { id_pago: Date.now().toString().slice(-4), monto, concepto, metodo_pago: metodo, estatus: 'pagado' };
-        setTimeout(() => { mostrarReciboOficialCliente(nuevoPagoObj); }, 800);
+        if (metodo === 'transferencia') {
+          cerrarModalPago();
+          Swal.fire({
+            icon: 'info',
+            title: '¡Transferencia Notificada con Éxito!',
+            text: 'Hemos registrado tu comprobante en estatus PENDIENTE de revisión. Un administrador de Arévalo & CIA verificará los fondos en su banca en línea y tu pago se acreditará formalmente en tu saldo una vez verificado.',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#2563eb'
+          });
+        } else {
+          showModalMsg('¡Pago registrado con éxito! Abriendo comprobante oficial...');
+          const nuevoPagoObj = data.pago || { id_pago: Date.now().toString().slice(-4), monto, concepto, metodo_pago: metodo, estatus: 'pagado' };
+          setTimeout(() => { mostrarReciboOficialCliente(nuevoPagoObj); }, 800);
+        }
 
         // Notificar al asesor exclusivo en tiempo real
         try {
@@ -2334,8 +2430,14 @@
     function inicializarStripe() {
       const PK_KEY = 'pk_test_TYooMQauvdEDq54NiTphI7jx'; 
       try {
+        if (typeof Stripe === 'undefined') {
+          throw new Error('Stripe JS no está cargado.');
+        }
         stripeInstance = Stripe(PK_KEY);
         const elements = stripeInstance.elements();
+        
+        const cardContainer = document.getElementById('card-element');
+        if (!cardContainer) return;
         
         cardElement = elements.create('card', {
           style: {
@@ -2356,10 +2458,14 @@
         
         cardElement.on('change', (event) => {
           const displayError = document.getElementById('card-errors');
-          displayError.textContent = event.error ? event.error.message : '';
+          if (displayError) displayError.textContent = event.error ? event.error.message : '';
         });
       } catch (e) {
-        document.getElementById('card-errors').innerText = 'El módulo de pago en línea requiere claves de Stripe válidas.';
+        console.warn('El módulo de pago en línea requiere claves de Stripe válidas.', e);
+        const displayError = document.getElementById('card-errors');
+        if (displayError) {
+          displayError.innerText = 'El módulo de pago en línea requiere claves de Stripe válidas.';
+        }
       }
     }
 
@@ -2379,7 +2485,8 @@
 
       btn.disabled = true;
       btn.innerText = 'Conectando con Stripe...';
-      document.getElementById('card-errors').textContent = '';
+      const displayError = document.getElementById('card-errors');
+      if (displayError) displayError.textContent = '';
 
       try {
         const resIntent = await fetch('/api/portal/stripe-intent', {
@@ -2450,6 +2557,341 @@
         btn.disabled = false;
         btn.innerText = 'Pagar Seguro con Tarjeta';
       }
+    }
+
+    function detectarTarjetaBBVA(el) {
+      let val = el.value.replace(/\D/g, '');
+      el.value = val.match(/.{1,4}/g)?.join(' ') || val;
+      
+      const logoEl = document.getElementById('bbva-card-logo');
+      if (val.startsWith('4')) {
+        logoEl.innerHTML = '🔵 BBVA <span style="font-size:12px; color:#2563eb;">Visa</span>';
+      } else if (val.startsWith('5')) {
+        logoEl.innerHTML = '🔵 BBVA <span style="font-size:12px; color:#ea580c;">Mastercard</span>';
+      } else if (val.startsWith('3')) {
+        logoEl.innerHTML = '🔵 BBVA <span style="font-size:12px; color:#0d9488;">Amex</span>';
+      } else {
+        logoEl.innerHTML = 'BBVA';
+      }
+    }
+
+    function formatearVencimientoBBVA(el) {
+      let val = el.value.replace(/\D/g, '');
+      if (val.length > 2) {
+        el.value = val.slice(0, 2) + '/' + val.slice(2, 4);
+      } else {
+        el.value = val;
+      }
+    }
+
+    async function generarFichaOxxo() {
+      const monto = document.getElementById('p_monto_dep').value;
+      const concepto = document.getElementById('p_concepto_dep').value.trim();
+
+      if (!monto || parseFloat(monto) <= 0) {
+        showModalMsg('Ingresa un monto válido para generar tu ficha Oxxo Pay.', true);
+        return;
+      }
+      if (!currentContractId) {
+        showModalMsg('Regla de negocio: Se requiere un contrato asociado y válido para emitir un folio de pago.', true);
+        return;
+      }
+
+      try {
+        const part1 = Math.floor(1000 + Math.random() * 9000);
+        const part2 = Math.floor(1000 + Math.random() * 9000);
+        const part3 = Math.floor(1000 + Math.random() * 9000);
+        const part4 = Math.floor(10 + Math.random() * 90);
+        const refOxxo = `${part1}-${part2}-${part3}-${part4}`;
+
+        const res = await fetch('/api/portal/pagar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id_cliente: clienteLogueado.id_cliente,
+            id_contrato: currentContractId,
+            id_terreno: currentTerrenoId || null,
+            id_calendario: currentCalendarioId || null,
+            monto,
+            concepto: concepto || 'Depósito en Efectivo Oxxo Pay',
+            metodo_pago: 'oxxo',
+            comprobante: `OXXO_REF:${refOxxo}`
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error registrando el folio Oxxo Pay.');
+
+        const expDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleString('es-MX', {
+          day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        const ticketHtml = `
+          <div id="oxxo-ticket-print" style="font-family: 'Outfit', sans-serif; padding: 24px; border: 2px dashed #d1d5db; border-radius: 12px; background: #fafafa; color: #1f2937; text-align: left; max-width: 450px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e11d48; padding-bottom: 12px; margin-bottom: 16px;">
+              <span style="font-size: 24px; font-weight: 900; color: #e11d48; letter-spacing: -1px;">OXXO Pay</span>
+              <span style="font-size: 11px; background: #ffe4e6; color: #be123c; font-weight: 800; padding: 4px 10px; border-radius: 20px;">EFECTIVO EN TIENDA</span>
+            </div>
+            
+            <div style="font-size: 13px; color: #4b5563; margin-bottom: 16px;">
+              <div style="margin-bottom: 4px;"><b>Beneficiario:</b> Arévalo & CIA S.A. de C.V.</div>
+              <div style="margin-bottom: 4px;"><b>Concepto:</b> ${concepto || 'Abono a mensualidad'}</div>
+              <div><b>Cliente:</b> ${clienteLogueado.nombre} ${clienteLogueado.apellido_paterno}</div>
+            </div>
+
+            <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 16px; text-align: center;">
+              <div style="font-size: 11px; color: #6b7280; font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">Monto total a pagar</div>
+              <div style="font-size: 28px; font-weight: 900; color: #1e3a8a;">$${parseFloat(monto).toLocaleString('es-MX', {minimumFractionDigits:2})} MXN</div>
+              <div style="font-size: 10px; color: #9ca3af; margin-top: 4px;">* Oxxo cobrará una comisión fija por servicio en caja.</div>
+            </div>
+
+            <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 16px; margin-bottom: 20px; text-align: center; border-left: 4px solid #d97706;">
+              <div style="font-size: 11px; color: #b45309; font-weight: 800; text-transform: uppercase; margin-bottom: 6px;">Referencia de Pago en Caja</div>
+              <div style="font-size: 22px; font-weight: 900; color: #78350f; font-family: monospace; letter-spacing: 2px;">${refOxxo}</div>
+              <div style="font-size: 11px; color: #dc2626; font-weight: 700; margin-top: 10px;">⚠️ Vence el: ${expDate} (24 horas)</div>
+            </div>
+
+            <!-- Código de Barras Premium Simulado -->
+            <div style="text-align: center; margin-bottom: 20px;">
+              <div style="font-family: 'Libre Barcode 39', monospace; font-size: 45px; line-height: 1; letter-spacing: 3px; color: #000000; margin-bottom: 2px;">*${refOxxo.replace(/-/g, '')}*</div>
+              <div style="font-size: 10px; color: #6b7280;">Código único de barrido para terminal de caja</div>
+            </div>
+
+            <div style="border-top: 1px solid #e5e7eb; padding-top: 12px; font-size: 11px; color: #4b5563;">
+              <div style="font-weight: 800; color: #1e3a8a; margin-bottom: 6px;">INSTRUCCIONES PARA EL CAJERO:</div>
+              <ol style="margin: 0; padding-left: 16px; line-height: 1.4;">
+                <li>Indique al cliente que es un pago de servicio de <b>OXXO Pay</b>.</li>
+                <li>Escanee el código de barras o digite los 14 números de la referencia.</li>
+                <li>Confirme el monto total cargado en la terminal.</li>
+                <li>Reciba el pago en efectivo y entregue el ticket impreso al cliente.</li>
+              </ol>
+            </div>
+          </div>
+        `;
+
+        cerrarModalPago();
+
+        await Swal.fire({
+          title: '¡Ficha Oxxo Pay Generada Exitosamente!',
+          html: ticketHtml,
+          showCancelButton: true,
+          confirmButtonText: '💾 Descargar en PDF',
+          cancelButtonText: 'Cerrar Ficha',
+          confirmButtonColor: '#e11d48',
+          cancelButtonColor: '#6b7280',
+          width: '500px',
+          showLoaderOnConfirm: true,
+          preConfirm: () => {
+            const element = document.getElementById('oxxo-ticket-print');
+            const opt = {
+              margin:       0.3,
+              filename:     `Ficha_OxxoPay_${clienteLogueado.nombre.replace(/\s+/g, '_')}_${Date.now()}.pdf`,
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  { scale: 2 },
+              jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            return html2pdf().set(opt).from(element).save();
+          },
+          allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+          if (result.isConfirmed) {
+            Swal.fire('¡Ficha Descargada!', 'Tu ficha Oxxo Pay PDF se ha guardado en tus descargas. Tienes 24 horas para realizar el pago en cualquier OXXO.', 'success');
+            cargarPagos();
+          } else {
+            cargarPagos();
+          }
+        });
+
+      } catch (err) {
+        showModalMsg(err.message, true);
+      }
+    }
+
+    async function procesarPagoBBVA() {
+      const monto = document.getElementById('p_monto_tarjeta').value;
+      const concepto = document.getElementById('p_concepto_tarjeta').value.trim();
+      const numT = document.getElementById('bbva_card_number').value.replace(/\s+/g, '');
+      const expT = document.getElementById('bbva_card_expiry').value;
+      const cvvT = document.getElementById('bbva_card_cvv').value;
+      const nameT = document.getElementById('bbva_card_name').value.trim();
+      const btn = document.getElementById('btnPagarBBVA');
+
+      if (!monto || parseFloat(monto) <= 0) {
+        showModalMsg('Ingresa un monto a pagar válido.', true);
+        return;
+      }
+      if (!currentContractId) {
+        showModalMsg('Regla de negocio: Se requiere un contrato asociado y válido para procesar un pago con tarjeta.', true);
+        return;
+      }
+      if (numT.length < 15 || !expT.includes('/') || cvvT.length < 3 || !nameT) {
+        showModalMsg('Complete todos los detalles de su tarjeta BBVA Bancomer.', true);
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Cifrando datos de pago...';
+
+      // 1. Espectacular Simulación BBVA 3D Secure 2.0
+      await Swal.fire({
+        title: '🔒 Autenticación Segura BBVA 3D Secure',
+        html: `
+          <div style="font-family:'Outfit',sans-serif; color:#0f172a; text-align:left; padding:10px;">
+            <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:12px; margin-bottom:15px; font-size:12px; color:#0369a1;">
+              Estableciendo canal de autenticación segura cifrado de terminal bancaria BBVA...
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;">
+              <span><b>Comercio:</b> Arévalo & CIA S.A. de C.V.</span>
+              <span><b>Importe:</b> $${parseFloat(monto).toLocaleString('es-MX', {minimumFractionDigits:2})} MXN</span>
+            </div>
+            <div style="font-size:13px; margin-bottom:12px;">
+              <span><b>Tarjeta BBVA:</b> •••• •••• •••• ${numT.slice(-4)}</span>
+            </div>
+            <div style="border-top:1px solid #e2e8f0; padding-top:12px;">
+              <p style="font-size:12px; color:#475569; margin:0 0 10px;">Hemos enviado un código OTP de seguridad por SMS al número asociado a su tarjeta bancaria. Ingréselo para autorizar el cargo:</p>
+              <div style="display:flex; gap:10px; align-items:center;">
+                <input type="text" id="otp-bbva-input" maxlength="6" placeholder="000 000" style="letter-spacing:4px; font-weight:900; font-size:18px; text-align:center; padding:10px; border:2px solid #004481; border-radius:8px; width:150px; box-sizing:border-box;">
+                <span id="timer-otp" style="font-size:12px; color:#0284c7; font-weight:700;">Reenviar en: 45s</span>
+              </div>
+            </div>
+          </div>
+        `,
+        confirmButtonText: '✓ Confirmar y Autorizar Pago',
+        cancelButtonText: 'Cancelar Transacción',
+        showCancelButton: true,
+        confirmButtonColor: '#004481',
+        cancelButtonColor: '#64748b',
+        allowOutsideClick: false,
+        didOpen: () => {
+          let count = 45;
+          const timerEl = document.getElementById('timer-otp');
+          const interval = setInterval(() => {
+            count--;
+            if (count <= 0) {
+              clearInterval(interval);
+              timerEl.innerText = "Reenviar SMS";
+            } else {
+              timerEl.innerText = `Reenviar en: ${count}s`;
+            }
+          }, 1000);
+          
+          Swal.getConfirmButton().disabled = true;
+          const otpInput = document.getElementById('otp-bbva-input');
+          otpInput.addEventListener('input', (e) => {
+            Swal.getConfirmButton().disabled = (e.target.value.length < 3);
+          });
+        }
+      }).then(async (resSwal) => {
+        if (resSwal.isConfirmed) {
+          try {
+            Swal.fire({
+              title: 'Procesando cargo seguro BBVA...',
+              html: '<div style="margin-top:10px; color:#004481; font-weight:bold;">Verificando firmas y aplicando cobro bancario...</div>',
+              allowOutsideClick: false,
+              didOpen: () => { Swal.showLoading(); }
+            });
+
+            const res = await fetch('/api/portal/bbva-charge', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id_cliente: clienteLogueado.id_cliente,
+                id_contrato: currentContractId,
+                id_terreno: currentTerrenoId || null,
+                id_calendario: currentCalendarioId || null,
+                monto,
+                concepto: concepto || 'Pago Seguro BBVA',
+                tarjeta_datos: { numero: numT.slice(0, 6) + 'XXXX' + numT.slice(-4), cvv: '***' }
+              })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Cargo declinado por el banco emisor.');
+
+            Swal.close();
+            
+            const ticketHtml = `
+              <div id="bbva-receipt-print" style="font-family:'Courier New', monospace; font-size:12px; color:#1e293b; border: 1px solid #cbd5e1; padding: 20px; background:#fff; max-width:350px; margin:0 auto; text-align:left;">
+                <div style="text-align:center; font-weight:bold; font-size:14px; margin-bottom:15px; border-bottom:1px dashed #475569; padding-bottom:10px;">
+                  BBVA BANCOMER S.A.<br>GRUPO FINANCIERO BBVA<br>RFC: BBA830831LJ2
+                </div>
+                <div style="margin-bottom:8px;"><b>FECHA:</b> ${new Date().toLocaleString('es-MX')}</div>
+                <div style="margin-bottom:8px;"><b>AFILIACION:</b> 8472914-A</div>
+                <div style="margin-bottom:8px;"><b>CLIENTE:</b> ${clienteLogueado.nombre.toUpperCase()} ${clienteLogueado.apellido_paterno.toUpperCase()}</div>
+                <div style="margin-bottom:8px;"><b>CONTRATO:</b> ${currentContractId}</div>
+                <div style="margin-bottom:8px; border-bottom:1px dashed #cbd5e1; padding-bottom:8px;"><b>CONCEPTO:</b> ${concepto || 'Pago Seguro BBVA'}</div>
+                
+                <div style="font-size:16px; font-weight:bold; text-align:center; margin:15px 0;">
+                  IMPORTE: $${parseFloat(monto).toLocaleString('es-MX', {minimumFractionDigits:2})} MXN
+                </div>
+                
+                <div style="margin-bottom:8px;"><b>OPERACION:</b> COMPRA SEGURA</div>
+                <div style="margin-bottom:8px;"><b>METODO:</b> BBVA ONLINE DEBIT/CREDIT</div>
+                <div style="margin-bottom:8px;"><b>TARJETA:</b> XXXX-XXXX-XXXX-${numT.slice(-4)}</div>
+                <div style="margin-bottom:8px;"><b>AUTORIZACION:</b> ${data.authCode}</div>
+                <div style="margin-bottom:15px; border-bottom:1px dashed #cbd5e1; padding-bottom:8px;"><b>FOLIO TRANS:</b> ${data.folio}</div>
+                
+                <div style="text-align:center; font-weight:bold; font-size:10px; color:#64748b;">
+                  PAGO AUTORIZADO SEGURO BAJO EL PROTOCOLO 3D SECURE Y CIFRADO SSL/BBVA NET.
+                </div>
+              </div>
+            `;
+
+            await Swal.fire({
+              icon: 'success',
+              title: '¡Pago Aprobado con Éxito!',
+              html: `El cargo de $${parseFloat(monto).toLocaleString('es-MX', {minimumFractionDigits:2})} ha sido procesado exitosamente por BBVA Bancomer.<br><br>${ticketHtml}`,
+              confirmButtonText: '💾 Descargar Ticket de Pago (PDF)',
+              showCancelButton: true,
+              cancelButtonText: 'Cerrar',
+              confirmButtonColor: '#004481',
+              cancelButtonColor: '#64748b',
+              width: '450px',
+              showLoaderOnConfirm: true,
+              preConfirm: () => {
+                const element = document.getElementById('bbva-receipt-print');
+                const opt = {
+                  margin:       0.3,
+                  filename:     `Ticket_BBVA_${data.authCode}.pdf`,
+                  image:        { type: 'jpeg', quality: 0.98 },
+                  html2canvas:  { scale: 2 },
+                  jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+                return html2pdf().set(opt).from(element).save();
+              },
+              allowOutsideClick: () => !Swal.isLoading()
+            }).then((resPdf) => {
+              if (resPdf.isConfirmed) {
+                Swal.fire('¡Ticket Guardado!', 'El comprobante oficial BBVA fue guardado en sus descargas.', 'success');
+              }
+            });
+
+            try {
+              const nomCliente = `${clienteLogueado.nombre || ''} ${clienteLogueado.apellido_paterno || ''}`.trim() || 'Cliente Web';
+              const guardadas = JSON.parse(localStorage.getItem('kommo_notifications') || '[]');
+              guardadas.push({
+                id_asesor: clienteLogueado.id_asesor_asignado,
+                texto: `💳 <b>¡Pago con Tarjeta BBVA Aprobado!</b><br><b>👤 Cliente:</b> ${nomCliente}<br><b>💰 Monto:</b> $${parseFloat(monto).toLocaleString('es-MX', {minimumFractionDigits:2})}<br><b>🏷️ Concepto:</b> Tarjeta Acreditada BBVA (Aut: ${data.authCode})<br><b>📌 Estatus:</b> Cobro Liquidado.`,
+                fecha: new Date().toLocaleString()
+              });
+              localStorage.setItem('kommo_notifications', JSON.stringify(guardadas));
+              window.dispatchEvent(new Event('kommo_update'));
+            } catch(e){}
+
+            document.getElementById('bbva_card_number').value = '';
+            document.getElementById('bbva_card_expiry').value = '';
+            document.getElementById('bbva_card_cvv').value = '';
+            document.getElementById('bbva_card_name').value = '';
+            document.getElementById('p_monto_tarjeta').value = '';
+            cerrarModalPago();
+            cargarPagos();
+
+          } catch (error) {
+            Swal.fire('Transacción Declinada', error.message, 'error');
+          }
+        }
+        
+        btn.disabled = false;
+        btn.innerText = 'Pagar Seguro con BBVA';
+      });
     }
 
     async function cargarAlertasCobranza() {

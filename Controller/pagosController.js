@@ -101,8 +101,132 @@ const aplicarPago = async (req, res) => {
   }
 };
 
+const confirmarPago = async (req, res) => {
+  try {
+    const { id_pago } = req.body;
+    const idPagoReal = desencriptarId(id_pago);
+    if (!idPagoReal) {
+      return res.status(400).json({ error: 'Folio de pago no válido' });
+    }
+
+    const client = await require('../Model/db').connect();
+    try {
+      await client.query('BEGIN');
+
+      // 1. Obtener datos del pago
+      const pRes = await client.query('SELECT * FROM sistema.pagos WHERE id_pago = $1', [idPagoReal]);
+      if (pRes.rows.length === 0) {
+        throw new Error('Pago no encontrado');
+      }
+      const pago = pRes.rows[0];
+
+      if (pago.estatus === 'pagado') {
+        throw new Error('El pago ya se encuentra en estatus Confirmado / Pagado');
+      }
+
+      // 2. Cambiar estatus a pagado
+      await client.query("UPDATE sistema.pagos SET estatus = 'pagado' WHERE id_pago = $1", [idPagoReal]);
+
+      // 3. Si tiene CAL_REF: en comprobante, actualizar el calendario de pagos
+      if (pago.comprobante && pago.comprobante.startsWith('CAL_REF:')) {
+        const idCalComp = pago.comprobante.split(' ')[0].split(':')[1];
+        await client.query("UPDATE sistema.calendario_pagos SET estatus = 'pagado' WHERE id_calendario = $1", [idCalComp]);
+      }
+
+      // 4. Lógica de recuperación de etapa de cliente
+      const resCli = await client.query('SELECT etapa FROM sistema.clientes WHERE id_cliente = $1', [pago.id_cliente]);
+      if (resCli.rows.length > 0) {
+        const etapaActual = resCli.rows[0].etapa;
+        let nuevaEtapa = 'Cliente activo';
+        if (etapaActual === 'Moroso' || etapaActual === 'Cancelado') {
+          nuevaEtapa = 'Recuperado';
+        }
+        await client.query('UPDATE sistema.clientes SET etapa = $1 WHERE id_cliente = $2', [nuevaEtapa, pago.id_cliente]);
+      }
+
+      await client.query('COMMIT');
+
+      // 5. Registrar en auditoría
+      const responsable = await obtenerResponsable(req);
+      await dashboardModel.registrarMovimiento(
+        'pagos',
+        'edicion',
+        `Confirmación de entrada de dinero: Aprobado abono de $${parseFloat(pago.monto).toLocaleString('es-MX', {minimumFractionDigits:2})} de tipo ${pago.metodo_pago} (ID Pago: ${pago.id_pago}).`,
+        responsable,
+        pago.id_pago
+      );
+
+      res.json({ mensaje: 'Pago confirmado exitosamente y aplicado a balances reales.' });
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('Error al confirmar pago:', error);
+    res.status(500).json({ error: 'No se pudo confirmar el pago: ' + error.message });
+  }
+};
+
+const rechazarPago = async (req, res) => {
+  try {
+    const { id_pago } = req.body;
+    const idPagoReal = desencriptarId(id_pago);
+    if (!idPagoReal) {
+      return res.status(400).json({ error: 'Folio de pago no válido' });
+    }
+
+    const pRes = await require('../Model/db').query('SELECT * FROM sistema.pagos WHERE id_pago = $1', [idPagoReal]);
+    if (pRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Pago no encontrado en el sistema' });
+    }
+    const pago = pRes.rows[0];
+
+    // Eliminar el registro
+    await require('../Model/db').query('DELETE FROM sistema.pagos WHERE id_pago = $1', [idPagoReal]);
+
+    // Registrar en auditoría
+    const responsable = await obtenerResponsable(req);
+    await dashboardModel.registrarMovimiento(
+      'pagos',
+      'eliminacion',
+      `Rechazo de pago pendiente: Eliminado registro de abono pendiente por $${parseFloat(pago.monto).toLocaleString('es-MX', {minimumFractionDigits:2})} mediante ${pago.metodo_pago}.`,
+      responsable,
+      pago.id_pago
+    );
+
+    res.json({ mensaje: 'Pago pendiente rechazado y eliminado del historial de forma segura.' });
+  } catch (error) {
+    console.error('Error al rechazar pago:', error);
+    res.status(500).json({ error: 'No se pudo rechazar el pago: ' + error.message });
+  }
+};
+
+const purgarFoliosVencidos = async () => {
+  try {
+    const res = await require('../Model/db').query(
+      `DELETE FROM sistema.pagos 
+       WHERE metodo_pago IN ('deposito', 'oxxo') 
+         AND estatus = 'pendiente' 
+         AND CURRENT_DATE - fecha_pago >= 3 
+       RETURNING *`
+    );
+    if (res.rows.length > 0) {
+      console.log(`🧹 Auto-limpieza de cobranza: Se eliminaron ${res.rows.length} folios de depósito/Oxxo pendientes vencidos (caducidad de 72 horas excedida).`);
+    } else {
+      console.log('🧹 Auto-limpieza de cobranza: No se encontraron folios vencidos de 72 horas.');
+    }
+  } catch (err) {
+    console.error('Error al purgar folios vencidos:', err);
+  }
+};
+
 module.exports = {
   listarCalendario,
   listarPagos,
-  aplicarPago
+  aplicarPago,
+  confirmarPago,
+  rechazarPago,
+  purgarFoliosVencidos
 };

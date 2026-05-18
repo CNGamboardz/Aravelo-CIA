@@ -29,7 +29,8 @@ const getDireccionDashboard = async () => {
   const cobranzaReal = await db.query(`
     SELECT COALESCE(SUM(monto), 0) AS total_real 
     FROM sistema.pagos 
-    WHERE EXTRACT(MONTH FROM fecha_pago) = EXTRACT(MONTH FROM CURRENT_DATE) 
+    WHERE estatus = 'pagado'
+      AND EXTRACT(MONTH FROM fecha_pago) = EXTRACT(MONTH FROM CURRENT_DATE) 
       AND EXTRACT(YEAR FROM fecha_pago) = EXTRACT(YEAR FROM CURRENT_DATE)
   `);
 
@@ -156,7 +157,7 @@ const getAuditoriaCompleta = async () => {
            COALESCE(t.fraccionamiento, 'Sin Fraccionamiento') AS fraccionamiento,
            COALESCE(t.numero_lote::text, '') AS lote_num,
            COALESCE(u.nombre, 'Portal Web') AS asesor_nombre,
-           (SELECT COALESCE(SUM(p.monto), 0) FROM sistema.pagos p WHERE p.id_contrato = c.id_contrato) AS total_pagado
+           (SELECT COALESCE(SUM(p.monto), 0) FROM sistema.pagos p WHERE p.id_contrato = c.id_contrato AND p.estatus = 'pagado') AS total_pagado
     FROM sistema.contratos c
     LEFT JOIN sistema.clientes cl ON c.id_cliente = cl.id_cliente
     LEFT JOIN sistema.terrenos t ON c.id_terreno = t.id_terreno

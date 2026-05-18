@@ -253,6 +253,7 @@
   <script>
     let listadoTerrenos = [];
     let listadoClientes = [];
+    const userData = JSON.parse(localStorage.getItem('arevalo_user'));
 
     function cerrarSesion() {
       localStorage.removeItem('arevalo_user');

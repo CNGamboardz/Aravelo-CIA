@@ -7,7 +7,7 @@ const getContratos = async () => {
             TRIM(CONCAT(cl.nombre, ' ', COALESCE(cl.apellido_paterno, ''), ' ', COALESCE(cl.apellido_materno, ''))) AS cliente_nombre, 
             t.fraccionamiento, t.superficie, t.numero_lote AS lote_num,
             u.nombre AS asesor_nombre,
-            (SELECT COALESCE(SUM(monto), 0) FROM sistema.pagos p WHERE p.id_contrato = c.id_contrato) AS total_pagado
+            (SELECT COALESCE(SUM(monto), 0) FROM sistema.pagos p WHERE p.id_contrato = c.id_contrato AND p.estatus = 'pagado') AS total_pagado
      FROM sistema.contratos c
      JOIN sistema.clientes cl ON c.id_cliente = cl.id_cliente
      JOIN sistema.terrenos t ON c.id_terreno = t.id_terreno
