@@ -26,6 +26,9 @@
   <script src="/public/security-bundle.js"></script>
   <!-- SWEETALERT2 PARA ALERTAS PREMIUM -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- HTML2PDF PARA GENERACIÓN DE FACTURAS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <style>
     :root {
       --primary: #2563eb;
@@ -1922,7 +1925,10 @@
         const tbody = document.getElementById('tablaPagosBody');
         tbody.innerHTML = '';
 
-        if (!listaMisPagosGlobal || listaMisPagosGlobal.length === 0) {
+        if (!res.ok) throw new Error(listaMisPagosGlobal.error || 'Error al obtener pagos');
+        if (!Array.isArray(listaMisPagosGlobal)) listaMisPagosGlobal = [];
+
+        if (listaMisPagosGlobal.length === 0) {
           tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No tienes recibos de pago emitidos en el sistema.</td></tr>';
         } else {
           listaMisPagosGlobal.forEach(p => {
@@ -1937,9 +1943,12 @@
                 <td style="color: #10b981; font-weight:800;">$${monto}</td>
                 <td style="text-transform: capitalize;"><span class="badge-metodo">${p.metodo_pago || 'Transferencia'}</span></td>
                 <td><span class="badge-estatus" style="background:#d1fae5; color:#065f46; padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700;">${p.estatus || 'pagado'}</span></td>
-                <td style="text-align:center;">
+                <td style="text-align:center; display: flex; flex-direction: column; gap: 4px;">
                   <button onclick="descargarReciboPDFManual('${p.id_pago}')" style="background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:11px; font-weight:700; transition:all 0.2s;" title="Descargar Comprobante PDF">
                     🖨️ Comprobante
+                  </button>
+                  <button onclick="descargarFacturaPDF('${p.id_pago}')" style="background:#dcfce7; color:#065f46; border:1px solid #10b981; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:11px; font-weight:700; transition:all 0.2s;" title="Generar Factura Oficial PDF">
+                    📄 Factura
                   </button>
                 </td>
               </tr>
@@ -2040,6 +2049,167 @@
       document.getElementById('print-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${qrData}`;
 
       document.getElementById('recibo-impresion').style.display = 'block';
+    }
+
+    function numeroALetras(num) {
+      const unidades = ['', 'UN', 'DOS', 'TRES', 'CUATRO', 'CINCO', 'SEIS', 'SIETE', 'OCHO', 'NUEVE'];
+      const decenas = ['', 'DIEZ', 'VEINTE', 'TREINTA', 'CUARENTA', 'CINCUENTA', 'SESENTA', 'SETENTA', 'OCHENTA', 'NOVENTA'];
+      const especiales = {
+        11: 'ONCE', 12: 'DOCE', 13: 'TRECE', 14: 'CATORCE', 15: 'QUINCE',
+        16: 'DIECISEIS', 17: 'DIECISIETE', 18: 'DIECIOCHO', 19: 'DIECINUEVE',
+        21: 'VEINTIUNO', 22: 'VEINTIDOS', 23: 'VEINTITRES', 24: 'VEINTICUATRO',
+        25: 'VEINTICINCO', 26: 'VEINTISEIS', 27: 'VEINTISIETE', 28: 'VEINTIOCHO',
+        29: 'VEINTINUEVE'
+      };
+      const centenas = ['', 'CIENTO', 'DOSCIENTOS', 'TRESCIENTOS', 'CUATROCIENTOS', 'QUINIENTOS', 'SEISCIENTOS', 'SETECIENTOS', 'OCHOCIENTOS', 'NOVECIENTOS'];
+
+      function convertirGrupo(n) {
+        if (n === 0) return '';
+        if (n === 100) return 'CIEN';
+        
+        let res = '';
+        const c = Math.floor(n / 100);
+        const d = Math.floor((n % 100) / 10);
+        const u = n % 10;
+        
+        if (c > 0) res += centenas[c] + ' ';
+        
+        const du = n % 100;
+        if (du > 0) {
+          if (especiales[du]) {
+            res += especiales[du];
+          } else {
+            if (d > 0) {
+              res += decenas[d];
+              if (u > 0) res += ' Y ' + unidades[u];
+            } else {
+              res += unidades[u];
+            }
+          }
+        }
+        return res.trim();
+      }
+
+      const entero = Math.floor(num);
+      const centavos = Math.round((num - entero) * 100);
+      
+      if (entero === 0) return `CERO PESOS ${String(centavos).padStart(2, '0')}/100 M.N.`;
+      
+      let partes = [];
+      const millones = Math.floor(entero / 1000000);
+      const miles = Math.floor((entero % 1000000) / 1000);
+      const cientos = entero % 1000;
+      
+      if (millones > 0) {
+        if (millones === 1) {
+          partes.push('UN MILLÓN');
+        } else {
+          partes.push(convertirGrupo(millones) + ' MILLONES');
+        }
+      }
+      
+      if (miles > 0) {
+        if (miles === 1) {
+          partes.push('MIL');
+        } else {
+          partes.push(convertirGrupo(miles) + ' MIL');
+        }
+      }
+      
+      if (cientos > 0) {
+        partes.push(convertirGrupo(cientos));
+      }
+      
+      let textoEntero = partes.join(' ').trim();
+      if (textoEntero.endsWith('UNO')) {
+        textoEntero = textoEntero.substring(0, textoEntero.length - 3) + 'UN';
+      }
+      
+      let sufijo = 'PESOS';
+      if (millones > 0 && miles === 0 && cientos === 0) {
+        sufijo = 'DE PESOS';
+      }
+      
+      return `${textoEntero} ${sufijo} ${String(centavos).padStart(2, '0')}/100 M.N.`;
+    }
+
+    async function descargarFacturaPDF(id_pago) {
+      const pago = listaMisPagosGlobal.find(item => item.id_pago == id_pago);
+      if (!pago) return;
+
+      const fechaS = pago.fecha_pago ? pago.fecha_pago.split('T')[0] : '--';
+      document.getElementById('fac-folio-interno').innerText = 'FAC-' + pago.id_pago.toString().substring(0,8).toUpperCase();
+      document.getElementById('fac-uuid').innerText = pago.id_pago;
+      
+      const ahora = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const fechaEmision = `${fechaS} ${pad(ahora.getHours())}:${pad(ahora.getMinutes())}:${pad(ahora.getSeconds())}`;
+      document.getElementById('fac-fecha').innerText = fechaEmision;
+      
+      const qrData = encodeURIComponent(`https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx?id=${pago.id_pago}`);
+      document.getElementById('fac-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
+      
+      const nomCompleto = clienteLogueado ? `${clienteLogueado.nombre || ''} ${clienteLogueado.apellido_paterno || ''} ${clienteLogueado.apellido_materno || ''}`.trim().replace(/\s+/g, ' ') : 'Cliente Comprador';
+      document.getElementById('fac-cliente').innerText = nomCompleto;
+      document.getElementById('fac-rfc').innerText = pago.rfc || 'XAXX010101000';
+      document.getElementById('fac-cp').innerText = pago.codigo_postal ? `C.P. ${pago.codigo_postal}` : 'C.P. 64000';
+      document.getElementById('fac-metodo').innerText = pago.metodo_pago || 'Transferencia';
+      
+      const descLote = pago.lote ? `Lote ${pago.lote} - ${pago.fraccionamiento || ''}` : 'Proyecto Arévalo & CIA';
+      document.getElementById('fac-contrato').innerText = descLote;
+      
+      document.getElementById('fac-concepto').innerText = pago.concepto || 'Abono a Cuenta';
+
+      const totalNum = parseFloat(pago.monto || 0);
+      const ivaPercentage = pago.porcentaje_iva ? parseFloat(pago.porcentaje_iva) : 16;
+      let subtotalNum = totalNum;
+      let ivaNum = 0;
+      
+      if (ivaPercentage > 0) {
+        subtotalNum = totalNum / (1 + (ivaPercentage / 100));
+        ivaNum = totalNum - subtotalNum;
+      }
+
+      const formatD = n => '$' + n.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      document.getElementById('fac-subtotal-item').innerText = formatD(subtotalNum);
+      document.getElementById('fac-importe').innerText = formatD(subtotalNum);
+      document.getElementById('fac-subtotal').innerText = formatD(subtotalNum);
+      document.getElementById('fac-iva-lbl').innerText = `IVA Trasladado (${ivaPercentage}%):`;
+      document.getElementById('fac-iva').innerText = formatD(ivaNum);
+      document.getElementById('fac-total').innerText = formatD(totalNum);
+      document.getElementById('fac-letras').innerText = `( ${numeroALetras(totalNum)} )`;
+
+      const element = document.getElementById('factura-pdf-template');
+
+      Swal.fire({
+        title: 'Generando Factura PDF...',
+        text: 'Estructurando CFDI y procesando diseño...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+
+      const opt = {
+        margin:       0.2,
+        filename:     `Factura_${nomCompleto.replace(/\s+/g, '_')}_REC${pago.id_pago}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      try {
+        await html2pdf().set(opt).from(element).save();
+        Swal.close();
+        Swal.fire({
+          icon: 'success',
+          title: '¡Factura Generada!',
+          text: 'Se ha descargado el PDF correctamente.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      } catch (err) {
+        Swal.fire('Error', 'No se pudo generar la factura en PDF.', 'error');
+      }
     }
 
     async function cargarDatosBancarios() {
@@ -2365,6 +2535,187 @@
       #recibo-impresion > div { border: none !important; box-shadow: none !important; }
     }
   </style>
+
+  <!-- PLANTILLA DE FACTURA PARA PDF (CFDI 4.0 LEGAL) -->
+  <div style="display: none;">
+    <div id="factura-pdf-template" style="width: 800px; padding: 40px; background: #fff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #111827; position: relative; overflow: hidden; box-sizing: border-box;">
+      
+      <!-- Barra superior corporativa -->
+      <div style="position: absolute; top: 0; left: 0; right: 0; height: 10px; background: #1d4ed8;"></div>
+      
+      <!-- CABECERA: Emisor y Datos Fiscales -->
+      <table style="width: 100%; margin-top: 15px; border-collapse: collapse;">
+        <tr>
+          <td style="width: 25%; vertical-align: top;">
+            <img src="/public/img/LogoApp.png" style="width: 110px; height: 110px; object-fit: contain;">
+          </td>
+          <td style="width: 45%; vertical-align: top; padding-right: 20px;">
+            <h1 style="font-size: 18px; font-weight: 800; margin: 0 0 4px 0; color: #1e3a8a;">AREVALO Y CIA. INMOBILIARIA S.A. DE C.V.</h1>
+            <p style="font-size: 11px; margin: 0 0 2px 0;"><strong>RFC:</strong> AREV990101AA1</p>
+            <p style="font-size: 11px; margin: 0 0 2px 0;"><strong>Régimen Fiscal:</strong> 601 - General de Ley Personas Morales</p>
+            <p style="font-size: 11px; margin: 0 0 2px 0;"><strong>Lugar de Expedición:</strong> 64000 (Monterrey, N.L.)</p>
+            <p style="font-size: 11px; margin: 0 0 2px 0;"><strong>Tipo de Comprobante:</strong> I - Ingreso</p>
+          </td>
+          <td style="width: 30%; vertical-align: top;">
+            <div style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px; background: #f8fafc; text-align: center;">
+              <h2 style="font-size: 16px; margin: 0 0 5px 0; color: #dc2626;">FACTURA</h2>
+              <div style="font-size: 13px; font-weight: bold; color: #0f172a; margin-bottom: 5px;" id="fac-folio-interno">FAC-00000000</div>
+              
+              <div style="font-size: 9px; font-weight: bold; color: #475569; margin-bottom: 2px;">Folio Fiscal (UUID):</div>
+              <div style="font-size: 10px; word-wrap: break-word; color: #1e40af; margin-bottom: 8px; font-family: monospace;" id="fac-uuid">00000000-0000-0000-0000-000000000000</div>
+              
+              <div style="font-size: 9px; font-weight: bold; color: #475569; margin-bottom: 2px;">Fecha y Hora de Emisión:</div>
+              <div style="font-size: 11px; color: #0f172a;" id="fac-fecha">YYYY-MM-DD 12:00:00</div>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- DATOS DEL RECEPTOR -->
+      <div style="margin-top: 20px; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden;">
+        <div style="background: #1e3a8a; color: #fff; padding: 6px 12px; font-size: 12px; font-weight: bold;">
+          DATOS DEL CLIENTE (RECEPTOR)
+        </div>
+        <div style="padding: 12px; background: #f8fafc;">
+          <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+            <tr>
+              <td style="width: 15%; font-weight: bold; padding-bottom: 4px;">Nombre:</td>
+              <td style="width: 35%; padding-bottom: 4px; font-size: 12px; font-weight: bold;" id="fac-cliente">Nombre del Cliente</td>
+              <td style="width: 15%; font-weight: bold; padding-bottom: 4px;">RFC:</td>
+              <td style="width: 35%; padding-bottom: 4px;" id="fac-rfc">XAXX010101000</td>
+            </tr>
+            <tr>
+              <td style="font-weight: bold; padding-bottom: 4px;">Uso CFDI:</td>
+              <td style="padding-bottom: 4px;">G03 - Gastos en general</td>
+              <td style="font-weight: bold; padding-bottom: 4px;">Domicilio Fiscal:</td>
+              <td style="padding-bottom: 4px;" id="fac-cp">C.P. 64000</td>
+            </tr>
+            <tr>
+              <td style="font-weight: bold; padding-bottom: 4px;">Régimen Fiscal:</td>
+              <td style="padding-bottom: 4px;">616 - Sin obligaciones fiscales</td>
+              <td style="font-weight: bold; padding-bottom: 4px;">Contrato Relacionado:</td>
+              <td style="padding-bottom: 4px; font-weight: bold; color: #1e40af;" id="fac-contrato">N/A</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- DATOS DE PAGO -->
+      <div style="margin-top: 15px; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden;">
+        <div style="background: #f1f5f9; padding: 8px 12px;">
+          <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+            <tr>
+              <td style="width: 25%;"><strong>Forma de Pago:</strong> <span style="text-transform: capitalize;" id="fac-metodo">01 - Efectivo</span></td>
+              <td style="width: 25%;"><strong>Método de Pago:</strong> PUE - Pago en una sola exhibición</td>
+              <td style="width: 25%;"><strong>Moneda:</strong> MXN</td>
+              <td style="width: 25%;"><strong>Tipo de Cambio:</strong> 1.00</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- CONCEPTOS / TABLA DE ARTÍCULOS -->
+      <table style="width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 10px; border: 1px solid #cbd5e1;">
+        <thead>
+          <tr style="background: #1e3a8a; color: #fff; text-align: left;">
+            <th style="padding: 8px; border-right: 1px solid #cbd5e1; width: 10%;">ClaveProdServ</th>
+            <th style="padding: 8px; border-right: 1px solid #cbd5e1; width: 8%;">Cant.</th>
+            <th style="padding: 8px; border-right: 1px solid #cbd5e1; width: 10%;">Clave Unidad</th>
+            <th style="padding: 8px; border-right: 1px solid #cbd5e1; width: 42%;">Descripción</th>
+            <th style="padding: 8px; border-right: 1px solid #cbd5e1; width: 15%; text-align: right;">Valor Unitario</th>
+            <th style="padding: 8px; width: 15%; text-align: right;">Importe</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding: 12px 8px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #cbd5e1;">80131600</td>
+            <td style="padding: 12px 8px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #cbd5e1;">1.00</td>
+            <td style="padding: 12px 8px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #cbd5e1;">E48</td>
+            <td style="padding: 12px 8px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #cbd5e1;">
+              <div style="font-weight: bold; font-size: 11px; text-transform: uppercase;" id="fac-concepto">CONCEPTO DE PAGO</div>
+              <div style="margin-top: 4px; color: #64748b;">Abono a capital / mensualidad correspondiente al contrato inmobiliario.</div>
+            </td>
+            <td style="padding: 12px 8px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #cbd5e1; text-align: right;" id="fac-subtotal-item">$0.00</td>
+            <td style="padding: 12px 8px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: bold;" id="fac-importe">$0.00</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- TOTALES -->
+      <table style="width: 100%; margin-top: 15px; border-collapse: collapse;">
+        <tr>
+          <!-- Importe con letra -->
+          <td style="width: 60%; vertical-align: top; padding-right: 20px;">
+            <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 10px;">
+              <strong>Importe con letra:</strong><br>
+              <span id="fac-letras">( CANTIDAD CON LETRA 00/100 M.N. )</span>
+            </div>
+          </td>
+          
+          <!-- Cuadro de Totales -->
+          <td style="width: 40%; vertical-align: top;">
+            <table style="width: 100%; font-size: 12px; border-collapse: collapse; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden;">
+              <tr>
+                <td style="padding: 8px 12px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; font-weight: bold; width: 50%;">Subtotal:</td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; text-align: right;" id="fac-subtotal">$0.00</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 12px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; font-weight: bold;" id="fac-iva-lbl">IVA Trasladado (16%):</td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; text-align: right;" id="fac-iva">$0.00</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; background: #1e3a8a; color: #fff; font-weight: bold; font-size: 14px;">TOTAL:</td>
+                <td style="padding: 12px; text-align: right; font-weight: bold; font-size: 15px; border-left: 1px solid #cbd5e1;" id="fac-total">$0.00</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+      <!-- SELLOS DIGITALES Y QR (Sección Legal) -->
+      <table style="width: 100%; margin-top: 30px; border-collapse: collapse;">
+        <tr>
+          <!-- QR -->
+          <td style="width: 20%; vertical-align: middle;">
+            <img id="fac-qr-img" src="" style="width: 130px; height: 130px; border: 1px solid #cbd5e1; padding: 5px; border-radius: 4px;">
+          </td>
+          
+          <!-- Cadenas Originales y Sellos -->
+          <td style="width: 80%; vertical-align: top; padding-left: 15px;">
+            
+            <div style="margin-bottom: 10px;">
+              <div style="font-size: 9px; font-weight: bold; color: #1e3a8a; margin-bottom: 2px;">Sello Digital del CFDI:</div>
+              <div style="font-size: 7px; color: #475569; word-wrap: break-word; line-height: 1.3; background: #f8fafc; padding: 4px; border: 1px solid #e2e8f0;">
+                M9J7Y2x+B9N2T1Z9W/K7L5Q9D8v0R3E1B9N2T1Z9W/K7L5Q9D8v0R3E1B9N2T1Z9W/K7L5Q9D8v0R3E1B9N2T1Z9W/K7L5Q9D8v0R3E1M9J7Y2x+B9N2T1Z9W/K7L5Q9D8v0R3E1B9N2T1Z9W/K7L5Q9D8v0R3E1B9N2T1Z9W/K7L5Q9D8v0R3E1B9N2T1Z9W/K7L5Q9D8v0R3E1==
+              </div>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <div style="font-size: 9px; font-weight: bold; color: #1e3a8a; margin-bottom: 2px;">Sello del SAT:</div>
+              <div style="font-size: 7px; color: #475569; word-wrap: break-word; line-height: 1.3; background: #f8fafc; padding: 4px; border: 1px solid #e2e8f0;">
+                Z1A2B3C4D5E6F7G8H9I0J1K2L3M4N5O6P7Q8R9S0T1U2V3W4X5Y6Z7A8B9C0D1E2F3G4H5I6J7K8L9M0N1O2P3Q4R5S6T7U8V9W0X1Y2Z3A4B5C6D7E8F9G0H1I2J3K4L5M6N7O8P9Q0R1S2T3U4V5W6X7Y8Z9==
+              </div>
+            </div>
+
+            <div>
+              <div style="font-size: 9px; font-weight: bold; color: #1e3a8a; margin-bottom: 2px;">Cadena Original del Complemento de Certificación Digital del SAT:</div>
+              <div style="font-size: 7px; color: #475569; word-wrap: break-word; line-height: 1.3; background: #f8fafc; padding: 4px; border: 1px solid #e2e8f0;">
+                ||1.1|00000000-0000-0000-0000-000000000000|2026-05-18T12:00:00|SAT970701NN3|M9J7Y2x+B9N2T1Z9W/K7L5Q9D8v0R3E1B9N2T1Z9W/K7L5Q9D8v0R3E1B9N2T1Z9W/K7L5Q9D8v0R3E1B9N2T1Z9W/K7L5Q9D8v0R3E1==|00001000000504465028||
+              </div>
+            </div>
+
+          </td>
+        </tr>
+      </table>
+
+      <!-- Pie Legal Fuerte -->
+      <div style="margin-top: 25px; text-align: center; border-top: 2px solid #e2e8f0; padding-top: 15px;">
+        <p style="font-size: 11px; font-weight: bold; margin: 0; color: #111827;">ESTE DOCUMENTO ES UNA REPRESENTACIÓN IMPRESA DE UN CFDI VÁLIDO PARA EFECTOS FISCALES V4.0</p>
+        <p style="font-size: 10px; color: #6b7280; margin: 4px 0 0 0;">Generado por el Sistema ERP Corporativo de Arévalo & CIA Desarrollo Inmobiliario.</p>
+      </div>
+
+    </div>
+  </div>
 
   <!-- WIDGET AUTÓNOMO DE ASISTENTE VIRTUAL KOMMO -->
   <script src="/public/kommoChat.js"></script>

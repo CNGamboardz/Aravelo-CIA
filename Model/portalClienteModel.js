@@ -52,7 +52,7 @@ const registrarClientePortal = async (datos) => {
 const loginCliente = async (correo, password) => {
   const res = await db.query(
     `SELECT id_cliente, nombre, apellido_paterno, apellido_materno, correo, telefono, 
-            estatus, id_asesor_asignado, foto_cliente
+            estatus, id_asesor_asignado, foto_cliente, rfc, codigo_postal
      FROM sistema.clientes 
      WHERE correo = $1 AND password_cliente IS NOT NULL
      LIMIT 1`,
@@ -164,9 +164,11 @@ const agendarCita = async (id_cliente, fecha, id_lote, nota) => {
 const getPagosPorCliente = async (id_cliente) => {
   const res = await db.query(
     `SELECT p.id_pago, p.fecha_pago, p.concepto, p.monto, p.metodo_pago, p.estatus,
-            t.fraccionamiento, t.numero_lote AS lote
+            t.fraccionamiento, t.numero_lote AS lote, t.porcentaje_iva,
+            cl.rfc, cl.codigo_postal
      FROM sistema.pagos p
      LEFT JOIN sistema.terrenos t ON p.id_terreno = t.id_terreno
+     LEFT JOIN sistema.clientes cl ON p.id_cliente = cl.id_cliente
      WHERE p.id_cliente = $1
      ORDER BY p.fecha_pago DESC`,
     [id_cliente]

@@ -562,6 +562,14 @@
               <label for="t_anticipo">Anticipo Solicitado ($)</label>
               <input type="number" step="any" id="t_anticipo" placeholder="Ej. 50000">
             </div>
+            <div class="form-group">
+              <label for="t_comision">Comisión Asesor (%)</label>
+              <input type="number" step="any" min="0" max="100" id="t_comision" placeholder="Ej. 5">
+            </div>
+            <div class="form-group">
+              <label for="t_iva">IVA Aplicable (%)</label>
+              <input type="number" step="any" min="0" max="100" id="t_iva" placeholder="Ej. 16 (0 si exento)">
+            </div>
             
             <div class="form-group full" style="margin-top: 10px;">
               <label>Servicios Disponibles a Pie de Lote</label>
@@ -589,11 +597,12 @@
         <section class="tab-content" id="sec-5">
           <div class="form-grid">
             <div class="form-group full">
-              <label>Vista Actual Adjunta en el Expediente:</label>
-              <div id="vistaImagenPrevia" style="margin-bottom: 10px; color: #64748b; font-size: 12px;">Ninguna imagen cargada previamente</div>
-              <label for="t_archivo_img">📸 Reemplazar Render / Fotografía del Lote</label>
-              <input type="file" id="t_archivo_img" accept="image/*" style="padding: 10px; cursor: pointer;">
+              <label>Galería Fotográfica (Múltiples fotos permitidas):</label>
+              <div id="vistaImagenPrevia" style="margin-bottom: 10px; color: #64748b; font-size: 12px; display: flex; gap: 8px; flex-wrap: wrap;">Ninguna imagen cargada previamente</div>
+              <label for="t_archivo_img">📸 Subir Fotografías / Renders</label>
+              <input type="file" id="t_archivo_img" accept="image/*" multiple style="padding: 10px; cursor: pointer;">
               <input type="hidden" id="t_imagen_base64">
+              <input type="hidden" id="t_galeria">
             </div>
             <div class="form-group">
               <label for="t_plano_lote">Plano Cartográfico (Enlace)</label>
@@ -603,9 +612,9 @@
               <label for="t_escritura">Documento de Escrituras</label>
               <input type="text" id="t_escritura" placeholder="Referencia de la escritura pública">
             </div>
-            <div class="form-group full">
-              <label for="t_galeria">Galería Secundaria</label>
-              <input type="text" id="t_galeria" placeholder="Enlaces adicionales de fotos...">
+            <div class="form-group full" style="display: none;">
+              <label for="t_galeria_old">Galería Secundaria</label>
+              <input type="text" id="t_galeria_old" placeholder="Enlaces adicionales de fotos...">
             </div>
           </div>
         </section>
@@ -704,14 +713,28 @@
       } catch (err) { st.innerText = ''; }
     }
 
-    // Imagen Base64
-    document.getElementById('t_archivo_img').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
+    // Múltiples Imágenes Base64
+    let arregloGaleria = [];
+    document.getElementById('t_archivo_img').addEventListener('change', async function(e) {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+      
+      const contenedor = document.getElementById('vistaImagenPrevia');
+      if (arregloGaleria.length === 0) contenedor.innerHTML = '';
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         const reader = new FileReader();
         reader.onload = function(evt) {
-          document.getElementById('t_imagen_base64').value = evt.target.result;
-          document.getElementById('vistaImagenPrevia').innerHTML = `<img src="${evt.target.result}" style="max-height:80px; border-radius:8px; object-fit:cover;">`;
+          const b64 = evt.target.result;
+          arregloGaleria.push(b64);
+          
+          if (arregloGaleria.length === 1) {
+            document.getElementById('t_imagen_base64').value = b64;
+          }
+          document.getElementById('t_galeria').value = JSON.stringify(arregloGaleria);
+          
+          contenedor.innerHTML += `<img src="${b64}" style="max-height:80px; width:120px; border-radius:8px; object-fit:cover; border: 2px solid #cbd5e1;">`;
         };
         reader.readAsDataURL(file);
       }
@@ -759,10 +782,13 @@
         }
         // document.getElementById('t_id_propietario').value = lote.id_propietario || '';
         
-        // Lock to current session advisor
+        // Lock to current session advisor unless role is direccion
         const userSess = JSON.parse(localStorage.getItem('arevalo_user'));
         const selA = document.getElementById('t_id_asesor');
         if (selA) {
+          if (userSess && ['dirección', 'direccion'].includes((userSess.rol || '').toLowerCase())) {
+            selA.disabled = false;
+          }
           fetch('/api/vendedores').then(r => r.json()).then(data => {
             selA.innerHTML = '<option value="">Seleccionar...</option>';
             data.filter(u => ['asesor', 'dirección', 'direccion'].includes((u.rol || '').toLowerCase())).forEach(a => {
@@ -771,7 +797,7 @@
               opt.innerText = `${a.nombre} (${a.rol})`;
               selA.appendChild(opt);
             });
-            if (userSess && userSess.id_usuario) selA.value = userSess.id_usuario;
+            if (userSess && userSess.id_usuario && !selA.disabled && !lote.id_asesor) selA.value = userSess.id_usuario;
             else if (lote.id_asesor) selA.value = lote.id_asesor;
           });
         }
@@ -800,6 +826,8 @@
         document.getElementById('t_precio').value = lote.precio_venta || lote.precio_lista || '';
         document.getElementById('t_precio_lista').value = lote.precio_lista || '';
         document.getElementById('t_anticipo').value = lote.anticipo || '';
+        document.getElementById('t_comision').value = lote.porcentaje_comision || '';
+        document.getElementById('t_iva').value = lote.porcentaje_iva || '';
         
         document.getElementById('t_serv_agua').checked = !!lote.servicio_agua;
         document.getElementById('t_serv_luz').checked = !!lote.servicio_luz;
@@ -815,9 +843,26 @@
         document.getElementById('t_escritura').value = lote.documento_escritura || '';
         document.getElementById('t_galeria').value = lote.galeria_imagenes || '';
 
-        if (lote.imagen) {
+        if (lote.galeria_imagenes) {
+          try {
+            arregloGaleria = JSON.parse(lote.galeria_imagenes);
+            document.getElementById('t_galeria').value = lote.galeria_imagenes;
+            if (Array.isArray(arregloGaleria) && arregloGaleria.length > 0) {
+              document.getElementById('vistaImagenPrevia').innerHTML = '';
+              arregloGaleria.forEach(imgB64 => {
+                document.getElementById('vistaImagenPrevia').innerHTML += `<img src="${imgB64}" style="max-height:80px; width:120px; border-radius:8px; object-fit:cover; border: 2px solid #cbd5e1;">`;
+              });
+              document.getElementById('t_imagen_base64').value = arregloGaleria[0];
+            }
+          } catch(e) {
+            // Era un string simple
+            document.getElementById('t_galeria').value = lote.galeria_imagenes;
+          }
+        } else if (lote.imagen) {
           document.getElementById('t_imagen_base64').value = lote.imagen;
-          document.getElementById('vistaImagenPrevia').innerHTML = `<img src="${lote.imagen}" style="max-height:80px; border-radius:8px; object-fit:cover; border: 2px solid #cbd5e1;">`;
+          document.getElementById('vistaImagenPrevia').innerHTML = `<img src="${lote.imagen}" style="max-height:80px; width:120px; border-radius:8px; object-fit:cover; border: 2px solid #cbd5e1;">`;
+          arregloGaleria = [lote.imagen];
+          document.getElementById('t_galeria').value = JSON.stringify(arregloGaleria);
         } else {
           document.getElementById('vistaImagenPrevia').innerHTML = 'Sin imagen cargada previamente';
         }
@@ -872,6 +917,8 @@
         precio_venta: document.getElementById('t_precio').value,
         precio_lista: document.getElementById('t_precio_lista').value,
         anticipo: document.getElementById('t_anticipo').value,
+        porcentaje_comision: document.getElementById('t_comision').value,
+        porcentaje_iva: document.getElementById('t_iva').value,
 
         servicio_agua: document.getElementById('t_serv_agua').checked,
         servicio_luz: document.getElementById('t_serv_luz').checked,

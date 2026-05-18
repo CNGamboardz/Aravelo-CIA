@@ -571,6 +571,14 @@
               <label for="t_anticipo">Anticipo Solicitado ($)</label>
               <input type="number" step="any" id="t_anticipo" placeholder="Ej. 50000">
             </div>
+            <div class="form-group">
+              <label for="t_comision">Comisión Asesor (%)</label>
+              <input type="number" step="any" min="0" max="100" id="t_comision" placeholder="Ej. 5">
+            </div>
+            <div class="form-group">
+              <label for="t_iva">IVA Aplicable (%)</label>
+              <input type="number" step="any" min="0" max="100" id="t_iva" placeholder="Ej. 16 (0 si exento)">
+            </div>
             
             <div class="form-group full" style="margin-top: 10px;">
               <label>Servicios Disponibles a Pie de Lote</label>
@@ -598,9 +606,12 @@
         <section class="tab-content" id="sec-5">
           <div class="form-grid">
             <div class="form-group full">
-              <label for="t_archivo_img">📸 Render o Fotografía Principal del Lote</label>
-              <input type="file" id="t_archivo_img" accept="image/*" style="padding: 10px; cursor: pointer;">
+              <label>Galería Fotográfica (Múltiples fotos permitidas):</label>
+              <div id="vistaImagenPrevia" style="margin-bottom: 10px; color: #64748b; font-size: 12px; display: flex; gap: 8px; flex-wrap: wrap;"></div>
+              <label for="t_archivo_img">📸 Subir Fotografías / Renders</label>
+              <input type="file" id="t_archivo_img" accept="image/*" multiple style="padding: 10px; cursor: pointer;">
               <input type="hidden" id="t_imagen_base64">
+              <input type="hidden" id="t_galeria">
             </div>
             <div class="form-group">
               <label for="t_plano_lote">Plano Cartográfico (Enlace)</label>
@@ -610,9 +621,9 @@
               <label for="t_escritura">Documento de Escrituras</label>
               <input type="text" id="t_escritura" placeholder="Referencia de la escritura pública">
             </div>
-            <div class="form-group full">
-              <label for="t_galeria">Galería Secundaria</label>
-              <input type="text" id="t_galeria" placeholder="Enlaces adicionales de fotos...">
+            <div class="form-group full" style="display: none;">
+              <label for="t_galeria_old">Galería Secundaria</label>
+              <input type="text" id="t_galeria_old" placeholder="Enlaces adicionales de fotos...">
             </div>
           </div>
         </section>
@@ -637,8 +648,11 @@
         const data = await res.json();
         const sel = document.getElementById('t_id_asesor');
         if (sel) {
-          // Filtrar por rol Asesor o Dirección
           const filtrados = data.filter(u => ['asesor', 'dirección', 'direccion'].includes((u.rol || '').toLowerCase()));
+          const userSess = JSON.parse(localStorage.getItem('arevalo_user'));
+          if (userSess && ['dirección', 'direccion'].includes((userSess.rol || '').toLowerCase())) {
+            sel.disabled = false;
+          }
           filtrados.forEach(a => {
             const opt = document.createElement('option');
             opt.value = a.id_usuario;
@@ -739,13 +753,28 @@
       } catch (err) { st.innerText = ''; }
     }
 
-    // Imagen Base64
-    document.getElementById('t_archivo_img').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
+    // Múltiples Imágenes Base64
+    let arregloGaleria = [];
+    document.getElementById('t_archivo_img').addEventListener('change', async function(e) {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+      
+      const contenedor = document.getElementById('vistaImagenPrevia');
+      if (arregloGaleria.length === 0) contenedor.innerHTML = '';
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         const reader = new FileReader();
         reader.onload = function(evt) {
-          document.getElementById('t_imagen_base64').value = evt.target.result;
+          const b64 = evt.target.result;
+          arregloGaleria.push(b64);
+          
+          if (arregloGaleria.length === 1) {
+            document.getElementById('t_imagen_base64').value = b64;
+          }
+          document.getElementById('t_galeria').value = JSON.stringify(arregloGaleria);
+          
+          contenedor.innerHTML += `<img src="${b64}" style="max-height:80px; width:120px; border-radius:8px; object-fit:cover; border: 2px solid #cbd5e1;">`;
         };
         reader.readAsDataURL(file);
       }
@@ -794,6 +823,8 @@
         precio_venta: document.getElementById('t_precio').value,
         precio_lista: document.getElementById('t_precio_lista').value,
         anticipo: document.getElementById('t_anticipo').value,
+        porcentaje_comision: document.getElementById('t_comision').value,
+        porcentaje_iva: document.getElementById('t_iva').value,
 
         servicio_agua: document.getElementById('t_serv_agua').checked,
         servicio_luz: document.getElementById('t_serv_luz').checked,

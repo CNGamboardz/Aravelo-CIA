@@ -1,7 +1,7 @@
 const terrenosModel = require('../Model/terrenosModel');
 const fs = require('fs');
 const path = require('path');
-const { encriptarId } = require('./cryptoHelper');
+const { encriptarId, desencriptarId } = require('./cryptoHelper');
 
 const obtenerTerrenos = async (req, res) => {
   try {
@@ -28,7 +28,8 @@ const guardarTerreno = async (req, res) => {
       direccion, colonia, municipio, estado_rep, codigo_postal, latitud, longitud,
       tipo_uso, anticipo, servicio_agua, servicio_luz, servicio_drenaje, servicio_internet,
       calle_pavimentada, descripcion, galeria_imagenes, plano_lote, documento_escritura,
-      id_propietario, observaciones, estado, id_asesor, fecha_venta
+      id_propietario, observaciones, estado, id_asesor, fecha_venta,
+      porcentaje_comision, porcentaje_iva
     } = req.body;
 
     if (!fraccionamiento || !precio_venta) {
@@ -73,11 +74,13 @@ const guardarTerreno = async (req, res) => {
       anticipo: anticipo ? parseFloat(anticipo) : 0,
       servicio_agua, servicio_luz, servicio_drenaje, servicio_internet, calle_pavimentada,
       descripcion, galeria_imagenes, plano_lote, documento_escritura,
-      id_propietario: id_propietario || null,
+      id_propietario: id_propietario ? desencriptarId(id_propietario) : null,
       observaciones,
       estado,
-      id_asesor: id_asesor || null,
-      fecha_venta: fecha_venta || null
+      id_asesor: id_asesor ? desencriptarId(id_asesor) : null,
+      fecha_venta: fecha_venta || null,
+      porcentaje_comision: porcentaje_comision ? parseFloat(porcentaje_comision) : 0,
+      porcentaje_iva: porcentaje_iva ? parseFloat(porcentaje_iva) : 0
     });
 
     res.status(201).json(nuevo);
@@ -97,7 +100,8 @@ const actualizarTerreno = async (req, res) => {
       direccion, colonia, municipio, estado_rep, codigo_postal, latitud, longitud,
       tipo_uso, anticipo, servicio_agua, servicio_luz, servicio_drenaje, servicio_internet,
       calle_pavimentada, descripcion, galeria_imagenes, plano_lote, documento_escritura,
-      id_propietario, observaciones, estado, id_asesor, fecha_venta
+      id_propietario, observaciones, estado, id_asesor, fecha_venta,
+      porcentaje_comision, porcentaje_iva
     } = req.body;
 
     let rutaGuardada = imagen || '';
@@ -136,11 +140,13 @@ const actualizarTerreno = async (req, res) => {
       anticipo: anticipo ? parseFloat(anticipo) : 0,
       servicio_agua, servicio_luz, servicio_drenaje, servicio_internet, calle_pavimentada,
       descripcion, galeria_imagenes, plano_lote, documento_escritura,
-      id_propietario: id_propietario || null,
+      id_propietario: id_propietario ? desencriptarId(id_propietario) : null,
       observaciones,
       estado,
-      id_asesor: id_asesor || null,
-      fecha_venta: fecha_venta || null
+      id_asesor: id_asesor ? desencriptarId(id_asesor) : null,
+      fecha_venta: fecha_venta || null,
+      porcentaje_comision: porcentaje_comision ? parseFloat(porcentaje_comision) : 0,
+      porcentaje_iva: porcentaje_iva ? parseFloat(porcentaje_iva) : 0
     });
     res.json(actualizado);
   } catch (error) {

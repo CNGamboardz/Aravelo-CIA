@@ -20,9 +20,13 @@ const getPagosReales = async () => {
   const res = await db.query(
     `SELECT p.*, 
             TRIM(CONCAT(cl.nombre, ' ', cl.apellido_paterno, ' ', cl.apellido_materno)) AS cliente_nombre, 
-            cl.id_asesor, cl.id_asesor_asignado 
+            cl.id_asesor, cl.id_asesor_asignado,
+            cl.rfc, cl.codigo_postal,
+            t.porcentaje_iva
      FROM sistema.pagos p
      LEFT JOIN sistema.clientes cl ON p.id_cliente = cl.id_cliente
+     LEFT JOIN sistema.contratos c ON p.id_contrato = c.id_contrato
+     LEFT JOIN sistema.terrenos t ON p.id_terreno = t.id_terreno
      ORDER BY p.id_pago DESC`
   );
   return res.rows;

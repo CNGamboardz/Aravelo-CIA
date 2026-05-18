@@ -3,13 +3,31 @@ const db = require('./db');
 // Listar contratos con detalles de cliente y terreno
 const getContratos = async () => {
   const res = await db.query(
-    `SELECT c.*, cl.nombre AS cliente_nombre, t.fraccionamiento, t.superficie 
+    `SELECT c.*, 
+            TRIM(CONCAT(cl.nombre, ' ', COALESCE(cl.apellido_paterno, ''), ' ', COALESCE(cl.apellido_materno, ''))) AS cliente_nombre, 
+            t.fraccionamiento, t.superficie, t.numero_lote AS lote_num,
+            u.nombre AS asesor_nombre,
+            (SELECT COALESCE(SUM(monto), 0) FROM sistema.pagos p WHERE p.id_contrato = c.id_contrato) AS total_pagado
      FROM sistema.contratos c
      JOIN sistema.clientes cl ON c.id_cliente = cl.id_cliente
      JOIN sistema.terrenos t ON c.id_terreno = t.id_terreno
+     LEFT JOIN sistema.usuarios u ON c.id_asesor = u.id_usuario
      ORDER BY c.id_contrato DESC`
   );
-  return res.rows;
+
+  // Determinar estatus de liquidación automáticamente
+  return res.rows.map(c => {
+    // Si es de contado o el total pagado (más enganche) cubre el precio, es liquidado.
+    // Asumimos que si total_pagado >= precio_total (o si es contado) ya está liquidado.
+    const pagado = parseFloat(c.total_pagado) || 0;
+    const enganche = parseFloat(c.enganche) || 0;
+    const precio = parseFloat(c.precio_total) || 0;
+
+    if (c.tipo_plan === 'contado' || (pagado + enganche) >= precio) {
+      c.estatus = 'Liquidado';
+    }
+    return c;
+  });
 };
 
 // Crear un contrato formal

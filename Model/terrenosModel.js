@@ -12,7 +12,8 @@ const asegurarColumnasCatastrales = async () => {
     "servicio_drenaje BOOLEAN DEFAULT FALSE", "servicio_internet BOOLEAN DEFAULT FALSE", "calle_pavimentada BOOLEAN DEFAULT FALSE",
     "descripcion TEXT", "galeria_imagenes TEXT", "plano_lote TEXT", "documento_escritura TEXT",
     "fecha_registro DATE DEFAULT CURRENT_DATE", "fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-    "id_propietario INT", "id_asesor INT", "fecha_venta DATE", "observaciones TEXT"
+    "id_propietario UUID", "id_asesor UUID", "fecha_venta DATE", "observaciones TEXT",
+    "porcentaje_comision NUMERIC(5,2) DEFAULT 0", "porcentaje_iva NUMERIC(5,2) DEFAULT 0"
   ];
 
   for (const col of columnas) {
@@ -53,15 +54,15 @@ const crearTerreno = async (t) => {
       direccion, colonia, municipio, estado_rep, codigo_postal, latitud, longitud,
       tipo_uso, anticipo, servicio_agua, servicio_luz, servicio_drenaje, servicio_internet,
       calle_pavimentada, descripcion, galeria_imagenes, plano_lote, documento_escritura,
-      id_propietario, id_asesor, fecha_venta, observaciones
+      id_propietario, id_asesor, fecha_venta, observaciones, porcentaje_comision, porcentaje_iva
     ) VALUES (
       $1, $2, $3, $4, '${estadoInsert}', $5, $6,
       $7, $8, $9, $10, $11, $12, $13,
       $14, $15, $16, $17,
       $18, $19, $20, $21, $22, $23, $24,
       $25, $26, $27, $28, $29, $30,
-      $31, $32, $33, $34, $35,
-      $36, $37, $38, $39
+      $31, $32, $33, $34,
+      $35, $36, $37, $38, $39, $40
     ) RETURNING *;
   `;
 
@@ -104,7 +105,9 @@ const crearTerreno = async (t) => {
     t.id_propietario || null, 
     t.id_asesor || null,
     t.fecha_venta || null,
-    t.observaciones || ''
+    t.observaciones || '',
+    t.porcentaje_comision || 0,
+    t.porcentaje_iva || 0
   ];
 
   try {
@@ -129,8 +132,9 @@ const actualizarTerrenoDB = async (id, t) => {
       direccion = $18, colonia = $19, municipio = $20, estado_rep = $21, codigo_postal = $22, latitud = $23, longitud = $24,
       tipo_uso = $25, anticipo = $26, servicio_agua = $27, servicio_luz = $28, servicio_drenaje = $29, servicio_internet = $30,
       calle_pavimentada = $31, descripcion = $32, galeria_imagenes = $33, plano_lote = $34, documento_escritura = $35,
-      id_propietario = $36, id_asesor = $37, fecha_venta = $38, observaciones = $39, fecha_actualizacion = CURRENT_TIMESTAMP
-    WHERE id_terreno = $40 RETURNING *;
+      id_propietario = $36, id_asesor = $37, fecha_venta = $38, observaciones = $39, 
+      porcentaje_comision = $40, porcentaje_iva = $41, fecha_actualizacion = CURRENT_TIMESTAMP
+    WHERE id_terreno = $42 RETURNING *;
   `;
 
   const values = [
@@ -140,7 +144,8 @@ const actualizarTerrenoDB = async (id, t) => {
     t.direccion || '', t.colonia || '', t.municipio || '', t.estado_rep || '', t.codigo_postal || '', t.latitud || null, t.longitud || null,
     t.tipo_uso || 'habitacional', t.anticipo || 0, !!t.servicio_agua, !!t.servicio_luz, !!t.servicio_drenaje, !!t.servicio_internet,
     !!t.calle_pavimentada, t.descripcion || '', t.galeria_imagenes || '', t.plano_lote || '', t.documento_escritura || '',
-    t.id_propietario || null, t.id_asesor || null, t.fecha_venta || null, t.observaciones || '', id
+    t.id_propietario || null, t.id_asesor || null, t.fecha_venta || null, t.observaciones || '', 
+    t.porcentaje_comision || 0, t.porcentaje_iva || 0, id
   ];
 
   try {
