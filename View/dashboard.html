@@ -424,6 +424,28 @@
 
       </div>
 
+      <!-- PANEL DE ALERTAS Y NOTIFICACIONES DE COBRANZA EN TIEMPO REAL -->
+      <div id="panelAlertasCobranza" style="display: none; background: white; padding: 30px; border-radius: 20px; border: 1px solid #fee2e2; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.04); margin-bottom: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #fee2e2; padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 24px;">🔔</span>
+            <div>
+              <h3 style="font-size: 16px; color: #991b1b; font-weight: 850; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Centro de Control & Automatizaciones de Cobranza</h3>
+              <p style="font-size: 12px; color: #ef4444; margin: 2px 0 0 0; font-weight: 600;">Alertas internas, recordatorios automáticos y recargos por mora en tiempo real</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button onclick="abrirModalConfigRecargos()" style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 12px; font-size: 12px; font-weight: 700; color: #475569; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
+              ⚙️ Ajustar Recargos
+            </button>
+            <span style="background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; display: flex; align-items: center;" id="dirCountAlertasActivas">0 Alertas</span>
+          </div>
+        </div>
+        <div id="alertasCobranzaContainer" style="display: flex; flex-direction: column; gap: 12px; max-height: 320px; overflow-y: auto; padding-right: 5px;">
+          <!-- Las alertas se inyectarán de forma dinámica en JS -->
+        </div>
+      </div>
+
       <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 25px; margin-bottom: 30px; align-items: start;">
         
         <!-- DESEMPEÑO POR ASESOR (LIDERES DE VENTA) -->
@@ -1322,6 +1344,64 @@
             `;
           });
         }
+
+        // 7. Centro de Alertas y Cobranza en Tiempo Real
+        const panelAlertas = document.getElementById('panelAlertasCobranza');
+        const containerAlertas = document.getElementById('alertasCobranzaContainer');
+        const countAlertasBadge = document.getElementById('dirCountAlertasActivas');
+
+        containerAlertas.innerHTML = '';
+        if (data.alertasPagos && data.alertasPagos.length > 0) {
+          panelAlertas.style.display = 'block';
+          countAlertasBadge.innerText = `${data.alertasPagos.length} Alertas Activas`;
+
+          data.alertasPagos.forEach(a => {
+            const fechaEsp = new Date(a.fecha_esperada);
+            // Ajustar zona horaria local
+            fechaEsp.setMinutes(fechaEsp.getMinutes() + fechaEsp.getTimezoneOffset());
+            const fechaEspStr = fechaEsp.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            // Determinar tipo de alerta
+            let badgeTipo = '';
+            let styleAlerta = '';
+            let msgAlerta = '';
+
+            if (a.dias_atraso > 0) {
+              // Pago vencido (rojo)
+              badgeTipo = `<span style="background: #fee2e2; color: #dc2626; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase;">⚠️ Pago Vencido (${a.dias_atraso} días)</span>`;
+              styleAlerta = 'border-left: 5px solid #dc2626; background: #fff5f5;';
+              msgAlerta = `El cliente <b>${a.cliente_nombre}</b> tiene una mensualidad de <b>$${parseFloat(a.monto_esperado).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</b> vencida el <b>${fechaEspStr}</b>. Lleva <b>${a.dias_atraso} días de atraso</b> y se ha acumulado un recargo por mora de <b>$${parseFloat(a.comision_atraso).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</b> (Total a cobrar: $${(parseFloat(a.monto_esperado) + parseFloat(a.comision_atraso)).toLocaleString('es-MX', { minimumFractionDigits: 2 })}).`;
+            } else if (a.dias_atraso === 0 && new Date(a.fecha_esperada).toDateString() === new Date().toDateString()) {
+              // Mero día (azul)
+              badgeTipo = `<span style="background: #dbeafe; color: #2563eb; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase;">⚡ Vence Hoy</span>`;
+              styleAlerta = 'border-left: 5px solid #2563eb; background: #eff6ff;';
+              msgAlerta = `Hoy vence la mensualidad de <b>$${parseFloat(a.monto_esperado).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</b> del cliente <b>${a.cliente_nombre}</b> (Terreno ${a.fraccionamiento} Mz ${a.manzana || 'N/A'} - Lote ${a.lote_num}).`;
+            } else {
+              // Recordatorio 3 días antes (amarillo)
+              badgeTipo = `<span style="background: #fef3c7; color: #d97706; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase;">🔔 Próximo Pago (En 3 días)</span>`;
+              styleAlerta = 'border-left: 5px solid #d97706; background: #fdfbf7;';
+              msgAlerta = `En 3 días vence la mensualidad de <b>$${parseFloat(a.monto_esperado).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</b> del cliente <b>${a.cliente_nombre}</b> (Fecha límite: <b>${fechaEspStr}</b>).`;
+            }
+
+            containerAlertas.innerHTML += `
+              <div style="${styleAlerta} padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.01); display: flex; justify-content: space-between; align-items: center; gap: 15px; transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                <div style="flex-grow: 1;">
+                  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
+                    ${badgeTipo}
+                    <span style="font-size: 11px; color: #64748b; font-weight: 700;">#Contrato: ${a.id_contrato} • Terreno: ${a.fraccionamiento} Mz ${a.manzana || 'N/A'} Lote ${a.lote_num}</span>
+                  </div>
+                  <p style="font-size: 12.5px; color: #334155; margin: 0; line-height: 1.5; font-family: 'Outfit', sans-serif;">${msgAlerta}</p>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <a href="tel:${a.cliente_telefono || ''}" title="Llamar al cliente" style="width: 32px; height: 32px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 14px; color: #475569; transition: 0.2s;" onmouseover="this.style.background='#cbd5e1'" onmouseout="this.style.background='#e2e8f0'">📞</a>
+                  <a href="mailto:${a.cliente_correo || ''}?subject=Recordatorio de Pago - Arévalo %26 CIA" title="Enviar correo" style="width: 32px; height: 32px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 14px; color: #475569; transition: 0.2s;" onmouseover="this.style.background='#cbd5e1'" onmouseout="this.style.background='#e2e8f0'">✉️</a>
+                </div>
+              </div>
+            `;
+          });
+        } else {
+          panelAlertas.style.display = 'none';
+        }
       } catch (err) {
         console.error('Error al cargar métricas de dirección ejecutiva:', err);
       }
@@ -1431,6 +1511,94 @@
 
       } catch (err) {
         Swal.fire('Error', 'No se pudo abrir el detalle del inventario: ' + err.message, 'error');
+      }
+    }
+
+    // Abrir Modal para Ajustar Recargos y Penalizaciones por Mora
+    async function abrirModalConfigRecargos() {
+      try {
+        Swal.fire({
+          title: 'Cargando configuraciones...',
+          allowOutsideClick: false,
+          didOpen: () => { Swal.showLoading(); }
+        });
+
+        const res = await fetch('/api/direccion/configuracion');
+        if (!res.ok) throw new Error('No se pudo obtener la configuración de recargos');
+        const config = await res.json();
+
+        Swal.close();
+
+        const pct = config.mora_porcentaje || '5';
+        const diaria = config.mora_diaria_fija || '50';
+
+        const { value: formValues } = await Swal.fire({
+          title: '⚙️ Ajustes de Recargos por Mora',
+          html: `
+            <div style="text-align: left; font-family: 'Outfit', sans-serif;">
+              <p style="font-size: 13px; color: #64748b; margin-bottom: 15px;">Configura los recargos automáticos que se cobrarán a los clientes que registren mensualidades vencidas.</p>
+              
+              <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Porcentaje de Penalización Directo (%)</label>
+                <input id="swal_pct" type="number" step="0.1" value="${pct}" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Ej: 5">
+                <span style="font-size: 10px; color: #94a3b8;">Porcentaje cobrado sobre el valor esperado de la cuota vencida.</span>
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Multa Fija Diaria por Atraso ($ MXN)</label>
+                <input id="swal_diaria" type="number" step="1" value="${diaria}" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="Ej: 50">
+                <span style="font-size: 10px; color: #94a3b8;">Multa cobrada por cada día transcurrido desde la fecha de vencimiento.</span>
+              </div>
+            </div>
+          `,
+          focusConfirm: false,
+          showCancelButton: true,
+          confirmButtonText: 'Guardar Ajustes',
+          cancelButtonText: 'Cancelar',
+          confirmButtonColor: '#1e1b4b',
+          preConfirm: () => {
+            return {
+              mora_porcentaje: document.getElementById('swal_pct').value.trim(),
+              mora_diaria_fija: document.getElementById('swal_diaria').value.trim()
+            }
+          }
+        });
+
+        if (formValues) {
+          if (!formValues.mora_porcentaje || isNaN(formValues.mora_porcentaje) || parseFloat(formValues.mora_porcentaje) < 0) {
+            return Swal.fire('Error', 'El porcentaje debe ser un número válido mayor o igual a 0', 'error');
+          }
+          if (!formValues.mora_diaria_fija || isNaN(formValues.mora_diaria_fija) || parseFloat(formValues.mora_diaria_fija) < 0) {
+            return Swal.fire('Error', 'La multa diaria debe ser un número válido mayor o igual a 0', 'error');
+          }
+
+          Swal.fire({
+            title: 'Guardando...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+          });
+
+          const saveRes = await fetch('/api/direccion/configuracion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formValues)
+          });
+
+          if (!saveRes.ok) throw new Error('No se pudo guardar la configuración');
+
+          Swal.fire({
+            icon: 'success',
+            title: '¡Guardado!',
+            text: 'La configuración de recargos por mora ha sido actualizada con éxito y aplicada al sistema.',
+            confirmButtonColor: '#1e1b4b'
+          }).then(() => {
+            // Recargar métricas del dashboard
+            cargarDashboardDireccion();
+          });
+        }
+
+      } catch (err) {
+        Swal.fire('Error', 'No se pudo configurar los recargos: ' + err.message, 'error');
       }
     }
 

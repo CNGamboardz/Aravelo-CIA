@@ -93,6 +93,13 @@ const guardarTerreno = async (req, res) => {
 const actualizarTerreno = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Bloqueo de seguridad: Si el estado actual del terreno en la DB es 'vendido', denegar cambios
+    const db = require('../Model/db');
+    const queryActual = await db.query('SELECT estado FROM sistema.terrenos WHERE id_terreno = $1', [id]);
+    if (queryActual.rows.length > 0 && queryActual.rows[0].estado === 'vendido') {
+      return res.status(400).json({ error: 'Acceso denegado: Este lote ya ha sido vendido y se encuentra cerrado para modificaciones.' });
+    }
     const {
       fraccionamiento, superficie, precio_lista, precio_venta, ubicacion, imagen,
       numero_lote, manzana, clave_catastral, frente, fondo, lado_izquierdo, lado_derecho,

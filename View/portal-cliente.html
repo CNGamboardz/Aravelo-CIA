@@ -671,6 +671,9 @@
       <!-- NOTIFICACIONES RÁPIDAS -->
       <div id="portalGlobalMsg" class="msg-toast" style="background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3);"></div>
 
+      <!-- CENTRO DE ADVERTENCIAS Y RECORDATORIOS DE PAGO DEL CLIENTE -->
+      <div id="portalAlertasCobranza" style="display: none; margin-bottom: 25px;"></div>
+
       <!-- SECCIÓN 1: LOTES DISPONIBLES -->
       <div class="section-view active" id="sec-lotes">
         <div class="section-header">
@@ -1175,6 +1178,7 @@
         cargarMisCompras();
         cargarAsesores();
         cargarPagos();
+        cargarAlertasCobranza();
         cargarDatosBancarios();
         inicializarStripe();
 
@@ -2445,6 +2449,73 @@
         showModalMsg(err.message, true);
         btn.disabled = false;
         btn.innerText = 'Pagar Seguro con Tarjeta';
+      }
+    }
+
+    async function cargarAlertasCobranza() {
+      try {
+        const res = await fetch('/api/portal/mis-alertas/' + clienteLogueado.id_cliente);
+        if (!res.ok) return;
+        const alertas = await res.json();
+
+        const container = document.getElementById('portalAlertasCobranza');
+        container.innerHTML = '';
+
+        if (alertas && alertas.length > 0) {
+          container.style.display = 'flex';
+          container.style.flexDirection = 'column';
+          container.style.gap = '10px';
+
+          alertas.forEach(a => {
+            const fechaEsp = new Date(a.fecha_esperada);
+            fechaEsp.setMinutes(fechaEsp.getMinutes() + fechaEsp.getTimezoneOffset());
+            const fechaEspStr = fechaEsp.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            let alertStyle = '';
+            let alertHtml = '';
+
+            if (a.dias_atraso > 0) {
+              // Pago vencido (Rojo)
+              alertStyle = 'background: #fff5f5; border: 1px solid #fca5a5; border-left: 5px solid #ef4444; color: #991b1b; padding: 16px; border-radius: 12px; font-family: inherit; font-size: 13.5px; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.05);';
+              alertHtml = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <span style="font-size: 20px;">⚠️</span>
+                  <div>
+                    <strong>Aviso de Pago Vencido:</strong> Tu cuota programada de <strong>$${parseFloat(a.monto_esperado).toLocaleString('es-MX', {minimumFractionDigits:2})}</strong> venció el <strong>${fechaEspStr}</strong>. Registras <strong>${a.dias_atraso} días de atraso</strong> y se ha acumulado una comisión por mora de <strong>$${parseFloat(a.comision_atraso).toLocaleString('es-MX', {minimumFractionDigits:2})}</strong> (Terreno ${a.fraccionamiento} Mz ${a.manzana || 'N/A'} Lote ${a.lote_num}). Por favor liquida tu pago para evitar cargos adicionales.
+                  </div>
+                </div>
+              `;
+            } else if (a.dias_atraso === 0 && new Date(a.fecha_esperada).toDateString() === new Date().toDateString()) {
+              // Vence Hoy (Azul)
+              alertStyle = 'background: #eff6ff; border: 1px solid #bfdbfe; border-left: 5px solid #2563eb; color: #1e40af; padding: 16px; border-radius: 12px; font-family: inherit; font-size: 13.5px; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.05);';
+              alertHtml = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <span style="font-size: 20px;">⚡</span>
+                  <div>
+                    <strong>Recordatorio de Pago:</strong> Hoy vence tu cuota mensual de <strong>$${parseFloat(a.monto_esperado).toLocaleString('es-MX', {minimumFractionDigits:2})}</strong> (Terreno ${a.fraccionamiento} Mz ${a.manzana || 'N/A'} Lote ${a.lote_num}).
+                  </div>
+                </div>
+              `;
+            } else {
+              // Recordatorio 3 días antes (Amarillo)
+              alertStyle = 'background: #fffdf5; border: 1px solid #fde68a; border-left: 5px solid #d97706; color: #92400e; padding: 16px; border-radius: 12px; font-family: inherit; font-size: 13.5px; box-shadow: 0 4px 6px rgba(217, 119, 6, 0.05);';
+              alertHtml = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <span style="font-size: 20px;">🔔</span>
+                  <div>
+                    <strong>Recordatorio de Pago:</strong> Tienes una mensualidad programada por pagar de <strong>$${parseFloat(a.monto_esperado).toLocaleString('es-MX', {minimumFractionDigits:2})}</strong> para el <strong>${fechaEspStr}</strong> (en 3 días).
+                  </div>
+                </div>
+              `;
+            }
+
+            container.innerHTML += `<div style="${alertStyle}">${alertHtml}</div>`;
+          });
+        } else {
+          container.style.display = 'none';
+        }
+      } catch (err) {
+        console.error('Error al cargar alertas en el portal del cliente:', err);
       }
     }
   </script>

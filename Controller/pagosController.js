@@ -50,6 +50,17 @@ const aplicarPago = async (req, res) => {
       }
     }
 
+    const idContratoReal = desencriptarId(id_contrato);
+    if (idContratoReal) {
+      const contractRes = await require('../Model/db').query('SELECT estatus FROM sistema.contratos WHERE id_contrato = $1', [idContratoReal]);
+      if (contractRes.rows.length > 0) {
+        const estatus = (contractRes.rows[0].estatus || '').toLowerCase().trim();
+        if (estatus === 'liquidado' || estatus === 'cancelado') {
+          return res.status(400).json({ error: `Acceso denegado: El contrato está ${estatus} y se encuentra cerrado para recibir nuevos pagos.` });
+        }
+      }
+    }
+
     if (!monto || parseFloat(monto) <= 0) {
       return res.status(400).json({ error: 'El monto del pago debe ser mayor a cero' });
     }

@@ -76,6 +76,59 @@ const getDireccionDashboard = async () => {
     ORDER BY total_monto_vendido DESC
   `);
 
+  // 7. Configuración de recargos dinámica
+  let config = { mora_porcentaje: '5', mora_diaria_fija: '50' };
+  try {
+    const configRes = await db.query('SELECT * FROM sistema.configuracion');
+    configRes.rows.forEach(r => { config[r.clave] = r.valor; });
+  } catch (cErr) {
+    console.error('Error al leer configuracion en getDireccionDashboard:', cErr);
+  }
+  
+  const pctMora = parseFloat(config['mora_porcentaje'] || 5) / 100;
+  const cargoDiario = parseFloat(config['mora_diaria_fija'] || 50);
+
+  // 8. Alertas de Cobranza (vencidas, vencer hoy o vencer en 3 días)
+  let alertasPagos = [];
+  try {
+    const alertasRes = await db.query(`
+      SELECT cp.id_calendario, cp.id_cliente, cp.id_contrato, cp.numero_pago, cp.fecha_esperada, cp.monto_esperado, cp.estatus,
+             TRIM(CONCAT(cl.nombre, ' ', cl.apellido_paterno, ' ', cl.apellido_materno)) AS cliente_nombre,
+             cl.telefono AS cliente_telefono, cl.correo AS cliente_correo,
+             t.fraccionamiento, t.numero_lote AS lote_num, t.manzana,
+             -- Cálculo de días de atraso
+             CASE 
+               WHEN cp.fecha_esperada < CURRENT_DATE THEN CURRENT_DATE - cp.fecha_esperada
+               ELSE 0
+             END AS dias_atraso
+      FROM sistema.calendario_pagos cp
+      JOIN sistema.clientes cl ON cp.id_cliente = cl.id_cliente
+      JOIN sistema.contratos c ON cp.id_contrato = c.id_contrato
+      JOIN sistema.terrenos t ON c.id_terreno = t.id_terreno
+      WHERE cp.estatus = 'pendiente'
+        AND (
+          cp.fecha_esperada < CURRENT_DATE
+          OR cp.fecha_esperada = CURRENT_DATE
+          OR cp.fecha_esperada = CURRENT_DATE + INTERVAL '3 days'
+        )
+      ORDER BY cp.fecha_esperada ASC
+      LIMIT 100
+    `);
+    
+    alertasPagos = alertasRes.rows.map(a => {
+      let comision_atraso = 0;
+      if (a.dias_atraso > 0) {
+        comision_atraso = (parseFloat(a.monto_esperado) * pctMora) + (cargoDiario * a.dias_atraso);
+      }
+      return {
+        ...a,
+        comision_atraso: parseFloat(comision_atraso.toFixed(2))
+      };
+    });
+  } catch (aErr) {
+    console.error('Error al consultar alertasPagos en getDireccionDashboard:', aErr);
+  }
+
   return {
     ventasMes: ventasMes.rows[0],
     cobranzaProyectada: cobranzaProyectada.rows[0].total_proyectado,
@@ -84,7 +137,9 @@ const getDireccionDashboard = async () => {
     lotesEstado: lotesEstado.rows,
     proy3meses: proy3meses.rows[0].total_3_meses,
     proy6meses: proy6meses.rows[0].total_6_meses,
-    desempenoAsesores: desempenoAsesores.rows
+    desempenoAsesores: desempenoAsesores.rows,
+    alertasPagos,
+    config
   };
 };
 
@@ -158,9 +213,54 @@ const getAuditoriaCompleta = async () => {
   };
 };
 
+// Migración: inicializar tabla de configuración
+const inicializarConfiguracion = async () => {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS sistema.configuracion (
+        clave VARCHAR(100) PRIMARY KEY,
+        valor VARCHAR(255) NOT NULL
+      )
+    `);
+    await db.query(`
+      INSERT INTO sistema.configuracion (clave, valor) VALUES 
+      ('mora_porcentaje', '5'),
+      ('mora_diaria_fija', '50')
+      ON CONFLICT (clave) DO NOTHING
+    `);
+    console.log('✅ Esquema de configuración (sistema.configuracion) inicializado con recargos de mora por defecto.');
+  } catch (err) {
+    console.error('Error al inicializar tabla sistema.configuracion:', err);
+  }
+};
+inicializarConfiguracion();
+
+const getConfiguracion = async () => {
+  const res = await db.query('SELECT * FROM sistema.configuracion');
+  const config = {};
+  res.rows.forEach(row => {
+    config[row.clave] = row.valor;
+  });
+  return config;
+};
+
+const guardarConfiguracion = async (config) => {
+  for (const [clave, valor] of Object.entries(config)) {
+    await db.query(
+      `INSERT INTO sistema.configuracion (clave, valor) 
+       VALUES ($1, $2) 
+       ON CONFLICT (clave) DO UPDATE SET valor = EXCLUDED.valor`,
+      [clave, String(valor)]
+    );
+  }
+  return true;
+};
+
 module.exports = {
   getVentasMes,
   getCarteraVencida,
   getDireccionDashboard,
-  getAuditoriaCompleta
+  getAuditoriaCompleta,
+  getConfiguracion,
+  guardarConfiguracion
 };

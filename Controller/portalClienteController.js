@@ -329,6 +329,57 @@ const getMisPagos = async (req, res) => {
   }
 };
 
+/** GET /api/portal/mis-alertas/:id_cliente */
+const getMisAlertas = async (req, res) => {
+  try {
+    const { id_cliente } = req.params;
+    
+    // Obtener la configuración de recargos
+    const configRes = await require('../Model/db').query('SELECT * FROM sistema.configuracion');
+    const config = {};
+    configRes.rows.forEach(r => { config[r.clave] = r.valor; });
+    const pctMora = parseFloat(config['mora_porcentaje'] || 5) / 100;
+    const cargoDiario = parseFloat(config['mora_diaria_fija'] || 50);
+
+    // Obtener cuotas pendientes relevantes (vencidas, vence hoy o vence en 3 días)
+    const alertasRes = await require('../Model/db').query(`
+      SELECT cp.id_calendario, cp.numero_pago, cp.fecha_esperada, cp.monto_esperado, cp.estatus,
+             t.fraccionamiento, t.numero_lote AS lote_num, t.manzana,
+             CASE 
+               WHEN cp.fecha_esperada < CURRENT_DATE THEN CURRENT_DATE - cp.fecha_esperada
+               ELSE 0
+             END AS dias_atraso
+      FROM sistema.calendario_pagos cp
+      JOIN sistema.contratos c ON cp.id_contrato = c.id_contrato
+      JOIN sistema.terrenos t ON c.id_terreno = t.id_terreno
+      WHERE cp.id_cliente = $1
+        AND cp.estatus = 'pendiente'
+        AND (
+          cp.fecha_esperada < CURRENT_DATE
+          OR cp.fecha_esperada = CURRENT_DATE
+          OR cp.fecha_esperada = CURRENT_DATE + INTERVAL '3 days'
+        )
+      ORDER BY cp.fecha_esperada ASC
+    `, [id_cliente]);
+
+    const alertas = alertasRes.rows.map(a => {
+      let comision_atraso = 0;
+      if (a.dias_atraso > 0) {
+        comision_atraso = (parseFloat(a.monto_esperado) * pctMora) + (cargoDiario * a.dias_atraso);
+      }
+      return {
+        ...a,
+        comision_atraso: parseFloat(comision_atraso.toFixed(2))
+      };
+    });
+
+    res.json(alertas);
+  } catch (error) {
+    console.error('Error al obtener alertas de cliente:', error);
+    res.status(500).json({ error: 'Error al consultar alertas del cliente' });
+  }
+};
+
 /** GET /api/portal/cliente/:id */
 const getClientePortal = async (req, res) => {
   try {
@@ -483,6 +534,7 @@ module.exports = {
   asignarAsesor,
   agendarCita,
   getMisPagos,
+  getMisAlertas,
   getClientePortal,
   getDatosBanco,
   crearStripeIntent,

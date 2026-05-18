@@ -33,6 +33,14 @@ const guardarCliente = async (req, res) => {
 const actualizarCliente = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Bloqueo de seguridad: Si la etapa actual del cliente en la DB es 'Cancelado', denegar cambios
+    const db = require('../Model/db');
+    const queryActual = await db.query('SELECT etapa FROM sistema.clientes WHERE id_cliente = $1', [id]);
+    if (queryActual.rows.length > 0 && queryActual.rows[0].etapa === 'Cancelado') {
+      return res.status(400).json({ error: 'Acceso denegado: El registro de este cliente está cancelado y bloqueado contra edición o eliminación.' });
+    }
+
     if (req.body.id_asesor) {
       req.body.id_asesor = desencriptarId(req.body.id_asesor);
     }
@@ -52,6 +60,14 @@ const actualizarCliente = async (req, res) => {
 const eliminarCliente = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Bloqueo de seguridad: Si la etapa actual del cliente en la DB es 'Cancelado', denegar eliminación
+    const db = require('../Model/db');
+    const queryActual = await db.query('SELECT etapa FROM sistema.clientes WHERE id_cliente = $1', [id]);
+    if (queryActual.rows.length > 0 && queryActual.rows[0].etapa === 'Cancelado') {
+      return res.status(400).json({ error: 'Acceso denegado: El registro de este cliente está cancelado y bloqueado contra edición o eliminación.' });
+    }
+
     await clientesModel.eliminarClienteDB(id);
     res.json({ success: true });
   } catch (error) {

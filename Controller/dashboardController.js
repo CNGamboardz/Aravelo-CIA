@@ -34,8 +34,30 @@ const getAuditoriaCompleta = async (req, res) => {
   }
 };
 
+const obtenerConfiguracion = async (req, res) => {
+  try {
+    const config = await dashboardModel.getConfiguracion();
+    res.json(config);
+  } catch (error) {
+    console.error('Error al obtener configuracion:', error);
+    res.status(500).json({ error: 'No se pudo obtener la configuración' });
+  }
+};
+
+const guardarConfiguracion = async (req, res) => {
+  try {
+    await dashboardModel.guardarConfiguracion(req.body);
+    res.json({ success: true, mensaje: 'Configuración de recargos actualizada correctamente' });
+  } catch (error) {
+    console.error('Error al guardar configuracion:', error);
+    res.status(500).json({ error: 'No se pudo guardar la configuración' });
+  }
+};
+
 module.exports = { 
   dashboard,
   getDireccionDashboard,
-  getAuditoriaCompleta
+  getAuditoriaCompleta,
+  obtenerConfiguracion,
+  guardarConfiguracion
 };

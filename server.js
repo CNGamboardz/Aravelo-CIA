@@ -91,6 +91,8 @@ app.post('/pagos', pagosController.aplicarPago);
 app.get('/dashboard', dashboardController.dashboard);
 app.get('/api/direccion/dashboard', dashboardController.getDireccionDashboard);
 app.get('/api/direccion/auditoria', dashboardController.getAuditoriaCompleta);
+app.get('/api/direccion/configuracion', dashboardController.obtenerConfiguracion);
+app.post('/api/direccion/configuracion', dashboardController.guardarConfiguracion);
 
 // ====================================================
 // PORTAL DE CLIENTES (Auto-Servicio)
@@ -106,6 +108,7 @@ app.post('/api/portal/apartar', portalController.apartarLote);
 app.post('/api/portal/asesor', portalController.asignarAsesor);
 app.post('/api/portal/cita', portalController.agendarCita);
 app.get('/api/portal/mis-pagos/:id_cliente', portalController.getMisPagos);
+app.get('/api/portal/mis-alertas/:id_cliente', portalController.getMisAlertas);
 app.get('/api/portal/cliente/:id', portalController.getClientePortal);
 app.get('/api/portal/datos-banco', portalController.getDatosBanco);
 app.post('/api/portal/stripe-intent', portalController.crearStripeIntent);

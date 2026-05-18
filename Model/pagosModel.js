@@ -83,26 +83,38 @@ const registrarPago = async (pago) => {
 };
 
 const auditarRiesgosDB = async () => {
-  // 1. Marcar 'En riesgo' si tienen pagos pendientes con más de 5 días de retraso
+  // 1. Restaurar a 'Cliente activo' si no tiene ningún pago pendiente atrasado
   await db.query(`
     UPDATE sistema.clientes cl
-    SET etapa = 'En riesgo'
+    SET etapa = 'Cliente activo'
+    WHERE id_cliente NOT IN (
+      SELECT DISTINCT id_cliente FROM sistema.calendario_pagos 
+      WHERE estatus = 'pendiente' 
+        AND fecha_esperada < CURRENT_DATE
+    )
+    AND etapa IN ('Atrasado', 'Moroso', 'En riesgo', 'Recuperado')
+  `);
+
+  // 2. Marcar 'Atrasado' si tienen pagos pendientes con más de 1 día de retraso (vencidos)
+  await db.query(`
+    UPDATE sistema.clientes cl
+    SET etapa = 'Atrasado'
     WHERE id_cliente IN (
       SELECT id_cliente FROM sistema.calendario_pagos 
       WHERE estatus = 'pendiente' 
-      AND fecha_esperada < CURRENT_DATE - INTERVAL '5 days'
+        AND fecha_esperada < CURRENT_DATE
     )
     AND etapa NOT IN ('Moroso', 'Cancelado')
   `);
 
-  // 2. Marcar 'Moroso' si tienen pagos pendientes con más de 30 días de retraso
+  // 3. Marcar 'Moroso' si tienen pagos pendientes con más de 30 días de retraso
   await db.query(`
     UPDATE sistema.clientes cl
     SET etapa = 'Moroso'
     WHERE id_cliente IN (
       SELECT id_cliente FROM sistema.calendario_pagos 
       WHERE estatus = 'pendiente' 
-      AND fecha_esperada < CURRENT_DATE - INTERVAL '30 days'
+        AND fecha_esperada < CURRENT_DATE - INTERVAL '30 days'
     )
     AND etapa != 'Cancelado'
   `);
