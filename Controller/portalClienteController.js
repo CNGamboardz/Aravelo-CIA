@@ -17,8 +17,149 @@ const DATOS_BANCO = {
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'sk_test_REEMPLAZAR_CON_TU_CLAVE_STRIPE');
 
 // ─────────────────────────────────────────────────────
-// AUTENTICACIÓN DEL PORTAL
+// AUTENTICACIÓN DEL PORTAL Y VALIDACIÓN DE CORREO
 // ─────────────────────────────────────────────────────
+
+const dns = require('dns').promises;
+
+/**
+ * POST /api/portal/validar-dominio-correo
+ * Verifica si el dominio del correo tiene registros MX (es decir, si puede recibir correos)
+ */
+const validarDominioCorreo = async (req, res) => {
+  const { correo } = req.body;
+  if (!correo || !correo.includes('@')) {
+    return res.status(400).json({ error: 'Formato de correo inválido.', valido: false });
+  }
+
+  const dominio = correo.split('@')[1];
+  try {
+    const mxRecords = await dns.resolveMx(dominio);
+    if (mxRecords && mxRecords.length > 0) {
+      return res.json({ valido: true, mensaje: 'El dominio existe y puede recibir correos.' });
+    } else {
+      return res.json({ valido: false, error: 'El dominio de correo no existe o no admite mensajes.' });
+    }
+  } catch (error) {
+    // Si resolveMx tira error, el dominio no existe o no tiene registros MX
+    return res.json({ valido: false, error: 'El dominio de correo no es válido o no existe.' });
+  }
+};
+
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+
+// Configuración de Nodemailer (Reemplazar con credenciales reales)
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER || 'tu_correo_real@gmail.com',
+    pass: process.env.EMAIL_PASS || 'tu_contrasena_de_aplicacion'
+  }
+});
+
+/**
+ * POST /api/portal/solicitar-recuperacion
+ */
+const solicitarRecuperacion = async (req, res) => {
+  const { correo } = req.body;
+  if (!correo) return res.status(400).json({ error: 'El correo es obligatorio.' });
+
+  try {
+    const qCliente = `SELECT id_cliente, nombre FROM sistema.clientes WHERE correo = $1 LIMIT 1;`;
+    const rCliente = await require('../Model/db').query(qCliente, [correo]);
+
+    if (rCliente.rows.length === 0) {
+      // Retornar éxito falso por seguridad (evitar enumeración de correos)
+      return res.json({ success: true, mensaje: 'Si el correo existe, recibirás un enlace.' });
+    }
+
+    const cliente = rCliente.rows[0];
+    const token = crypto.randomBytes(32).toString('hex');
+    const expireDate = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+
+    await require('../Model/db').query(
+      `UPDATE sistema.clientes SET reset_token = $1, reset_token_expires = $2 WHERE id_cliente = $3`,
+      [token, expireDate, cliente.id_cliente]
+    );
+
+    const resetLink = `http://localhost:3000/reset-password.html?token=${token}`;
+
+    // Imprimir en consola para pruebas sin correo real
+    console.log('--- ENLACE DE RECUPERACIÓN SECRETO ---');
+    console.log(resetLink);
+    console.log('--------------------------------------');
+
+    // Intentar enviar el correo
+    try {
+      await transporter.sendMail({
+        from: '"Arévalo & CIA" <no-reply@arevalocia.com>',
+        to: correo,
+        subject: 'Recuperación de Contraseña - Portal de Clientes',
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+            <h2>Hola ${cliente.nombre},</h2>
+            <p>Hemos recibido una solicitud para restablecer tu contraseña en el Portal Inmobiliario de Arévalo & CIA.</p>
+            <p>Haz clic en el siguiente enlace para crear una nueva contraseña. Este enlace expirará en 15 minutos por seguridad:</p>
+            <a href="${resetLink}" style="display: inline-block; padding: 12px 24px; background: #2563eb; color: #fff; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 15px;">Restablecer mi Contraseña</a>
+            <p style="margin-top: 20px; font-size: 12px; color: #777;">Si no solicitaste esto, puedes ignorar este correo.</p>
+          </div>
+        `
+      });
+    } catch(mailErr) {
+      console.error('Fallo al enviar correo real (ver consola para el link):', mailErr.message);
+    }
+
+    res.json({ success: true, mensaje: 'Se ha enviado el enlace de recuperación a tu correo.' });
+
+  } catch (error) {
+    console.error('Error en solicitarRecuperacion:', error);
+    res.status(500).json({ error: 'Error interno del servidor.' });
+  }
+};
+
+/**
+ * POST /api/portal/restablecer-password
+ */
+const restablecerPassword = async (req, res) => {
+  const { token, nuevaPassword } = req.body;
+  if (!token || !nuevaPassword) return res.status(400).json({ error: 'Faltan datos.' });
+
+  try {
+    const qToken = `
+      SELECT id_cliente, reset_token_expires 
+      FROM sistema.clientes 
+      WHERE reset_token = $1 LIMIT 1;
+    `;
+    const rToken = await require('../Model/db').query(qToken, [token]);
+
+    if (rToken.rows.length === 0) {
+      return res.status(400).json({ error: 'El enlace es inválido.' });
+    }
+
+    const cliente = rToken.rows[0];
+    if (new Date() > new Date(cliente.reset_token_expires)) {
+      return res.status(400).json({ error: 'El enlace ha expirado. Solicita uno nuevo.' });
+    }
+
+    // Encriptar la nueva contraseña
+    const bcrypt = require('bcryptjs');
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash(nuevaPassword, salt);
+
+    // Actualizar clave y limpiar token
+    await require('../Model/db').query(
+      `UPDATE sistema.clientes SET password_cliente = $1, reset_token = NULL, reset_token_expires = NULL WHERE id_cliente = $2`,
+      [passwordHash, cliente.id_cliente]
+    );
+
+    res.json({ success: true, mensaje: 'Contraseña actualizada correctamente.' });
+
+  } catch (error) {
+    console.error('Error en restablecerPassword:', error);
+    res.status(500).json({ error: 'Error interno del servidor.' });
+  }
+};
 
 /**
  * POST /api/portal/registrar
@@ -331,6 +472,9 @@ const getMisCompras = async (req, res) => {
 };
 
 module.exports = {
+  validarDominioCorreo,
+  solicitarRecuperacion,
+  restablecerPassword,
   registrarPortal,
   loginPortal,
   getLotesPortal,

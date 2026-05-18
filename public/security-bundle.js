@@ -163,4 +163,99 @@
     observer.observe(document.body, { childList: true, subtree: true });
   });
 
+  // ============================================================================
+  // 4. MONITOR DE INACTIVIDAD GLOBAL (AUTO-LOGOUT)
+  // ============================================================================
+  // Cierra sesiones abandonadas después de 5 minutos de inactividad + 1 minuto de gracia.
+
+  let idleTimeoutWarning;
+  let idleTimeoutLogout;
+  const TIME_WARNING = 5 * 60 * 1000; // 5 minutos
+  const TIME_GRACE = 1 * 60 * 1000;   // 1 minuto extra
+
+  function cargarSweetAlertSiFalta(callback) {
+    if (window.Swal) {
+      callback();
+    } else {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+      script.onload = callback;
+      document.head.appendChild(script);
+    }
+  }
+
+  async function ejecutarLogoutCerrado() {
+    const isCRM = localStorage.getItem('arevalo_user');
+    const isPortal = localStorage.getItem('secure_portal_token') || localStorage.getItem('portal_cliente');
+
+    if (isCRM) {
+      try {
+        const u = JSON.parse(isCRM);
+        if (u.id_usuario) {
+          await fetch('/api/usuarios/logout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_usuario: u.id_usuario })
+          });
+        }
+      } catch(e) {}
+      localStorage.removeItem('arevalo_user');
+      window.location.replace('/login.html');
+    } else if (isPortal) {
+      localStorage.removeItem('secure_portal_token');
+      localStorage.removeItem('portal_cliente');
+      window.location.replace('/login-cliente.html');
+    }
+  }
+
+  function mostrarAdvertenciaInactividad() {
+    cargarSweetAlertSiFalta(() => {
+      // Configurar el logout incondicional si no hay respuesta
+      idleTimeoutLogout = setTimeout(() => {
+        if(window.Swal) Swal.close();
+        ejecutarLogoutCerrado();
+      }, TIME_GRACE);
+
+      Swal.fire({
+        title: 'Sesión Inactiva',
+        html: '<div style="font-size:14px; color:#475569;">Por tu seguridad, tu sesión se cerrará automáticamente en <b>1 minuto</b> por falta de actividad.</div>',
+        icon: 'warning',
+        showCancelButton: false,
+        confirmButtonText: 'Sigo aquí',
+        confirmButtonColor: '#2563eb',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      }).then((result) => {
+        if (result.isConfirmed) {
+          clearTimeout(idleTimeoutLogout);
+          resetearTemporizadorInactividad();
+        }
+      });
+    });
+  }
+
+  function resetearTemporizadorInactividad() {
+    // Solo activar si el usuario está realmente logueado en algún lado
+    if (!localStorage.getItem('arevalo_user') && !localStorage.getItem('secure_portal_token') && !localStorage.getItem('portal_cliente')) {
+      return;
+    }
+    clearTimeout(idleTimeoutWarning);
+    clearTimeout(idleTimeoutLogout);
+    idleTimeoutWarning = setTimeout(mostrarAdvertenciaInactividad, TIME_WARNING);
+  }
+
+  // Escuchar eventos de actividad del usuario
+  document.addEventListener('DOMContentLoaded', () => {
+    resetearTemporizadorInactividad();
+
+    const eventos = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'];
+    eventos.forEach(evt => {
+      document.addEventListener(evt, () => {
+        // Solo resetear si no se está mostrando la alerta
+        if (window.Swal && Swal.isVisible && Swal.isVisible()) return;
+        resetearTemporizadorInactividad();
+      }, { passive: true });
+    });
+  });
+
 })();

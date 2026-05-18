@@ -21,6 +21,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <!-- ESCUDO DE SEGURIDAD GLOBAL ANTI-CRACKERS Y ENCRIPTACIÓN -->
   <script src="/public/security-bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -266,6 +267,44 @@
     }
 
     .footer-link a:hover { color: #2563eb; }
+
+    /* Estilos para el campo de contraseña con ojito */
+    .password-box {
+      position: relative;
+    }
+    .password-box input {
+      padding-right: 40px;
+    }
+    .eye {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: 0.2s;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .eye:hover { opacity: 1; }
+    .eye img { width: 18px; height: 18px; }
+
+    /* Tooltip de error para el correo */
+    .input-error {
+      border-color: #ef4444 !important;
+      background: #fef2f2 !important;
+    }
+    .tooltip-error {
+      font-size: 11px;
+      color: #ef4444;
+      margin-top: 4px;
+      display: none;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -294,7 +333,15 @@
         </div>
         <div class="form-group">
           <label for="l_password">Contraseña</label>
-          <input type="password" id="l_password" placeholder="••••••••" autocomplete="current-password">
+          <div class="password-box">
+            <input type="password" id="l_password" placeholder="••••••••" autocomplete="current-password">
+            <button type="button" class="eye" onclick="togglePassword('l_password')">
+              <img src="/public/eye.png" alt="Mostrar/Ocultar" onerror="this.style.display='none'">
+            </button>
+          </div>
+        </div>
+        <div style="text-align: right; margin-bottom: 20px;">
+          <a href="#" onclick="olvidePassword(); return false;" style="color: #2563eb; font-size: 12px; text-decoration: none; font-weight: 600;">¿Olvidaste tu contraseña?</a>
         </div>
         <button class="btn-primary" id="btnLogin" onclick="iniciarSesion()">
           Acceder al Portal →
@@ -326,7 +373,8 @@
         </div>
         <div class="form-group">
           <label for="r_correo">Correo Electrónico *</label>
-          <input type="email" id="r_correo" placeholder="tucorreo@email.com">
+          <input type="email" id="r_correo" placeholder="tucorreo@email.com" onblur="validarDominio(this)">
+          <div id="r_correo_tooltip" class="tooltip-error">El dominio del correo no existe o no es válido.</div>
         </div>
 
         <div class="form-grid-2">
@@ -391,11 +439,21 @@
         <div class="form-grid-2">
           <div class="form-group">
             <label for="r_pass">Contraseña *</label>
-            <input type="password" id="r_pass" placeholder="Min. 6 caracteres">
+            <div class="password-box">
+              <input type="password" id="r_pass" placeholder="Min. 6 caracteres">
+              <button type="button" class="eye" onclick="togglePassword('r_pass')">
+                <img src="/public/eye.png" alt="Mostrar/Ocultar" onerror="this.style.display='none'">
+              </button>
+            </div>
           </div>
           <div class="form-group">
             <label for="r_pass2">Confirmar *</label>
-            <input type="password" id="r_pass2" placeholder="Repetir contraseña">
+            <div class="password-box">
+              <input type="password" id="r_pass2" placeholder="Repetir contraseña">
+              <button type="button" class="eye" onclick="togglePassword('r_pass2')">
+                <img src="/public/eye.png" alt="Mostrar/Ocultar" onerror="this.style.display='none'">
+              </button>
+            </div>
           </div>
         </div>
         <button class="btn-primary" id="btnRegistrar" onclick="crearCuenta()">
@@ -430,6 +488,84 @@
       b.className = 'msg-box ' + (isErr ? 'msg-error' : 'msg-success');
       b.innerText = txt;
       b.style.display = 'block';
+    }
+
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+      } else {
+        input.type = 'password';
+      }
+    }
+
+    async function olvidePassword() {
+      if (!window.Swal) return alert('Por favor recarga la página.');
+
+      const { value: email } = await Swal.fire({
+        title: 'Recuperar Contraseña',
+        input: 'email',
+        inputLabel: 'Ingresa tu correo electrónico registrado',
+        inputPlaceholder: 'tucorreo@email.com',
+        showCancelButton: true,
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#94a3b8',
+        confirmButtonText: 'Enviar enlace',
+        cancelButtonText: 'Cancelar'
+      });
+
+      if (email) {
+        Swal.fire({ title: 'Enviando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+        try {
+          const res = await fetch('/api/portal/solicitar-recuperacion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ correo: email })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Error de red.');
+
+          Swal.fire('¡Listo!', data.mensaje, 'success');
+        } catch (err) {
+          Swal.fire('Error', err.message, 'error');
+        }
+      }
+    }
+
+    let correoDominioValido = false;
+
+    async function validarDominio(input) {
+      const correo = input.value.trim();
+      const tooltip = document.getElementById('r_correo_tooltip');
+      
+      if (!correo || !correo.includes('@')) {
+        input.classList.remove('input-error');
+        tooltip.style.display = 'none';
+        correoDominioValido = false;
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/portal/validar-dominio-correo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ correo })
+        });
+        const data = await res.json();
+
+        if (!data.valido) {
+          input.classList.add('input-error');
+          tooltip.innerText = data.error;
+          tooltip.style.display = 'block';
+          correoDominioValido = false;
+        } else {
+          input.classList.remove('input-error');
+          tooltip.style.display = 'none';
+          correoDominioValido = true;
+        }
+      } catch (err) {
+        console.error('Error al validar dominio:', err);
+      }
     }
 
     async function iniciarSesion() {
@@ -489,6 +625,11 @@
       }
       if (pass.length < 6) {
         showMsg('msgReg', 'La contraseña debe tener mínimo 6 caracteres.', true);
+        return;
+      }
+      if (!correoDominioValido) {
+        showMsg('msgReg', 'Debes usar un correo electrónico válido y existente.', true);
+        document.getElementById('r_correo').focus();
         return;
       }
 
@@ -552,6 +693,18 @@
         if (u && u.id_cliente) window.location.href = '/portal-cliente.html';
       }
     } catch(e) {}
+
+    // Habilitar la tecla 'Enter' para enviar el formulario activo
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        const isLoginActive = document.getElementById('secLogin').classList.contains('active');
+        if (isLoginActive) {
+          document.getElementById('btnLogin').click();
+        } else {
+          document.getElementById('btnRegistrar').click();
+        }
+      }
+    });
   </script>
 </body>
 </html>

@@ -93,6 +93,9 @@ app.get('/dashboard', dashboardController.dashboard);
 // ====================================================
 // PORTAL DE CLIENTES (Auto-Servicio)
 // ====================================================
+app.post('/api/portal/validar-dominio-correo', portalController.validarDominioCorreo);
+app.post('/api/portal/solicitar-recuperacion', portalController.solicitarRecuperacion);
+app.post('/api/portal/restablecer-password', portalController.restablecerPassword);
 app.post('/api/portal/registrar', portalController.registrarPortal);
 app.post('/api/portal/login', portalController.loginPortal);
 app.get('/api/portal/lotes', portalController.getLotesPortal);
