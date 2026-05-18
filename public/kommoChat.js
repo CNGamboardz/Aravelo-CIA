@@ -366,7 +366,7 @@
   root.innerHTML = `
     <!-- BOTÓN DE ACTIVACIÓN FLOTANTE -->
     <div class="kommo-trigger" id="kommoTrigger" title="Chatear con asistente de ayuda">
-      <img src="/public/LogoApp.png" alt="Logo Arévalo" onerror="this.src='https://placehold.co/40/transparent/white?text=💬'">
+      <img src="/public/img/LogoApp.png" alt="Logo Arévalo" onerror="this.src='https://placehold.co/40/transparent/white?text=💬'">
       <div class="kommo-badge" id="kommoBadge">1</div>
     </div>
 
