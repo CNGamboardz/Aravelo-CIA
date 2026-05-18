@@ -266,8 +266,187 @@
       </div>
     </header>
 
+    <!-- PANEL DE ALTA DIRECCIÓN (DIRECCIÓN EJECUTIVA) -->
+    <div id="panelDireccionEjecutiva" style="display: none; margin-bottom: 45px;">
+      
+      <!-- ENCABEZADO PRÉMIUM DE DIRECCIÓN -->
+      <div style="background: linear-gradient(135deg, #1e1b4b 0%, #311084 100%); padding: 35px; border-radius: 24px; color: white; margin-bottom: 30px; box-shadow: 0 15px 35px rgba(49, 16, 132, 0.2); position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+        <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.03); border-radius: 50%;"></div>
+        <div style="position: absolute; bottom: -80px; left: -20px; width: 180px; height: 180px; background: rgba(255,255,255,0.02); border-radius: 50%;"></div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; position: relative; z-index: 2;">
+          <div>
+            <span style="background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%); color: #1e1b4b; padding: 6px 14px; border-radius: 30px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; box-shadow: 0 4px 10px rgba(245,158,11,0.3); display: inline-block; margin-bottom: 12px;">👑 Rol: Dirección General</span>
+            <h2 style="font-size: 28px; font-weight: 900; letter-spacing: -0.5px; margin: 0; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">Inteligencia de Negocio y Auditoría</h2>
+            <p style="font-size: 14px; color: rgba(255,255,255,0.75); margin: 6px 0 0 0;">Control absoluto de inventarios, proyecciones financieras y logs transaccionales</p>
+          </div>
+          
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button onclick="descargarAuditoria('json')" class="btn-exportar" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; border-radius: 12px;">
+              <span>💾</span> JSON
+            </button>
+            <button onclick="descargarAuditoria('excel')" class="btn-exportar" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; border-radius: 12px;">
+              <span>📊</span> Excel / CSV
+            </button>
+            <button onclick="descargarAuditoria('pdf')" class="btn-exportar" style="background: #2563eb; border: none; color: white; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 4px 12px rgba(37,99,235,0.3); border-radius: 12px;">
+              <span>📄</span> Descargar Auditoría PDF
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- REJILLA DE METRICAS DE DIRECCION -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 35px;">
+        
+        <!-- VENTAS DEL MES -->
+        <div style="background: white; padding: 25px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+            <div>
+              <span style="font-size: 11px; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.8px;">Ventas del Mes</span>
+              <div id="dirMontoVentasMes" style="font-size: 28px; font-weight: 900; color: #1e1b4b; margin-top: 6px;">$0.00</div>
+            </div>
+            <div style="width: 44px; height: 44px; background: #e0e7ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">📈</div>
+          </div>
+          <div style="font-size: 12px; color: #64748b;" id="dirCountVentasMes">0 contratos formalizados este mes</div>
+        </div>
+
+        <!-- COBRANZA REAL VS PROYECTADA -->
+        <div style="background: white; padding: 25px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+            <div>
+              <span style="font-size: 11px; font-weight: 800; color: #10b981; text-transform: uppercase; letter-spacing: 0.8px;">Cobranza Real vs Proyectada</span>
+              <div id="dirCobranzaReal" style="font-size: 26px; font-weight: 900; color: #10b981; margin-top: 6px;">$0.00</div>
+            </div>
+            <div style="width: 44px; height: 44px; background: #d1fae5; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">💵</div>
+          </div>
+          <div style="margin-top: 5px;">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-bottom: 4px;">
+              <span>Meta: <b id="dirCobranzaProyectada">$0.00</b></span>
+              <span id="dirPorcentajeCobranza">0%</span>
+            </div>
+            <div style="width: 100%; height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden;">
+              <div id="dirBarraCobranza" style="width: 0%; height: 100%; background: #10b981; border-radius: 3px; transition: width 0.5s ease;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARTERA VENCIDA TOTAL -->
+        <div style="background: white; padding: 25px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+            <div>
+              <span style="font-size: 11px; font-weight: 800; color: #ef4444; text-transform: uppercase; letter-spacing: 0.8px;">Cartera Vencida Total</span>
+              <div id="dirCarteraVencida" style="font-size: 28px; font-weight: 900; color: #ef4444; margin-top: 6px;">$0.00</div>
+            </div>
+            <div style="width: 44px; height: 44px; background: #fee2e2; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">⚠️</div>
+          </div>
+          <div style="font-size: 12px; color: #64748b;">Monto histórico total pendiente por cobrar</div>
+        </div>
+
+        <!-- PROYECCION A 3 Y 6 MESES -->
+        <div style="background: white; padding: 25px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+            <div>
+              <span style="font-size: 11px; font-weight: 800; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.8px;">Proyección de Ingresos</span>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;">
+                <div>
+                  <div style="font-size: 9px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">A 3 Meses</div>
+                  <div id="dirProy3Meses" style="font-size: 15px; font-weight: 900; color: #1e1b4b;">$0.00</div>
+                </div>
+                <div>
+                  <div style="font-size: 9px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">A 6 Meses</div>
+                  <div id="dirProy6Meses" style="font-size: 15px; font-weight: 900; color: #1e1b4b;">$0.00</div>
+                </div>
+              </div>
+            </div>
+            <div style="width: 44px; height: 44px; background: #fef3c7; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🔮</div>
+          </div>
+          <div style="font-size: 11px; color: #64748b; border-top: 1px dashed #cbd5e1; padding-top: 6px;">Excluye enganches y liquidaciones inmediatas</div>
+        </div>
+
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 25px; margin-bottom: 30px; align-items: start;">
+        
+        <!-- DESEMPEÑO POR ASESOR (LIDERES DE VENTA) -->
+        <div style="background: white; padding: 30px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.02);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+              <h3 style="font-size: 16px; color: #1e1b4b; font-weight: 800; margin: 0;">Desempeño y Cierre por Asesor</h3>
+              <p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0;">Ranking de asesores con base en volumen total de ventas formalizadas</p>
+            </div>
+            <span style="font-size: 20px;">🏆</span>
+          </div>
+
+          <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+              <tr style="border-bottom: 2px solid #f1f5f9;">
+                <th style="padding: 12px 8px; font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase;">Asesor Comercial</th>
+                <th style="padding: 12px 8px; font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; text-align: center;">Lotes Vendidos</th>
+                <th style="padding: 12px 8px; font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; text-align: right;">Total Emitido ($)</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyAsesoresLeaderboard">
+              <tr>
+                <td colspan="3" style="text-align: center; color: #94a3b8; padding: 20px; font-size: 13px;">Cargando tabla de rendimiento...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- RELACION INVENTARIO DISPONIBLE VS VENDIDO -->
+        <div style="background: white; padding: 30px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.02); height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <h3 style="font-size: 16px; color: #1e1b4b; font-weight: 800; margin: 0; margin-bottom: 20px;">Inventario Inmobiliario Global</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px;">
+              
+              <!-- DISPONIBLES -->
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #1e1b4b; margin-bottom: 6px;">
+                  <span style="display: flex; align-items: center; gap: 8px;"><span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></span> Lotes Disponibles</span>
+                  <span id="dirCountDisponibles">0</span>
+                </div>
+                <div style="width: 100%; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden;">
+                  <div id="dirBarraDisponibles" style="width: 0%; height: 100%; background: #10b981; border-radius: 4px;"></div>
+                </div>
+              </div>
+
+              <!-- APARTADOS -->
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #1e1b4b; margin-bottom: 6px;">
+                  <span style="display: flex; align-items: center; gap: 8px;"><span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #f59e0b;"></span> Lotes Apartados</span>
+                  <span id="dirCountApartados">0</span>
+                </div>
+                <div style="width: 100%; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden;">
+                  <div id="dirBarraApartados" style="width: 0%; height: 100%; background: #f59e0b; border-radius: 4px;"></div>
+                </div>
+              </div>
+
+              <!-- VENDIDOS -->
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #1e1b4b; margin-bottom: 6px;">
+                  <span style="display: flex; align-items: center; gap: 8px;"><span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #dc2626;"></span> Lotes Vendidos</span>
+                  <span id="dirCountVendidos">0</span>
+                </div>
+                <div style="width: 100%; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden;">
+                  <div id="dirBarraVendidos" style="width: 0%; height: 100%; background: #dc2626; border-radius: 4px;"></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div style="background: #f8fafc; border-radius: 12px; padding: 15px; border: 1px solid #e2e8f0; font-size: 11px; color: #64748b; line-height: 1.5;">
+            💡 <b>Recomendación Estratégica:</b> Si el porcentaje de lotes disponibles es menor al 15%, evalúe la adquisición y lotificación de un nuevo fraccionamiento.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
     <!-- METRICAS (4 TARJETAS PREMIUM CONTABLES) -->
-    <section class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+    <section id="seccionMetricasGrid" class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
 
       <!-- DINERO GENERADO -->
       <div class="metric-card card-sales" onclick="abrirPestañaDetalle('vendidos')"
@@ -324,7 +503,7 @@
     </section>
 
     <!-- PIPELINE DE VENTAS (Visualizador Dinámico) -->
-    <section class="dashboard-section" style="margin-top: 25px; margin-bottom: 40px;">
+    <section id="seccionPipelineClientes" class="dashboard-section" style="margin-top: 25px; margin-bottom: 40px;">
       <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
         <div>
           <h3 style="font-size: 16px; color: #1e293b; font-weight: 800;">Pipeline Estratégico de Clientes</h3>
@@ -340,7 +519,7 @@
     </section>
 
     <!-- ESTADÍSTICA GRÁFICA CONTABLE PREMIUM -->
-    <section
+    <section id="seccionGraficaInventario"
       style="background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; margin-bottom: 40px;">
       <div
         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
@@ -990,6 +1169,279 @@
       }
     });
 
+    // Cargar Dashboard de Dirección si el rol es Dirección
+    async function cargarDashboardDireccion() {
+      try {
+        const res = await fetch('/api/direccion/dashboard');
+        if (!res.ok) throw new Error('No se pudo obtener las métricas de dirección');
+        const data = await res.json();
+
+        // 1. Ventas del Mes
+        document.getElementById('dirMontoVentasMes').innerText = '$' + parseFloat(data.ventasMes.total_monto).toLocaleString('es-MX', { minimumFractionDigits: 2 });
+        document.getElementById('dirCountVentasMes').innerText = `${data.ventasMes.count_contratos} contratos formalizados este mes`;
+
+        // 2. Cobranza Real vs Proyectada
+        const real = parseFloat(data.cobranzaReal) || 0;
+        const proyectada = parseFloat(data.cobranzaProyectada) || 0;
+        document.getElementById('dirCobranzaReal').innerText = '$' + real.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+        document.getElementById('dirCobranzaProyectada').innerText = '$' + proyectada.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+        
+        let pctCobranza = 0;
+        if (proyectada > 0) {
+          pctCobranza = Math.min(100, Math.round((real / proyectada) * 100));
+        } else if (real > 0) {
+          pctCobranza = 100;
+        }
+        document.getElementById('dirPorcentajeCobranza').innerText = pctCobranza + '%';
+        document.getElementById('dirBarraCobranza').style.width = pctCobranza + '%';
+
+        // 3. Cartera Vencida
+        document.getElementById('dirCarteraVencida').innerText = '$' + (parseFloat(data.carteraVencida) || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 });
+
+        // 4. Proyecciones
+        document.getElementById('dirProy3Meses').innerText = '$' + (parseFloat(data.proy3meses) || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 });
+        document.getElementById('dirProy6Meses').innerText = '$' + (parseFloat(data.proy6meses) || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 });
+
+        // 5. Inventario
+        let countDisponibles = 0;
+        let countVendidos = 0;
+        let countApartados = 0;
+        
+        data.lotesEstado.forEach(item => {
+          const e = (item.estado || '').toLowerCase();
+          if (e.includes('libre') || e.includes('disponible')) {
+            countDisponibles += parseInt(item.count);
+          } else if (e.includes('vendido') || e.includes('cerrado') || e.includes('ocupado')) {
+            countVendidos += parseInt(item.count);
+          } else if (e.includes('apartado') || e.includes('reservado')) {
+            countApartados += parseInt(item.count);
+          }
+        });
+
+        const totalLotes = countDisponibles + countVendidos + countApartados || 1;
+        document.getElementById('dirCountDisponibles').innerText = countDisponibles;
+        document.getElementById('dirCountVendidos').innerText = countVendidos;
+        document.getElementById('dirCountApartados').innerText = countApartados;
+
+        document.getElementById('dirBarraDisponibles').style.width = Math.round((countDisponibles / totalLotes) * 100) + '%';
+        document.getElementById('dirBarraVendidos').style.width = Math.round((countVendidos / totalLotes) * 100) + '%';
+        document.getElementById('dirBarraApartados').style.width = Math.round((countApartados / totalLotes) * 100) + '%';
+
+        // 6. Ranking Asesores Leaderboard
+        const tbody = document.getElementById('tbodyAsesoresLeaderboard');
+        tbody.innerHTML = '';
+        
+        if (data.desempenoAsesores.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #94a3b8; padding: 20px;">No hay ventas registradas por asesores comerciales.</td></tr>`;
+        } else {
+          data.desempenoAsesores.forEach((item, index) => {
+            let medalla = '';
+            if (index === 0) medalla = '🥇 ';
+            else if (index === 1) medalla = '🥈 ';
+            else if (index === 2) medalla = '🥉 ';
+            
+            tbody.innerHTML += `
+              <tr style="border-bottom: 1px solid #f1f5f9; transition: 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                <td style="padding: 14px 8px; font-weight: 700; color: #1e1b4b;">${medalla}${item.asesor_nombre}</td>
+                <td style="padding: 14px 8px; text-align: center; font-weight: 600; color: #475569;">${item.total_lotes_vendidos}</td>
+                <td style="padding: 14px 8px; text-align: right; font-weight: 800; color: #10b981;">$${parseFloat(item.total_monto_vendido).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+              </tr>
+            `;
+          });
+        }
+      } catch (err) {
+        console.error('Error al cargar métricas de dirección ejecutiva:', err);
+      }
+    }
+
+    // Descarga de Auditorías Relacionales Completas
+    async function descargarAuditoria(formato) {
+      try {
+        Swal.fire({
+          title: 'Generando Reporte...',
+          html: 'Consolidando logs, contratos y pagos en un archivo unificado.',
+          allowOutsideClick: false,
+          didOpen: () => { Swal.showLoading(); }
+        });
+
+        const res = await fetch('/api/direccion/auditoria');
+        if (!res.ok) throw new Error('No se pudo compilar la base de datos de auditoría');
+        const data = await res.json();
+
+        Swal.close();
+
+        if (formato === 'json') {
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Auditoria_Completa_Arevalo_CIA_${Date.now()}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+          
+          Swal.fire('¡Éxito!', 'Archivo JSON de auditoría descargado.', 'success');
+        } 
+        else if (formato === 'excel') {
+          let csv = '\uFEFF';
+          csv += '=== AUDITORIA DE CONTRATOS E INGRESOS ===\n';
+          csv += 'ID Contrato,Cliente,Terreno,Tipo Plan,Precio Total,Enganche,Plazo (Meses),Mensualidad,Estatus,Vendedor,Fecha Firma\n';
+          data.contratos.forEach(c => {
+            csv += `"${c.id_contrato}","${c.cliente_nombre}","${c.fraccionamiento} - Lote ${c.lote_num || ''}","${c.tipo_plan}",${c.precio_total},${c.enganche},${c.plazo},${c.monto_mensual},"${c.estatus}","${c.asesor_nombre || 'Portal Web'}","${c.fecha_firma ? c.fecha_firma.split('T')[0] : 'N/A'}"\n`;
+          });
+          
+          csv += '\n\n';
+          
+          csv += '=== HISTORIAL DE INGRESOS A CAJA (PAGOS REALES) ===\n';
+          csv += 'ID Pago,Recibo/Comprobante,Cliente,Concepto,Monto Recibido,Método de Pago,Fecha Pago\n';
+          data.pagos.forEach(p => {
+            csv += `"${p.id_pago}","${p.comprobante}","${p.cliente_nombre}","${p.concepto}",${p.monto},"${p.metodo_pago}","${p.fecha_pago ? p.fecha_pago.split('T')[0] : 'N/A'}"\n`;
+          });
+
+          csv += '\n\n';
+
+          csv += '=== DIRECTORIO DE CLIENTES (CRM) ===\n';
+          csv += 'ID Cliente,Nombre Completo,CURP,RFC,Correo,Teléfono,Etapa Pipeline\n';
+          data.clientes.forEach(cl => {
+            const nom = `${cl.nombre} ${cl.apellido_paterno || ''} ${cl.apellido_materno || ''}`.trim();
+            csv += `"${cl.id_cliente}","${nom}","${cl.curp || 'N/A'}","${cl.rfc || 'N/A'}","${cl.correo || ''}","${cl.telefono || ''}","${cl.etapa || 'Prospecto'}"\n`;
+          });
+
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Reporte_Auditoria_Financiera_${Date.now()}.csv`;
+          a.click();
+          URL.revokeObjectURL(url);
+          
+          Swal.fire('¡Éxito!', 'Archivo Excel/CSV de auditoría descargado.', 'success');
+        } 
+        else if (formato === 'pdf') {
+          const printWindow = window.open('', '_blank');
+          const totalVendido = data.contratos.reduce((sum, c) => sum + parseFloat(c.precio_total || 0), 0);
+          const totalRecaudado = data.pagos.reduce((sum, p) => sum + parseFloat(p.monto || 0), 0);
+          
+          printWindow.document.write(`
+            <html>
+              <head>
+                <title>Auditoría Financiera - Arévalo & CIA</title>
+                <style>
+                  body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; padding: 40px; line-height: 1.6; }
+                  .header { border-bottom: 3px solid #1e1b4b; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
+                  .title { font-size: 26px; font-weight: 800; color: #1e1b4b; margin: 0; }
+                  .subtitle { font-size: 14px; color: #64748b; margin: 5px 0 0 0; }
+                  .meta-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+                  .meta-item { text-align: center; }
+                  .meta-label { font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+                  .meta-value { font-size: 20px; font-weight: 800; color: #1e1b4b; margin-top: 5px; }
+                  h2 { font-size: 16px; color: #1e1b4b; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-top: 30px; }
+                  table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
+                  th { background: #f1f5f9; padding: 10px; font-weight: 700; color: #475569; text-align: left; }
+                  td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
+                  .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+                  .badge-contado { background: #d1fae5; color: #065f46; }
+                  .badge-fin { background: #dbeafe; color: #1e40af; }
+                  .footer { margin-top: 60px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+                </style>
+              </head>
+              <body>
+                <div class="header">
+                  <div>
+                    <h1 class="title">ARÉVALO & CIA</h1>
+                    <p class="subtitle">Dictamen Oficial de Auditoría Interna del Sistema Relacional</p>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-size: 12px; font-weight: 700;">Fecha de Emisión:</div>
+                    <div style="font-size: 12px; color: #64748b;">${new Date().toLocaleString('es-MX')}</div>
+                  </div>
+                </div>
+
+                <div class="meta-box">
+                  <div class="meta-item">
+                    <div class="meta-label">Total en Acuerdos Emitidos</div>
+                    <div class="meta-value">$${totalVendido.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</div>
+                  </div>
+                  <div class="meta-item">
+                    <div class="meta-label">Total Recaudado Real</div>
+                    <div class="meta-value" style="color: #10b981;">$${totalRecaudado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</div>
+                  </div>
+                  <div class="meta-item">
+                    <div class="meta-label">Índice de Inventario Libre</div>
+                    <div class="meta-value">${data.terrenos.filter(t => (t.estado||'').toLowerCase().includes('libre') || (t.estado||'').toLowerCase().includes('disponible')).length} lotes</div>
+                  </div>
+                </div>
+
+                <h2>1. Resumen de Contratos Formalizados</h2>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Folio</th>
+                      <th>Cliente</th>
+                      <th>Terreno Adquirido</th>
+                      <th>Modalidad</th>
+                      <th>Precio de Venta</th>
+                      <th>Estatus</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${data.contratos.map(c => `
+                      <tr>
+                        <td><b>#${c.id_contrato.substring(0,8).toUpperCase()}</b></td>
+                        <td>${c.cliente_nombre}</td>
+                        <td>${c.fraccionamiento} - Lote ${c.lote_num || ''}</td>
+                        <td><span class="badge ${c.tipo_plan === 'contado' ? 'badge-contado' : 'badge-fin'}">${c.tipo_plan}</span></td>
+                        <td><b>$${parseFloat(c.precio_total).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</b></td>
+                        <td>${c.estatus}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+
+                <h2>2. Bitácora de Transacciones y Caja (Últimos Pagos)</h2>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID Pago</th>
+                      <th>Comprobante</th>
+                      <th>Cliente</th>
+                      <th>Concepto</th>
+                      <th>Método de Pago</th>
+                      <th>Monto Recibido</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${data.pagos.map(p => `
+                      <tr>
+                        <td>#${p.id_pago}</td>
+                        <td><b>${p.comprobante || 'N/A'}</b></td>
+                        <td>${p.cliente_nombre}</td>
+                        <td style="text-transform: uppercase;">${p.concepto}</td>
+                        <td style="text-transform: uppercase;">${p.metodo_pago}</td>
+                        <td style="font-weight: 700; color: #10b981;">$${parseFloat(p.monto).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+
+                <div class="footer">
+                  <p>Este documento es un dictamen oficial autogenerado de forma segura por el panel de Dirección General de Arévalo & CIA.</p>
+                </div>
+
+                <scr' + 'ipt>
+                  window.onload = function() {
+                    window.print();
+                  };
+                </scr' + 'ipt>
+              </body>
+            </html>
+          `);
+          printWindow.document.close();
+        }
+      } catch (err) {
+        Swal.fire('Error', 'No se pudo generar la auditoría: ' + err.message, 'error');
+      }
+    }
+
     async function cerrarSesion() {
       const u = JSON.parse(localStorage.getItem('arevalo_user'));
       if (u && u.id_usuario) {
@@ -1023,11 +1475,29 @@
 
         if (rol === 'direccion') {
           if (mr) mr.style.display = 'block';
+
+          // MOSTRAR PANEL DE DIRECCION Y OCULTAR SIMPLES
+          const panelDir = document.getElementById('panelDireccionEjecutiva');
+          if (panelDir) panelDir.style.display = 'block';
+
+          const secMetricas = document.getElementById('seccionMetricasGrid');
+          if (secMetricas) secMetricas.style.display = 'none';
+
+          const secPipeline = document.getElementById('seccionPipelineClientes');
+          if (secPipeline) secPipeline.style.display = 'none';
+
+          const secGrafica = document.getElementById('seccionGraficaInventario');
+          if (secGrafica) secGrafica.style.display = 'none';
+
+          cargarDashboardDireccion();
+        } else {
+          cargarDashboard();
         }
+      } else {
+        cargarDashboard();
       }
     });
 
-    cargarDashboard();
     cargarAgenda();
   </script>
 

@@ -357,17 +357,17 @@
             <input type="text" id="r_nombre" placeholder="Carlos">
           </div>
           <div class="form-group">
-            <label for="r_ap_pat">Apellido Paterno</label>
+            <label for="r_ap_pat">Apellido Paterno *</label>
             <input type="text" id="r_ap_pat" placeholder="Mendoza">
           </div>
         </div>
         <div class="form-grid-2">
           <div class="form-group">
-            <label for="r_ap_mat">Apellido Materno</label>
+            <label for="r_ap_mat">Apellido Materno *</label>
             <input type="text" id="r_ap_mat" placeholder="Ruiz">
           </div>
           <div class="form-group">
-            <label for="r_tel">Teléfono</label>
+            <label for="r_tel">Teléfono *</label>
             <input type="tel" id="r_tel" placeholder="9611234567" maxlength="15">
           </div>
         </div>
@@ -379,40 +379,40 @@
 
         <div class="form-grid-2">
           <div class="form-group">
-            <label for="r_mun">Municipio</label>
+            <label for="r_mun">Municipio *</label>
             <input type="text" id="r_mun" placeholder="Tuxtla Gutiérrez">
           </div>
           <div class="form-group">
-            <label for="r_estado">Estado</label>
+            <label for="r_estado">Estado *</label>
             <input type="text" id="r_estado" placeholder="Chiapas">
           </div>
         </div>
 
         <div class="form-grid-2">
           <div class="form-group">
-            <label for="r_curp">CURP</label>
+            <label for="r_curp">CURP *</label>
             <input type="text" id="r_curp" placeholder="18 caracteres" maxlength="18" style="text-transform:uppercase;">
           </div>
           <div class="form-group">
-            <label for="r_rfc">RFC</label>
+            <label for="r_rfc">RFC *</label>
             <input type="text" id="r_rfc" placeholder="13 caracteres" maxlength="13" style="text-transform:uppercase;">
           </div>
         </div>
 
         <div class="form-grid-2">
           <div class="form-group">
-            <label for="r_ocup">Ocupación</label>
+            <label for="r_ocup">Ocupación *</label>
             <input type="text" id="r_ocup" placeholder="Ingeniero / Comerciante">
           </div>
           <div class="form-group">
-            <label for="r_ingresos">Ingresos Estimados</label>
+            <label for="r_ingresos">Ingresos Estimados *</label>
             <input type="number" id="r_ingresos" placeholder="$0.00 MXN">
           </div>
         </div>
 
         <div class="form-grid-2">
           <div class="form-group">
-            <label for="r_sexo">Género</label>
+            <label for="r_sexo">Género *</label>
             <select id="r_sexo">
               <option value="">Seleccionar...</option>
               <option value="Masculino">Masculino</option>
@@ -421,13 +421,13 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="r_nac">F. Nacimiento</label>
+            <label for="r_nac">F. Nacimiento *</label>
             <input type="date" id="r_nac">
           </div>
         </div>
 
         <div class="form-group">
-          <label for="r_fuente">¿Cómo te enteraste de nosotros?</label>
+          <label for="r_fuente">¿Cómo te enteraste de nosotros? *</label>
           <select id="r_fuente">
             <option value="Redes Sociales">📱 Redes Sociales (Facebook / Instagram)</option>
             <option value="Recomendación">🗣️ Recomendación de un amigo</option>
@@ -610,13 +610,35 @@
 
     async function crearCuenta() {
       const n = document.getElementById('r_nombre').value.trim();
+      const ap_pat = document.getElementById('r_ap_pat').value.trim();
+      const ap_mat = document.getElementById('r_ap_mat').value.trim();
+      const tel = document.getElementById('r_tel').value.trim();
       const cor = document.getElementById('r_correo').value.trim();
+      const mun = document.getElementById('r_mun').value.trim();
+      const est = document.getElementById('r_estado').value.trim();
+      const curp = document.getElementById('r_curp').value.trim().toUpperCase();
+      const rfc = document.getElementById('r_rfc').value.trim().toUpperCase();
+      const ocup = document.getElementById('r_ocup').value.trim();
+      const ingresosRaw = document.getElementById('r_ingresos').value.trim();
+      const sexo = document.getElementById('r_sexo').value;
+      const nac = document.getElementById('r_nac').value;
+      const fuente = document.getElementById('r_fuente').value;
       const pass = document.getElementById('r_pass').value;
       const pass2 = document.getElementById('r_pass2').value;
       const btn = document.getElementById('btnRegistrar');
 
-      if (!n || !cor || !pass) {
-        showMsg('msgReg', 'Los campos con (*) son obligatorios.', true);
+      if (!n || !ap_pat || !ap_mat || !tel || !cor || !mun || !est || !curp || !rfc || !ocup || !ingresosRaw || !sexo || !nac || !fuente || !pass || !pass2) {
+        showMsg('msgReg', 'Todos los campos son obligatorios.', true);
+        return;
+      }
+      if (curp.length !== 18) {
+        showMsg('msgReg', 'La CURP debe tener exactamente 18 caracteres.', true);
+        document.getElementById('r_curp').focus();
+        return;
+      }
+      if (rfc.length !== 13 && rfc.length !== 12) {
+        showMsg('msgReg', 'El RFC debe tener 12 o 13 caracteres.', true);
+        document.getElementById('r_rfc').focus();
         return;
       }
       if (pass !== pass2) {
@@ -638,19 +660,19 @@
 
       const payload = {
         nombre: n,
-        apellido_paterno: document.getElementById('r_ap_pat').value.trim(),
-        apellido_materno: document.getElementById('r_ap_mat').value.trim(),
-        telefono: document.getElementById('r_tel').value.trim(),
+        apellido_paterno: ap_pat,
+        apellido_materno: ap_mat,
+        telefono: tel,
         correo: cor,
-        municipio: document.getElementById('r_mun').value.trim(),
-        estado: document.getElementById('r_estado').value.trim(),
-        curp: document.getElementById('r_curp').value.trim().toUpperCase(),
-        rfc: document.getElementById('r_rfc').value.trim().toUpperCase(),
-        ocupacion: document.getElementById('r_ocup').value.trim(),
-        ingresos_mensuales: parseFloat(document.getElementById('r_ingresos').value) || 0,
-        sexo: document.getElementById('r_sexo').value,
-        fecha_nacimiento: document.getElementById('r_nac').value || null,
-        fuente_lead: document.getElementById('r_fuente').value,
+        municipio: mun,
+        estado: est,
+        curp: curp,
+        rfc: rfc,
+        ocupacion: ocup,
+        ingresos_mensuales: parseFloat(ingresosRaw) || 0,
+        sexo: sexo,
+        fecha_nacimiento: nac,
+        fuente_lead: fuente,
         password_cliente: pass
       };
 

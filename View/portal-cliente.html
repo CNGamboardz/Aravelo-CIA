@@ -831,15 +831,15 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
               <div class="form-group">
                 <label>Nombre(s) *</label>
-                <input type="text" id="perf_nombre" required placeholder="Erick Anselmo">
+                <input type="text" id="perf_nombre" required placeholder="Ejemplo">
               </div>
               <div class="form-group">
                 <label>Apellido Paterno</label>
-                <input type="text" id="perf_ap" placeholder="Gamboa">
+                <input type="text" id="perf_ap" placeholder="Ejemplo">
               </div>
               <div class="form-group">
                 <label>Apellido Materno</label>
-                <input type="text" id="perf_am" placeholder="Rodriguez">
+                <input type="text" id="perf_am" placeholder="Ejemplo">
               </div>
               <div class="form-group">
                 <label>Fecha de Nacimiento</label>
@@ -1177,6 +1177,27 @@
         cargarPagos();
         cargarDatosBancarios();
         inicializarStripe();
+
+        // Procesar cita de lote preseleccionada desde ficha técnica
+        const urlParams = new URLSearchParams(window.location.search);
+        const citaLoteId = urlParams.get('cita_lote');
+        if (citaLoteId) {
+          setTimeout(() => {
+            const menuCitaBtn = document.querySelector(".sidebar-menu button[onclick*=\"'cita'\"]");
+            if (menuCitaBtn) {
+              switchSection('cita', menuCitaBtn);
+            } else {
+              document.querySelectorAll('.section-view').forEach(s => s.classList.remove('active'));
+              const secCita = document.getElementById('sec-cita');
+              if (secCita) secCita.classList.add('active');
+            }
+            // Seleccionar el lote en el dropdown
+            const sel = document.getElementById('cita_lote');
+            if (sel) {
+              sel.value = citaLoteId;
+            }
+          }, 350);
+        }
 
       } catch (e) {
         window.location.href = '/login-cliente.html';

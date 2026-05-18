@@ -601,10 +601,18 @@
         const mc = document.getElementById('menu-configuracion');
         const mr = document.getElementById('menu-nuevo-registro');
 
-        if (rol === 'asesor') {
+        if (rol === 'asesor' || rol === 'vendedor') {
           if (mv) mv.style.display = 'none';
           if (mc) mc.style.display = 'none';
           if (mr) mr.style.display = 'none';
+          
+          // Hide form-card and make list-card full width!
+          const formCard = document.querySelector('.form-card');
+          if (formCard) formCard.style.display = 'none';
+          const listCard = document.querySelector('.list-card');
+          if (listCard) listCard.style.width = '100%';
+          const grid = document.querySelector('.contratos-grid');
+          if (grid) grid.style.display = 'block';
         }
 
         if (rol === 'direccion') {

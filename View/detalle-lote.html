@@ -23,6 +23,7 @@
   <!-- SWIPER JS CARRUSEL -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -806,7 +807,21 @@
     async function apartarDesdeDetalle() {
       if (!loteActual) return;
       const desc = `${loteActual.fraccionamiento || ''} Lote ${loteActual.numero_lote || loteActual.lote}`;
-      if (!confirm(`¿Estás seguro de asegurar y apartar el predio ${desc}? Tu asesor exclusivo coordinará la firma y formalización.`)) return;
+
+      const result = await Swal.fire({
+        title: 'Confirmar Apartado',
+        html: `¿Estás seguro de asegurar y apartar el predio <b>${desc}</b>?<br><br>Tu asesor exclusivo coordinará la firma y formalización del contrato.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, Apartar Ahora',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#64748b',
+        background: '#ffffff',
+        color: '#0f172a'
+      });
+
+      if (!result.isConfirmed) return;
 
       try {
         const res = await fetch('/api/portal/apartar', {
@@ -820,8 +835,6 @@
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'No se pudo apartar el lote.');
-
-        showToast('¡Predio apartado exitosamente! Notificando a tu agente comercial...');
 
         try {
           const nomCliente = `${clienteLogueado.nombre || ''} ${clienteLogueado.apellido_paterno || ''}`.trim() || 'Cliente Web';
@@ -838,20 +851,41 @@
           window.dispatchEvent(new Event('kommo_update'));
         } catch(e) {}
 
-        setTimeout(() => {
-          window.location.href = '/portal-cliente.html';
-        }, 1500);
+        await Swal.fire({
+          title: '¡Apartado Exitoso!',
+          text: 'El predio ha sido apartado de forma exclusiva para ti. Redirigiéndote al portal...',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false,
+          background: '#ffffff',
+          color: '#0f172a'
+        });
+
+        window.location.href = '/portal-cliente.html';
 
       } catch (err) {
-        showToast(err.message, true);
+        Swal.fire({
+          title: 'Error al Apartar',
+          text: err.message,
+          icon: 'error',
+          confirmButtonColor: '#2563eb',
+          background: '#ffffff',
+          color: '#0f172a'
+        });
       }
     }
 
-    function agendarDesdeDetalle() {
-      showToast('Redirigiendo a la agenda corporativa con tu lote preseleccionado...');
-      setTimeout(() => {
-        window.location.href = `/portal-cliente.html?cita_lote=${loteActual.id_terreno}`;
-      }, 800);
+    async function agendarDesdeDetalle() {
+      await Swal.fire({
+        title: 'Redirigiendo...',
+        text: 'Te estamos redirigiendo a la agenda del portal con tu lote preseleccionado.',
+        icon: 'info',
+        timer: 1500,
+        showConfirmButton: false,
+        background: '#ffffff',
+        color: '#0f172a'
+      });
+      window.location.href = `/portal-cliente.html?cita_lote=${loteActual.id_terreno}`;
     }
 
     cargarDetalleLote();

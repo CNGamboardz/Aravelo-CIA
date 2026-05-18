@@ -39,6 +39,17 @@ const aplicarPago = async (req, res) => {
   try {
     const { id_cliente, id_contrato, id_terreno, concepto, monto, metodo_pago, id_usuario, comprobante, id_calendario } = req.body;
 
+    const idUsuarioReal = desencriptarId(id_usuario);
+    if (idUsuarioReal) {
+      const userRes = await require('../Model/db').query('SELECT rol FROM sistema.usuarios WHERE id_usuario = $1', [idUsuarioReal]);
+      if (userRes.rows.length > 0) {
+        const rol = (userRes.rows[0].rol || '').toLowerCase();
+        if (rol === 'asesor' || rol === 'vendedor') {
+          return res.status(403).json({ error: 'Acceso denegado: Los asesores no tienen permitido registrar o editar pagos.' });
+        }
+      }
+    }
+
     if (!monto || parseFloat(monto) <= 0) {
       return res.status(400).json({ error: 'El monto del pago debe ser mayor a cero' });
     }

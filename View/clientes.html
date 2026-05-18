@@ -559,7 +559,7 @@
         // FILTRADO ESTRICTO DE CARTERA (RBAC MULTI-TENANT)
         if (userData && userData.rol) {
           const rCrm = userData.rol.toLowerCase();
-          if (['vendedor', 'asesor', 'administrativo', 'administrador', 'gerencia'].includes(rCrm)) {
+          if (['vendedor', 'asesor'].includes(rCrm)) {
             dataGlobal = dataGlobal.filter(c => {
               if (c.id_asesor_asignado && c.id_asesor_asignado.trim() !== '' && c.id_asesor_asignado !== 'null') {
                 return c.id_asesor_asignado === userData.id_usuario;

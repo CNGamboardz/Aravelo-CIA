@@ -19,6 +19,17 @@ const guardarContrato = async (req, res) => {
       return res.status(400).json({ error: 'Faltan datos obligatorios para emitir el contrato' });
     }
 
+    const idAsesorReal = req.body.id_asesor ? desencriptarId(req.body.id_asesor) : null;
+    if (idAsesorReal) {
+      const userRes = await require('../Model/db').query('SELECT rol FROM sistema.usuarios WHERE id_usuario = $1', [idAsesorReal]);
+      if (userRes.rows.length > 0) {
+        const rol = (userRes.rows[0].rol || '').toLowerCase();
+        if (rol === 'asesor' || rol === 'vendedor') {
+          return res.status(403).json({ error: 'Acceso denegado: Los asesores no tienen permitido registrar o editar contratos.' });
+        }
+      }
+    }
+
     const contrato = await contratosModel.crearContrato({
       id_cliente: desencriptarId(id_cliente),
       id_terreno: desencriptarId(id_terreno),

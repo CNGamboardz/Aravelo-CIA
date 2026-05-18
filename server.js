@@ -89,6 +89,8 @@ app.post('/pagos', pagosController.aplicarPago);
 
 // Rutas de API - Dashboard
 app.get('/dashboard', dashboardController.dashboard);
+app.get('/api/direccion/dashboard', dashboardController.getDireccionDashboard);
+app.get('/api/direccion/auditoria', dashboardController.getAuditoriaCompleta);
 
 // ====================================================
 // PORTAL DE CLIENTES (Auto-Servicio)

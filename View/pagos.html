@@ -265,6 +265,17 @@
     }
 
     function switchTab(target) {
+      if (userData && userData.rol) {
+        const rol = userData.rol.toLowerCase();
+        if (target === 'aplicar' && (rol === 'asesor' || rol === 'vendedor')) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Acceso Denegado',
+            text: 'Tu rol de asesor no te permite registrar o editar cobros.'
+          });
+          return;
+        }
+      }
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.panel-view').forEach(panel => panel.classList.remove('active'));
 
@@ -368,7 +379,7 @@
           const monto = parseFloat(item.monto_esperado).toLocaleString('es-MX', { minimumFractionDigits: 2 });
 
           let botonAccion = '-';
-          if (status === 'pendiente' || status === 'vencido') {
+          if (!isAsesor && (status === 'pendiente' || status === 'vencido')) {
             botonAccion = `<button class="btn-cobrar" onclick="prepararCobro('${item.id_calendario}', '${item.id_cliente}', '${item.id_contrato}', ${item.monto_esperado})">Cobrar Cuota</button>`;
           }
 
@@ -412,7 +423,7 @@
         const pagosTotal = await res.json();
 
         // Filtrar solo los de este asesor si el usuario logueado es vendedor/asesor
-        const isAsesor = userData && (userData.rol === 'vendedor' || userData.rol === 'asesor' || userData.rol === 'administrativo');
+        const isAsesor = userData && (userData.rol === 'vendedor' || userData.rol === 'asesor');
         listaPagosGlobal = isAsesor ? pagosTotal.filter(p => {
           // REGLA DE ORO: Si YO registré el pago, es mío (aunque el cliente haya cambiado de asesor)
           if (p.id_usuario === userData.id_usuario) return true;
@@ -728,10 +739,12 @@
         const mc = document.getElementById('menu-configuracion');
         const mr = document.getElementById('menu-nuevo-registro');
 
-        if (rol === 'asesor') {
+        if (rol === 'asesor' || rol === 'vendedor') {
           if (mv) mv.style.display = 'none';
           if (mc) mc.style.display = 'none';
           if (mr) mr.style.display = 'none';
+          const btnTabPago = document.getElementById('btnTabPago');
+          if (btnTabPago) btnTabPago.style.display = 'none';
         }
 
         if (rol === 'direccion') {
