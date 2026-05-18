@@ -244,6 +244,60 @@
     idleTimeoutWarning = setTimeout(mostrarAdvertenciaInactividad, TIME_WARNING);
   }
 
+  // Interceptador global de fetch para inyectar responsable y roles automáticamente en auditoría activa
+  const originalFetch = window.fetch;
+  window.fetch = function (resource, init) {
+    init = init || {};
+    init.headers = init.headers || {};
+    
+    // Obtener headers actuales para evitar duplicados
+    let headersObj = {};
+    if (init.headers instanceof Headers) {
+      for (let [key, value] of init.headers.entries()) {
+        headersObj[key.toLowerCase()] = value;
+      }
+    } else if (Array.isArray(init.headers)) {
+      init.headers.forEach(h => {
+        headersObj[h[0].toLowerCase()] = h[1];
+      });
+    } else {
+      for (let key in init.headers) {
+        headersObj[key.toLowerCase()] = init.headers[key];
+      }
+    }
+
+    // Si no tiene X-Responsable inyectado, inyectar el usuario logueado
+    if (!headersObj['x-responsable']) {
+      const isCRM = localStorage.getItem('arevalo_user');
+      const isPortal = localStorage.getItem('portal_cliente');
+      
+      let responsableStr = '';
+      if (isCRM) {
+        try {
+          const u = JSON.parse(isCRM);
+          responsableStr = `${u.nombre || 'Admin'} (${u.correo || 'crm'}) [${u.rol || 'Director'}]`;
+        } catch(e) {}
+      } else if (isPortal) {
+        try {
+          const p = JSON.parse(isPortal);
+          responsableStr = `Cliente Portal: ${p.nombre || 'Comprador'} (${p.correo || 'portal'})`;
+        } catch(e) {}
+      }
+      
+      if (responsableStr) {
+        if (init.headers instanceof Headers) {
+          init.headers.set('X-Responsable', responsableStr);
+        } else if (Array.isArray(init.headers)) {
+          init.headers.push(['X-Responsable', responsableStr]);
+        } else {
+          init.headers['X-Responsable'] = responsableStr;
+        }
+      }
+    }
+
+    return originalFetch.call(this, resource, init);
+  };
+
   // Escuchar eventos de actividad del usuario
   document.addEventListener('DOMContentLoaded', () => {
     resetearTemporizadorInactividad();

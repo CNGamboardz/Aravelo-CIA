@@ -46,7 +46,49 @@ function desencriptarId(token) {
   }
 }
 
+async function obtenerResponsable(req) {
+  if (!req) return 'Sistema Automatizado';
+
+  // 1. Validar si el cliente final del portal está enviando su identificación
+  if (req.params && req.params.id_cliente) {
+    try {
+      const db = require('../Model/db');
+      const c = await db.query('SELECT nombre, correo FROM sistema.clientes WHERE id_cliente = $1', [desencriptarId(req.params.id_cliente)]);
+      if (c.rows.length > 0) {
+        return `Cliente: ${c.rows[0].nombre} (${c.rows[0].correo})`;
+      }
+    } catch (e) {}
+  }
+
+  // 2. Verificar cabecera personalizada
+  if (req.headers && req.headers['x-responsable']) {
+    return req.headers['x-responsable'];
+  }
+  
+  // 3. Verificar cuerpo del request
+  if (req.body && req.body.responsable) {
+    return req.body.responsable;
+  }
+  
+  // 4. Intentar resolver id_usuario del cuerpo
+  if (req.body && req.body.id_usuario) {
+    try {
+      const idReal = desencriptarId(req.body.id_usuario);
+      if (idReal) {
+        const db = require('../Model/db');
+        const u = await db.query('SELECT nombre, correo FROM sistema.usuarios WHERE id_usuario = $1', [idReal]);
+        if (u.rows.length > 0) {
+          return `${u.rows[0].nombre} (${u.rows[0].correo})`;
+        }
+      }
+    } catch (e) {}
+  }
+  
+  return 'Usuario Administrador';
+}
+
 module.exports = {
   encriptarId,
-  desencriptarId
+  desencriptarId,
+  obtenerResponsable
 };

@@ -204,12 +204,18 @@ const getAuditoriaCompleta = async () => {
     'SELECT id_usuario, nombre, correo, rol FROM sistema.usuarios ORDER BY id_usuario ASC'
   );
 
+  // Historial de Movimientos de Auditoría Activa
+  const historial = await db.query(
+    'SELECT * FROM sistema.historial_movimientos ORDER BY fecha DESC LIMIT 500'
+  );
+
   return {
     clientes: clientes.rows,
     contratos: contratosMapeados,
     pagos: pagos.rows,
     terrenos: terrenos.rows,
-    usuarios: usuarios.rows
+    usuarios: usuarios.rows,
+    historial: historial.rows
   };
 };
 
@@ -234,6 +240,41 @@ const inicializarConfiguracion = async () => {
   }
 };
 inicializarConfiguracion();
+
+// Inicializar tabla de historial de movimientos para auditoría activa
+const inicializarHistorial = async () => {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS sistema.historial_movimientos (
+        id_movimiento SERIAL PRIMARY KEY,
+        fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        modulo VARCHAR(100) NOT NULL,
+        accion VARCHAR(100) NOT NULL,
+        detalle TEXT NOT NULL,
+        responsable VARCHAR(150) NOT NULL,
+        id_entidad VARCHAR(100)
+      )
+    `);
+    console.log('✅ Esquema de historial de movimientos (sistema.historial_movimientos) verificado y listo.');
+  } catch (err) {
+    console.error('Error al inicializar tabla sistema.historial_movimientos:', err);
+  }
+};
+inicializarHistorial();
+
+const registrarMovimiento = async (modulo, accion, detalle, responsable, id_entidad = null) => {
+  try {
+    await db.query(
+      `INSERT INTO sistema.historial_movimientos (modulo, accion, detalle, responsable, id_entidad)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [modulo, accion, detalle, responsable || 'sistema', id_entidad ? String(id_entidad) : null]
+    );
+    return true;
+  } catch (err) {
+    console.error('Error al registrar historial de movimiento:', err);
+    return false;
+  }
+};
 
 const getConfiguracion = async () => {
   const res = await db.query('SELECT * FROM sistema.configuracion');
@@ -262,5 +303,6 @@ module.exports = {
   getDireccionDashboard,
   getAuditoriaCompleta,
   getConfiguracion,
-  guardarConfiguracion
+  guardarConfiguracion,
+  registrarMovimiento
 };

@@ -1,6 +1,8 @@
 const portalModel = require('../Model/portalClienteModel');
 const pagosModel = require('../Model/pagosModel');
 const clientesModel = require('../Model/clientesModel');
+const { obtenerResponsable } = require('./cryptoHelper');
+const dashboardModel = require('../Model/dashboardModel');
 
 // ============================================================
 // DATOS BANCARIOS (Reemplaza con los datos reales de Arévalo)
@@ -432,9 +434,15 @@ const registrarPagoPortal = async (req, res) => {
     if (!monto || parseFloat(monto) <= 0) {
       return res.status(400).json({ error: 'El monto debe ser mayor a cero.' });
     }
+
+    // Regla de Negocio: No se permite registrar pagos sin contrato
+    if (!id_contrato) {
+      return res.status(400).json({ error: 'Regla de negocio: No se permite registrar pagos sin un contrato asociado y válido.' });
+    }
+
     const pago = await pagosModel.registrarPago({
       id_cliente: id_cliente,
-      id_contrato: id_contrato || null,
+      id_contrato: id_contrato,
       id_terreno: id_terreno || null,
       concepto: concepto || 'Pago desde portal',
       monto: parseFloat(monto),
@@ -443,6 +451,17 @@ const registrarPagoPortal = async (req, res) => {
       comprobante: comprobante || stripe_payment_id || '',
       id_calendario: null
     });
+
+    // Registrar en el historial de auditoría
+    const responsable = await obtenerResponsable(req);
+    await dashboardModel.registrarMovimiento(
+      'pagos',
+      'creacion',
+      `Pago registrado desde portal: abono de $${parseFloat(monto).toLocaleString('es-MX', {minimumFractionDigits:2})} mediante ${metodo_pago || 'transferencia'} para Contrato ID ${pago.id_contrato}.`,
+      responsable,
+      pago.id_pago
+    );
+
     res.status(201).json({ mensaje: 'Pago registrado exitosamente.', pago });
   } catch (error) {
     console.error('Error registrando pago portal:', error.message);
@@ -483,8 +502,26 @@ const liberarLote = async (req, res) => {
       nuevaEtapa = 'En riesgo'; // Aún tiene interés pero canceló algo, poner en alerta
     }
 
-    // 2. Ejecutar cambio de etapa
+    // 2. Ejecutar cambio de etapa y motivo documentado (Regla de negocio: motivo documentado)
     await clientesModel.actualizarEtapaCliente(id_cliente, nuevaEtapa);
+    
+    const db = require('../Model/db');
+    await db.query(
+      `UPDATE sistema.clientes 
+       SET observaciones = CONCAT(COALESCE(observaciones, ''), '\n- Liberó el lote en ', $1::text, ' voluntariamente desde el portal de clientes.') 
+       WHERE id_cliente = $2`,
+      [liberado.fraccionamiento, id_cliente]
+    );
+
+    // Registrar en el historial de auditoría
+    const responsable = await obtenerResponsable(req);
+    await dashboardModel.registrarMovimiento(
+      'terrenos',
+      'cancelacion',
+      `Lote en ${liberado.fraccionamiento} (Lote #${liberado.numero_lote || ''}, Mza #${liberado.manzana || ''}) liberado voluntariamente desde el portal de clientes.`,
+      responsable,
+      id_lote
+    );
 
     res.json({ mensaje: `El lote en ${liberado.fraccionamiento} ha sido liberado exitosamente. Tu estatus ha sido actualizado a: ${nuevaEtapa}.`, liberado, nuevaEtapa });
   } catch (error) {

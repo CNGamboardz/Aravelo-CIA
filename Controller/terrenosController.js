@@ -1,7 +1,8 @@
 const terrenosModel = require('../Model/terrenosModel');
 const fs = require('fs');
 const path = require('path');
-const { encriptarId, desencriptarId } = require('./cryptoHelper');
+const { encriptarId, desencriptarId, obtenerResponsable } = require('./cryptoHelper');
+const dashboardModel = require('../Model/dashboardModel');
 
 const obtenerTerrenos = async (req, res) => {
   try {
@@ -54,6 +55,22 @@ const guardarTerreno = async (req, res) => {
       }
     }
 
+    // Regla de Negocio: No se puede vender un lote sin un cliente (propietario) asignado
+    if (estado === 'vendido') {
+      const propietarioId = id_propietario ? desencriptarId(id_propietario) : null;
+      if (!propietarioId) {
+        return res.status(400).json({ error: 'Regla de negocio: No se puede registrar como vendido un lote sin un cliente (propietario) asignado.' });
+      }
+    }
+
+    // Regla de Negocio: No se puede cancelar un lote sin un motivo documentado
+    if (estado === 'cancelado') {
+      const obs = observaciones || '';
+      if (obs.trim().length < 10) {
+        return res.status(400).json({ error: 'Regla de negocio: Para cancelar un terreno, debe documentar un motivo detallado (mínimo 10 caracteres) en el campo de observaciones.' });
+      }
+    }
+
     const nuevo = await terrenosModel.crearTerreno({
       fraccionamiento,
       superficie: superficie ? parseFloat(superficie) : 0,
@@ -83,6 +100,15 @@ const guardarTerreno = async (req, res) => {
       porcentaje_iva: porcentaje_iva ? parseFloat(porcentaje_iva) : 0
     });
 
+    const responsable = await obtenerResponsable(req);
+    await dashboardModel.registrarMovimiento(
+      'terrenos',
+      'creacion',
+      `Ficha técnica creada para Lote ${nuevo.numero_lote || ''} de Fraccionamiento ${nuevo.fraccionamiento}. Estado inicial: ${nuevo.estado}.`,
+      responsable,
+      nuevo.id_terreno
+    );
+
     res.status(201).json(nuevo);
   } catch (error) {
     console.error('Error al guardar terreno:', error);
@@ -110,6 +136,24 @@ const actualizarTerreno = async (req, res) => {
       id_propietario, observaciones, estado, id_asesor, fecha_venta,
       porcentaje_comision, porcentaje_iva
     } = req.body;
+
+    // Regla de Negocio: No se puede vender un lote sin un cliente (propietario) asignado
+    if (estado === 'vendido') {
+      const propietarioId = id_propietario ? desencriptarId(id_propietario) : null;
+      if (!propietarioId) {
+        if (queryActual.rows.length === 0 || !queryActual.rows[0].id_propietario) {
+          return res.status(400).json({ error: 'Regla de negocio: No se puede registrar como vendido un lote sin un cliente (propietario) asignado.' });
+        }
+      }
+    }
+
+    // Regla de Negocio: No se puede cancelar un terreno sin un motivo documentado
+    if (estado === 'cancelado') {
+      const obs = observaciones || '';
+      if (obs.trim().length < 10) {
+        return res.status(400).json({ error: 'Regla de negocio: Para cancelar un terreno, debe documentar un motivo detallado (mínimo 10 caracteres) en el campo de observaciones.' });
+      }
+    }
 
     let rutaGuardada = imagen || '';
     if (imagen && imagen.startsWith('data:image/')) {
@@ -155,6 +199,17 @@ const actualizarTerreno = async (req, res) => {
       porcentaje_comision: porcentaje_comision ? parseFloat(porcentaje_comision) : 0,
       porcentaje_iva: porcentaje_iva ? parseFloat(porcentaje_iva) : 0
     });
+
+    const responsable = await obtenerResponsable(req);
+    const esCancelacion = estado === 'cancelado';
+    await dashboardModel.registrarMovimiento(
+      'terrenos',
+      esCancelacion ? 'cancelacion' : 'edicion',
+      `Ficha técnica del terreno actualizada (Lote ${actualizado.numero_lote || ''}, Fracc ${actualizado.fraccionamiento}). Nuevo estado: ${actualizado.estado}. Motivo/Obs: ${actualizado.observaciones || 'N/A'}.`,
+      responsable,
+      id
+    );
+
     res.json(actualizado);
   } catch (error) {
     res.status(500).json({ error: error.message || 'Error al actualizar terreno' });
@@ -165,6 +220,16 @@ const eliminarTerreno = async (req, res) => {
   try {
     const { id } = req.params;
     await terrenosModel.eliminarTerrenoDB(id);
+
+    const responsable = await obtenerResponsable(req);
+    await dashboardModel.registrarMovimiento(
+      'terrenos',
+      'eliminacion',
+      `Eliminación definitiva del terreno catastral con ID ${id}.`,
+      responsable,
+      id
+    );
+
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message || 'Error al eliminar terreno' });

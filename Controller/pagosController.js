@@ -1,5 +1,6 @@
 const pagosModel = require('../Model/pagosModel');
-const { encriptarId, desencriptarId } = require('./cryptoHelper');
+const { encriptarId, desencriptarId, obtenerResponsable } = require('./cryptoHelper');
+const dashboardModel = require('../Model/dashboardModel');
 
 const listarCalendario = async (req, res) => {
   try {
@@ -39,7 +40,7 @@ const aplicarPago = async (req, res) => {
   try {
     const { id_cliente, id_contrato, id_terreno, concepto, monto, metodo_pago, id_usuario, comprobante, id_calendario } = req.body;
 
-    const idUsuarioReal = desencriptarId(id_usuario);
+    const idUsuarioReal = id_usuario ? desencriptarId(id_usuario) : null;
     if (idUsuarioReal) {
       const userRes = await require('../Model/db').query('SELECT rol FROM sistema.usuarios WHERE id_usuario = $1', [idUsuarioReal]);
       if (userRes.rows.length > 0) {
@@ -50,14 +51,17 @@ const aplicarPago = async (req, res) => {
       }
     }
 
+    // Regla de Negocio: No registrar un pago sin tener un contrato
     const idContratoReal = desencriptarId(id_contrato);
-    if (idContratoReal) {
-      const contractRes = await require('../Model/db').query('SELECT estatus FROM sistema.contratos WHERE id_contrato = $1', [idContratoReal]);
-      if (contractRes.rows.length > 0) {
-        const estatus = (contractRes.rows[0].estatus || '').toLowerCase().trim();
-        if (estatus === 'liquidado' || estatus === 'cancelado') {
-          return res.status(400).json({ error: `Acceso denegado: El contrato está ${estatus} y se encuentra cerrado para recibir nuevos pagos.` });
-        }
+    if (!idContratoReal) {
+      return res.status(400).json({ error: 'Regla de negocio: No se permite registrar pagos sin un contrato asociado y válido.' });
+    }
+
+    const contractRes = await require('../Model/db').query('SELECT estatus FROM sistema.contratos WHERE id_contrato = $1', [idContratoReal]);
+    if (contractRes.rows.length > 0) {
+      const estatus = (contractRes.rows[0].estatus || '').toLowerCase().trim();
+      if (estatus === 'liquidado' || estatus === 'cancelado') {
+        return res.status(400).json({ error: `Acceso denegado: El contrato está ${estatus} y se encuentra cerrado para recibir nuevos pagos.` });
       }
     }
 
@@ -67,15 +71,25 @@ const aplicarPago = async (req, res) => {
 
     const pago = await pagosModel.registrarPago({
       id_cliente: desencriptarId(id_cliente) || null,
-      id_contrato: desencriptarId(id_contrato) || null,
+      id_contrato: idContratoReal,
       id_terreno: desencriptarId(id_terreno) || null,
       concepto: concepto || 'mensualidad',
       monto: parseFloat(monto),
       metodo_pago: metodo_pago || 'efectivo',
-      id_usuario: desencriptarId(id_usuario) || null,
+      id_usuario: idUsuarioReal,
       comprobante: comprobante || '',
-      id_calendario: desencriptarId(id_calendario) || null
+      id_calendario: id_calendario ? desencriptarId(id_calendario) : null
     });
+
+    // Registrar en el historial de auditoría
+    const responsable = await obtenerResponsable(req);
+    await dashboardModel.registrarMovimiento(
+      'pagos',
+      'creacion',
+      `Ingreso registrado: abono de $${parseFloat(monto).toLocaleString('es-MX', {minimumFractionDigits:2})} mediante ${metodo_pago || 'efectivo'} para Contrato ID ${pago.id_contrato} (Concepto: ${concepto || 'mensualidad'}).`,
+      responsable,
+      pago.id_pago
+    );
 
     res.status(201).json({
       mensaje: 'Pago registrado exitosamente en el sistema',

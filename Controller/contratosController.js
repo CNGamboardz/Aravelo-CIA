@@ -1,5 +1,6 @@
 const contratosModel = require('../Model/contratosModel');
-const { encriptarId, desencriptarId } = require('./cryptoHelper');
+const { encriptarId, desencriptarId, obtenerResponsable } = require('./cryptoHelper');
+const dashboardModel = require('../Model/dashboardModel');
 
 const listarContratos = async (req, res) => {
   try {
@@ -19,6 +20,12 @@ const guardarContrato = async (req, res) => {
       return res.status(400).json({ error: 'Faltan datos obligatorios para emitir el contrato' });
     }
 
+    // Regla de Negocio: No se puede vender un lote sin un cliente asignado
+    const idClienteReal = desencriptarId(id_cliente);
+    if (!idClienteReal) {
+      return res.status(400).json({ error: 'Regla de negocio: No se puede formalizar una venta ni firmar un contrato sin un cliente asignado.' });
+    }
+
     const idAsesorReal = req.body.id_asesor ? desencriptarId(req.body.id_asesor) : null;
     if (idAsesorReal) {
       const userRes = await require('../Model/db').query('SELECT rol FROM sistema.usuarios WHERE id_usuario = $1', [idAsesorReal]);
@@ -31,7 +38,7 @@ const guardarContrato = async (req, res) => {
     }
 
     const contrato = await contratosModel.crearContrato({
-      id_cliente: desencriptarId(id_cliente),
+      id_cliente: idClienteReal,
       id_terreno: desencriptarId(id_terreno),
       id_asesor: req.body.id_asesor ? desencriptarId(req.body.id_asesor) : null,
       tipo_plan: tipo_plan || 'contado',
@@ -43,6 +50,16 @@ const guardarContrato = async (req, res) => {
       documentos_json: req.body.documentos_json || {},
       documento_ref: documento_ref || ''
     });
+
+    // Registrar en el historial de auditoría
+    const responsable = await obtenerResponsable(req);
+    await dashboardModel.registrarMovimiento(
+      'contratos',
+      'creacion',
+      `Contrato formalizado para Lote ID ${contrato.id_terreno} con Cliente ID ${contrato.id_cliente}. Tipo de plan: ${contrato.tipo_plan}, Precio Total: $${contrato.precio_total.toLocaleString('es-MX', {minimumFractionDigits: 2})}.`,
+      responsable,
+      contrato.id_contrato
+    );
 
     res.status(201).json({
       mensaje: 'Contrato y calendario financiero generados con éxito',
